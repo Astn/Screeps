@@ -43,13 +43,13 @@
                     });
                     if(injured){
                         if(!creep.memory.target){
-                            creep.memory.target = hostile.id;
+                            creep.memory.target = injured.id;
                         }
 
                         if(!injured && !injured.pos)
                             break;
                         
-                        var inClose = creep.pos.inRangeTo(hostile.pos,1); 
+                        var inClose = creep.pos.inRangeTo(injured.pos,1); 
                         if(close && inClose){
                             creep.heal(injured);
                         } else if (close) {
