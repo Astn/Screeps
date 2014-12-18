@@ -12,23 +12,52 @@ var STATE = require('state');
             switch (creep.memory.state) {
                 case STATE.NONE: {
                     console.log('Valid state:' + creep.name + ':' + creep.memory.state);
+                    creep.memory.state =  STATE.MOVE_TO_HARVEST;
+                    creep.memory.target = null;
                     break;
                 }
-                case STATE.SPAWNING: {
-                    var found = false;
-                    for (var s in Game.spawns) {
-                        if(Game.spawns[s].spawning === creep){
-                            found = true;
+                case STATE.MOVE_TO_HARVEST: {
+                    
+                    var source = creep.memory.target ? Game.getObjectById(creep.memory.target) : creep.pos.findNearest(Game.SOURCES_ACTIVE);
+                    if(source){
+                        if(!creep.memory.target){
+                            creep.memory.target = source.id;
+                        }
+                        creep.moveTo(source);
+                        if(creep.pos.inRangeTo(source.pos,1)){
+                            creep.memory.state = STATE.HARVESTING;
                         }
                     }
-                    if(!found){
+                    break;
+                }
+                case STATE.HARVESTING: {
+                    var source = creep.pos.findNearest(Game.SOURCES_ACTIVE);
+                    if(source){
+                        creep.harvest(source);
+                        if(creep.energy == creep.energyCapacity){
+                            creep.memory.state = STATE.MOVE_TO_TRANSFER;
+                        }
+                    }
+                    break;
+                };
+                case STATE.MOVE_TO_TRANSFER: {
+                    var spawn = creep.pos.findNearest(Game.MY_SPAWNS);
+                    if(spawn){
+                        creep.moveTo(spawn);
+                        if(creep.pos.inRangeTo(spawn.pos,1)){
+                            creep.memory.state = STATE.TRANSFERING;
+                        }
+                    }
+                    break;
+                }
+                case STATE.TRANSFERING: {
+                    var spawn = creep.pos.findNearest(Game.MY_SPAWNS);
+                    if(spawn){
+                        creep.transferEnergy(spawn,creep.energy);
                         creep.memory.state = STATE.NONE;
                     }
                     break;
                 }
-                case STATE.none: break;
-                case STATE.none: break;
-                case STATE.none: break;
                 default: console.log('creep is in an unhandled state ' + creep.name + ':' + creep.memory.state);
         }
     }
