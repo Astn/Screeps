@@ -12,31 +12,106 @@ var STATE = require('state');
             switch (creep.memory.state) {
                 case STATE.NONE: {
                     console.log('Valid state:' + creep.name + ':' + creep.memory.state);
-                    creep.memory.state =  STATE.MOVE_TO_HARVEST;
+
                     creep.memory.target = null;
+                    if(!Memory.drops)
+                        Memory.drops = [];
+                    
+                    // refresh energy numbers
+                    var drops = creep.room.find(Game.DROPPED_ENERGY);
+                    if(drops)
+                    {
+                        drops.forEach(function (drop){
+                            var matchDrop = null;
+                            Memory.drops.forEach(function (md){
+                               if(md.id == drop.id){
+                                   matchDrop = md;
+                               } 
+                            });
+                            if(!matchDrop){
+                                Memory.drops.push({
+                                    "id":drop.id,
+                                    "energy":drop.energy,
+                                    "reserved":0
+                                });
+                            } 
+                            else{
+                                matchDrop.energy = drop.energy;
+                            }
+                        });
+                        
+                        // sort by size
+                        var best = Memory.drops.sort(function(a,b){
+                             if ((a.energy - a.reserved) < (b.energy - b.reserved))
+                                return 1;
+                            if ((a.energy - a.reserved) > (b.energy - b.reserved))
+                                return -1;
+                            return 0;
+                        })[0];
+                        
+                       
+                       if(best.energy > best.reserved){ 
+                            console.log("best "+ best.id + " energy: " + parseInt(best.energy) + " reserved: " + parseInt(best.reserved));
+                            // reserve some energy and set target
+                            best.reserved += creep.energyCapacity;
+                            creep.memory.target = best.id;
+                            creep.memory.state =  STATE.MOVE_TO_HARVEST;
+                       }
+                        
+                    }
+                    
                     break;
                 }
                 case STATE.MOVE_TO_HARVEST: {
-                    
-                    var source = creep.pos.findClosest(Game.DROPPED_ENERGY);
+
+                    if(!creep.memory.target)
+                    {
+                        creep.memory.state = STATE.NONE;
+                        break;
+                    }
+                    var source = Game.getObjectById(creep.memory.target);
                     if(source){
-                        creep.moveTo(source);
+                        var moveResult = creep.moveTo(source);
+                        if(moveResult == Game.ERR_NO_PATH){
+                            creep.memory.state = STATE.NONE;
+                        }
                         if(creep.pos.inRangeTo(source.pos,1)){
                             creep.memory.state = STATE.HARVESTING;
                         }
+                    }
+                    else
+                    {
+                        creep.memory.state = STATE.NONE;
                     }
                     break;
                 }
                 case STATE.HARVESTING: {
                     var source = creep.pos.findClosest(Game.DROPPED_ENERGY);
                     if(source){
+                        
                         creep.pickup(source);
-                        //if(creep.energy == creep.energyCapacity){
-                            creep.memory.state = STATE.MOVE_TO_TRANSFER;
-                        //}
-                        //else{
-                        //    creep.memory.state = STATE.MOVE_TO_HARVEST;
-                        //}
+                        // unreserve energy
+                         var matchDrop = null;
+                        Memory.drops.forEach(function (md){
+                           if(md.id == creep.memory.target){
+                               matchDrop = md;
+                           } 
+                        });
+                        if(matchDrop)
+                        {
+                            matchDrop.reserved -= creep.energyCapacity;
+                            
+                             if(matchDrop.reserved == 0 && matchDrop.energy < 50){
+                                var idx = Memory.drops.indexOf(matchDrop);
+                             
+                                console.log("removing "+ matchDrop.id + " energy: " + parseInt(matchDrop.energy) + " reserved: " + parseInt(matchDrop.reserved));
+                                Memory.drops.splice(idx,1);
+                                break;
+                             }
+                            
+                        }
+                            
+                        creep.memory.state = STATE.MOVE_TO_TRANSFER;
                     }
                     break; 
                 };
@@ -54,6 +129,7 @@ var STATE = require('state');
                     var spawn = creep.pos.findClosest(Game.MY_SPAWNS);
                     if(spawn){
                         creep.transferEnergy(spawn,creep.energy);
+                        
                         creep.memory.state = STATE.NONE;
                     }
                     break;

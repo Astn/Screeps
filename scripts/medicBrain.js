@@ -18,7 +18,7 @@
                             return otherCreep.hits < otherCreep.hitsMax;
                         }
                     });
-                    if(injured || creep.pos.findNearest(Game.HOSTILE_SPAWNS)){
+                    if(injured || creep.pos.findNearest(Game.HOSTILE_CREEPS)){
                         creep.memory.state =  STATE.HEALING;
                         creep.memory.target = null;
                     }

@@ -22,7 +22,7 @@ var STATE = require('state');
             ROLE: ROLE.BRUTE,
             STATE: STATE.SPAWNING,
             BODY: BODY.BRUTE,
-            WANT: 1,
+            WANT: 2,
             HAVE: 0
         },
         {
@@ -43,7 +43,7 @@ var STATE = require('state');
             ROLE: ROLE.BUILDER,
             STATE: STATE.SPAWNING,
             BODY: BODY.BUILDER,
-            WANT: 3,
+            WANT: 4,
             HAVE: 0,
         },
         {

@@ -21,7 +21,12 @@ var STATE = require('state');
                     
                     if(!creep.memory.target || !Game.getObjectById(creep.memory.target))
                     {
-                        creep.memory.target = creep.pos.findNearest(Game.SOURCES_ACTIVE).id;
+                        var nearest = creep.pos.findNearest(Game.SOURCES_ACTIVE);
+                        if(!nearest){
+                            creep.suicide();
+                            break;
+                        }
+                        creep.memory.target = nearest.id;
                     }
                        
                     var source = Game.getObjectById(creep.memory.target);
@@ -35,8 +40,10 @@ var STATE = require('state');
                         else
                         {
                           
-                           creep.moveTo(source); 
-                           
+                           var moveResult = creep.moveTo(source); 
+                           if(moveResult == Game.ERR_NO_PATH){
+                                creep.memory.state = STATE.NONE;
+                            }
                         }
                     }
                     break;
@@ -46,10 +53,13 @@ var STATE = require('state');
                     
                     if(source){
                         var prevEnergy = creep.energy;
-                        creep.harvest(source);
+                        var code = creep.harvest(source);
                         var afterEnergy = creep.energy;
                         if(creep.energy == creep.energyCapacity){
                             creep.memory.state = STATE.MOVE_TO_TRANSFER;
+                        }
+                        else if(code != Game.OK){
+                            creep.memory.state = STATE.NONE;
                         }
                     }
                     break;
