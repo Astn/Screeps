@@ -50,7 +50,7 @@ var STATE = require('state');
                         })[0];
                         
                        
-                       if(best.energy > best.reserved){ 
+                       if(best && best.energy > best.reserved){ 
                             console.log("best "+ best.id + " energy: " + parseInt(best.energy) + " reserved: " + parseInt(best.reserved));
                             // reserve some energy and set target
                             best.reserved += creep.energyCapacity;
