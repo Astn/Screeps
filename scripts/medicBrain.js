@@ -11,14 +11,14 @@
     think: function(creep){
             switch (creep.memory.state) {
                 case STATE.NONE: {
-                    console.log('Valid state:' + creep.name + ':' + creep.memory.state);
+                    //console.log('Valid state:' + creep.name + ':' + creep.memory.state);
                     
                     var injured = creep.pos.findNearest(Game.MY_CREEPS,{
                         filter: function(otherCreep){
                             return otherCreep.hits < otherCreep.hitsMax;
                         }
                     });
-                    if(injured){
+                    if(injured || creep.pos.findNearest(Game.HOSTILE_SPAWNS)){
                         creep.memory.state =  STATE.HEALING;
                         creep.memory.target = null;
                     }
@@ -49,12 +49,12 @@
                         if(!injured && !injured.pos)
                             break;
                         
-                        var inClose = creep.pos.inRangeTo(injured.pos,1); 
-                        if(close && inClose){
-                            creep.heal(injured);
-                        } else if (close) {
+                        var inRange = creep.pos.inRangeTo(injured.pos,3); 
+                        if(inRange){
+                            creep.rangedHeal(injured);
+                        } else {
                             creep.moveTo(injured);
-                            creep.heal(injured);
+                            creep.rangedHeal(injured);
                         }
                         
                     }

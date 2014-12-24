@@ -18,57 +18,44 @@ var STATE = require('state');
                 }
                 case STATE.MOVE_TO_HARVEST: {
                     
-                    
-                    if(!creep.memory.target || !Game.getObjectById(creep.memory.target))
-                    {
-                        creep.memory.target = creep.pos.findNearest(Game.SOURCES_ACTIVE).id;
-                    }
-                       
-                    var source = Game.getObjectById(creep.memory.target);
-                    if(!source || creep.pos.inRangeTo(source.pos, 1))
-                        creep.memory.target = null;
-                    
+                    var source = creep.pos.findClosest(Game.DROPPED_ENERGY);
                     if(source){
+                        creep.moveTo(source);
                         if(creep.pos.inRangeTo(source.pos,1)){
                             creep.memory.state = STATE.HARVESTING;
-                        }
-                        else
-                        {
-                          
-                           creep.moveTo(source); 
-                           
                         }
                     }
                     break;
                 }
                 case STATE.HARVESTING: {
-                    var source = creep.pos.findNearest(Game.SOURCES_ACTIVE);
-                    
+                    var source = creep.pos.findClosest(Game.DROPPED_ENERGY);
                     if(source){
-                        var prevEnergy = creep.energy;
-                        creep.harvest(source);
-                        var afterEnergy = creep.energy;
-                        if(creep.energy == creep.energyCapacity){
+                        creep.pickup(source);
+                        //if(creep.energy == creep.energyCapacity){
                             creep.memory.state = STATE.MOVE_TO_TRANSFER;
+                        //}
+                        //else{
+                        //    creep.memory.state = STATE.MOVE_TO_HARVEST;
+                        //}
+                    }
+                    break; 
+                };
+                case STATE.MOVE_TO_TRANSFER: {
+                    var spawn = creep.pos.findClosest(Game.MY_SPAWNS);
+                    if(spawn){
+                        creep.moveTo(spawn);
+                        if(creep.pos.inRangeTo(spawn.pos,1)){
+                            creep.memory.state = STATE.TRANSFERING;
                         }
                     }
                     break;
-                };
-                case STATE.MOVE_TO_TRANSFER: {
-                    creep.dropEnergy();
-                    creep.memory.state = STATE.MOVE_TO_HARVEST; 
-                    break;
                 }
                 case STATE.TRANSFERING: {
-                    var spawn = creep.pos.findNearest(Game.MY_SPAWNS);
+                    var spawn = creep.pos.findClosest(Game.MY_SPAWNS);
                     if(spawn){
                         creep.transferEnergy(spawn,creep.energy);
                         creep.memory.state = STATE.NONE;
                     }
-                    break;
-                }
-                case STATE.MOVE_TO_BUILD:{
-                    creep.memory.state =STATE.MOVE_TO_HARVEST;
                     break;
                 }
                 default: console.log('creep is in an unhandled state ' + creep.name + ':' + creep.memory.state);

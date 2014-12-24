@@ -23,8 +23,9 @@
                     if(closestSpawn){
                       var tooCloseToSpawn = creep.pos.inRangeTo(closestSpawn,3);
                       if(tooCloseToSpawn){
+                          var runAway = closestSpawn.pos.getDirectionTo(creep);
                           var door = creep.pos.findNearest(Game.EXIT_TOP);
-                          creep.moveTo(door);
+                          creep.move(runAway);
                       }
                     }
                     
@@ -61,7 +62,8 @@
                         var inRanged = creep.pos.inRangeTo(hostile.pos,3);
                         if(ranged && inRanged){
                             creep.rangedAttack(hostile);
-                            creep.move(runAway);
+                            if(creep.pos.inRangeTo(hostile.pos,2))
+                                creep.move(runAway);
                             break;
                         } else if (ranged){
                             creep.moveTo(hostile);
