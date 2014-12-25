@@ -11,7 +11,7 @@ var STATE = require('state');
     think: function(creep){
             switch (creep.memory.state) {
                 case STATE.NONE: {
-                    console.log('Valid state:' + creep.name + ':' + creep.memory.state);
+                    //console.log('Valid state:' + creep.name + ':' + creep.memory.state);
                     creep.memory.state =  STATE.MOVE_TO_HARVEST;
                     creep.memory.target = null;
                     break;
@@ -56,9 +56,10 @@ var STATE = require('state');
                         var code = creep.harvest(source);
                         var afterEnergy = creep.energy;
                         if(creep.energy == creep.energyCapacity){
+                            creep.memory.digIn = true;
                             creep.memory.state = STATE.MOVE_TO_TRANSFER;
                         }
-                        else if(code != Game.OK){
+                        else if(code != Game.OK && creep.memory.digIn !== true){
                             creep.memory.state = STATE.NONE;
                         }
                     }
@@ -66,7 +67,7 @@ var STATE = require('state');
                 };
                 case STATE.MOVE_TO_TRANSFER: {
                     creep.dropEnergy();
-                    creep.memory.state = STATE.MOVE_TO_HARVEST; 
+                    creep.memory.state = STATE.HARVESTING; 
                     break;
                 }
                 case STATE.TRANSFERING: {

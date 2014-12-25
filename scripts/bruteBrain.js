@@ -82,22 +82,22 @@
                     }
                     else{
                         creep.memory.target = null;
-                        creep.memory.state = STATE.NONE;
+                        creep.memory.state = STATE.MOVE_TO_TRANSFER;
                     }
                     
                     break;
                 };
-                /*case STATE.MOVE_TO_TRANSFER: {
+                case STATE.MOVE_TO_TRANSFER: {
                     var spawn = creep.pos.findNearest(Game.MY_SPAWNS);
                     if(spawn){
                         creep.moveTo(spawn);
-                        if(creep.pos.inRangeTo(spawn.pos,1)){
-                            creep.memory.state = STATE.TRANSFERING;
+                        if(creep.pos.inRangeTo(spawn.pos,5)  || creep.pos.inRangeTo(spawn.pos,6) && creep.room.find(Game.MY_CREEPS).some(function(c){return creep.pos.isNearTo(c) && creep.pos.getDirectionTo(c) == creep.pos.getDirectionTo(spawn);}) ){
+                            creep.memory.state = STATE.NONE;
                         }
                     }
                     break;
                 }
-                case STATE.TRANSFERING: {
+                /*case STATE.TRANSFERING: {
                     var spawn = creep.pos.findNearest(Game.MY_SPAWNS);
                     if(spawn){
                         creep.transferEnergy(spawn,creep.energy);

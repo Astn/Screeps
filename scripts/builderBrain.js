@@ -111,26 +111,58 @@ var STATE = require('state');
                             
                         }
                             
+                        // check if there is more close energy and grab it
+                        var drop = creep.pos.findClosest(Game.DROPPED_ENERGY);
+                        if(creep.pos.inRangeTo(drop, 5)  && creep.energy < creep.energyCapacity){
+                            creep.memory.target = drop.id;
+                            creep.memory.state = STATE.MOVE_TO_HARVEST;    
+                        }   
+                        
                         creep.memory.state = STATE.MOVE_TO_TRANSFER;
                     }
                     break; 
                 };
                 case STATE.MOVE_TO_TRANSFER: {
-                    var spawn = creep.pos.findClosest(Game.MY_SPAWNS);
-                    if(spawn){
-                        creep.moveTo(spawn);
-                        if(creep.pos.inRangeTo(spawn.pos,1)){
+                    var site = creep.pos.findClosest(Game.CONSTRUCTION_SITES, {filter:function(item){return item.progress > 0}});
+                    if(!site)
+                        site = creep.pos.findClosest(Game.CONSTRUCTION_SITES);
+                    if(creep.getActiveBodyparts(Game.WORK) && site)
+                    {
+                        creep.moveTo(site);
+                        if(creep.pos.inRangeTo(site.pos,1)){
                             creep.memory.state = STATE.TRANSFERING;
+                        }
+                    }
+                    else
+                    {
+                        var spawn = creep.pos.findClosest(Game.MY_SPAWNS);
+                        if(spawn){
+                            creep.moveTo(spawn);
+                            if(creep.pos.inRangeTo(spawn.pos,1)){
+                                creep.memory.state = STATE.TRANSFERING;
+                            }
                         }
                     }
                     break;
                 }
                 case STATE.TRANSFERING: {
-                    var spawn = creep.pos.findClosest(Game.MY_SPAWNS);
-                    if(spawn){
-                        creep.transferEnergy(spawn,creep.energy);
-                        
-                        creep.memory.state = STATE.NONE;
+                    var site = creep.pos.findClosest(Game.CONSTRUCTION_SITES, {filter:function(item){return item.progress > 0}});
+                    if(!site)
+                        site = creep.pos.findClosest(Game.CONSTRUCTION_SITES);
+                    if(creep.getActiveBodyparts(Game.WORK) && site)
+                    {
+                        creep.moveTo(site);
+                        creep.build(site);
+                        if(creep.energy == 0)
+                            creep.memory.state = STATE.NONE;
+                    }
+                    else
+                    {
+                        var spawn = creep.pos.findClosest(Game.MY_SPAWNS);
+                        if(spawn){
+                            creep.transferEnergy(spawn,creep.energy);
+                            creep.memory.state = STATE.NONE;
+                        }
                     }
                     break;
                 }
