@@ -38,6 +38,18 @@
                 case STATE.HEALING: {
                     var injured = creep.pos.findNearest(Game.MY_CREEPS,{
                         filter: function(otherCreep){
+                            return otherCreep.getActiveBodyparts(Game.HEAL) && otherCreep.hits < otherCreep.hitsMax;
+                        }
+                    });
+                    if(!injured)
+                    injured = creep.pos.findNearest(Game.MY_CREEPS,{
+                        filter: function(otherCreep){
+                            return otherCreep.getActiveBodyparts(Game.ATTACK) && otherCreep.hits < otherCreep.hitsMax;
+                        }
+                    });
+                    if(!injured)
+                    injured = creep.pos.findNearest(Game.MY_CREEPS,{
+                        filter: function(otherCreep){
                             return otherCreep.hits < otherCreep.hitsMax;
                         }
                     });
@@ -46,15 +58,18 @@
                             creep.memory.target = injured.id;
                         }
 
-                        if(!injured && !injured.pos)
+                        if(!injured.pos)
                             break;
                         
                         var inRange = creep.pos.inRangeTo(injured.pos,3); 
-                        if(inRange){
+                        var inClose = creep.pos.inRangeTo(injured.pos,1); 
+                        if(inClose){
+                            creep.heal(injured);
+                        } else if (inRange) {
+                            creep.moveTo(injured);
                             creep.rangedHeal(injured);
                         } else {
                             creep.moveTo(injured);
-                            creep.rangedHeal(injured);
                         }
                         
                     }

@@ -126,7 +126,7 @@ var STATE = require('state');
                     var site = creep.pos.findClosest(Game.CONSTRUCTION_SITES, {filter:function(item){return item.progress > 0}});
                     if(!site)
                         site = creep.pos.findClosest(Game.CONSTRUCTION_SITES);
-                    if(creep.getActiveBodyparts(Game.WORK) && site)
+                    if(creep.getActiveBodyparts(Game.WORK)  && site)
                     {
                         creep.moveTo(site);
                         if(creep.pos.inRangeTo(site.pos,1)){

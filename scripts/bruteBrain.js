@@ -11,7 +11,7 @@
     think: function(creep){
             switch (creep.memory.state) {
                 case STATE.NONE: {
-                    console.log('Valid state:' + creep.name + ':' + creep.memory.state);
+                    //console.log('Valid state:' + creep.name + ':' + creep.memory.state);
                     
                     var hostile = creep.pos.findNearest(Game.HOSTILE_CREEPS);
                     if(hostile){
@@ -51,7 +51,9 @@
                     break;
                 }*/
                 case STATE.ATTACKING: {
-                    var hostile = creep.pos.findNearest(Game.HOSTILE_CREEPS);
+                    var hostile = creep.pos.findNearest(Game.HOSTILE_CREEPS, {filter: function(item){return item.getActiveBodyparts(Game.HEAL)>0 && creep.pos.inRangeTo(item.pos,5);}});
+                    if(!hostile)
+                        hostile = creep.pos.findNearest(Game.HOSTILE_CREEPS);
                     if(hostile){
                         if(!creep.memory.target){
                             creep.memory.target = hostile.id;
