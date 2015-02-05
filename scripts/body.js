@@ -34,6 +34,6 @@ module.exports = {
         {parts:[Game.MOVE, Game.MOVE, Game.HEAL, Game.HEAL]}
     ],
     PACKER: [
-        {parts:[Game.MOVE, Game.MOVE, Game.WORK, Game.WORK, Game.CARRY]}
+        {parts:[Game.MOVE, Game.MOVE, Game.WORK, Game.CARRY, Game.CARRY]}
     ]
 };
