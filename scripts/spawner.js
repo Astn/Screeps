@@ -87,26 +87,27 @@ module.exports =
                 if(current.WANT <= current.HAVE){
                     current = closestSettings.sort(this.compRatio)[0];
                 }
-               
-                for (var i = 0; i < current.BODY.length; i++) {
-                   var parts = current.BODY[i].parts;
-                   var id = 1;
-                   var buildCode = spawn.createCreep(parts, current.ROLE + ' ' + parseInt(spawn.room.find(Game.CREEPS).length), { state: current.STATE, role: current.ROLE });
-                   var tries = 5;
-                   while(buildCode == -3 && --tries > 0){
-                       spawn.createCreep(parts, current.ROLE + ' ' + parseInt(++id), { state: current.STATE, role: current.ROLE });
-                   }
-                   
-                   if (buildCode >= 0) {
-                        result.push({
-                            body: body,
-                            code: buildCode,
-                            have: current.HAVE,
-                            role: current.ROLE
-                        });
-                        break;
-                    }
-                }
+               if (current && current.BODY ){
+					for (var i = 0; i < current.BODY.length; i++) {
+					   var parts = current.BODY[i].parts;
+					   var id = 1;
+					   var buildCode = spawn.createCreep(parts, current.ROLE + ' ' + parseInt(spawn.room.find(Game.CREEPS).length), { state: current.STATE, role: current.ROLE });
+					   var tries = 5;
+					   while(buildCode == -3 && --tries > 0){
+						   spawn.createCreep(parts, current.ROLE + ' ' + parseInt(++id), { state: current.STATE, role: current.ROLE });
+					   }
+					   
+					   if (buildCode >= 0) {
+							result.push({
+								body: body,
+								code: buildCode,
+								have: current.HAVE,
+								role: current.ROLE
+							});
+							break;
+						}
+					}
+				}
             }
         }
         return result;
