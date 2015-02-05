@@ -5,6 +5,8 @@
  * You can import it from another modules like this:
  * var mod = require('spawner'); // -> 'a thing'
  */
+var ROLE = require('role');
+
 module.exports =
 {
     remember: function (creep, state, role) {
