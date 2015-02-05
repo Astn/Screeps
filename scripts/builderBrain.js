@@ -9,6 +9,9 @@ var STATE = require('state');
 
 module.exports = {
     think: function (creep) {
+        var site;
+        var spawn;
+        var source;
         switch (creep.memory.state) {
             case STATE.NONE: {
                 console.log('Valid state:' + creep.name + ':' + creep.memory.state);
@@ -41,8 +44,7 @@ module.exports = {
                     creep.memory.state = STATE.NONE;
                     break;
                 }
-
-                var source = Game.getObjectById(creep.memory.target);
+                source = Game.getObjectById(creep.memory.target);
                 if (source) {
 
                     var moveResult = creep.moveTo(source);
@@ -59,8 +61,7 @@ module.exports = {
                 break;
             }
             case STATE.HARVESTING: {
-
-                var source = creep.pos.findClosest(Game.DROPPED_ENERGY);
+                source = creep.pos.findClosest(Game.DROPPED_ENERGY);
                 if (source) {
 
                     creep.pickup(source);
@@ -96,7 +97,7 @@ module.exports = {
                 break;
             };
             case STATE.MOVE_TO_TRANSFER: {
-                var site = creep.pos.findClosest(Game.CONSTRUCTION_SITES, { filter: function (item) { return item.progress > 0 } });
+                site = creep.pos.findClosest(Game.CONSTRUCTION_SITES, { filter: function (item) { return item.progress > 0 } });
                 if (!site)
                     site = creep.pos.findClosest(Game.CONSTRUCTION_SITES);
                 if (creep.getActiveBodyparts(Game.WORK) && site) {
@@ -106,7 +107,7 @@ module.exports = {
                     }
                 }
                 else {
-                    var spawn = creep.pos.findClosest(Game.MY_SPAWNS);
+                    spawn = creep.pos.findClosest(Game.MY_SPAWNS);
                     if (spawn) {
                         creep.moveTo(spawn);
                         if (creep.pos.inRangeTo(spawn.pos, 1)) {
@@ -117,7 +118,7 @@ module.exports = {
                 break;
             }
             case STATE.TRANSFERING: {
-                var site = creep.pos.findClosest(Game.CONSTRUCTION_SITES, { filter: function (item) { return item.progress > 0 } });
+                site = creep.pos.findClosest(Game.CONSTRUCTION_SITES, { filter: function (item) { return item.progress > 0 } });
                 if (!site) {
                     site = creep.pos.findClosest(Game.CONSTRUCTION_SITES);
                 }
@@ -129,7 +130,7 @@ module.exports = {
                         creep.memory.state = STATE.NONE;
                 }
                 else {
-                    var spawn = creep.pos.findClosest(Game.MY_SPAWNS);
+                    spawn = creep.pos.findClosest(Game.MY_SPAWNS);
                     if (spawn) {
                         creep.transferEnergy(spawn, creep.energy);
                         creep.memory.state = STATE.NONE;
