@@ -162,7 +162,7 @@ var STATE = require('state');
                         {
                             ROLE: ROLE.BRUTE,
                             STATE: STATE.SPAWNING,
-                            BODY: BODY.BRUTE,
+                            BODY: BODY.BRUTE2,
                             WANT: 6,
                             HAVE: 0
                         },
@@ -196,7 +196,7 @@ var STATE = require('state');
                         }
                     ]},
                     {
-                     "population":20,
+                     "population":21,
                      "profile":[
                         {
                             ROLE: ROLE.CAPTIAN,
@@ -209,42 +209,35 @@ var STATE = require('state');
                             ROLE: ROLE.BRUTE,
                             STATE: STATE.SPAWNING,
                             BODY: BODY.BRUTE2,
-                            WANT: 5,
+                            WANT: 10,
                             HAVE: 0
                         },
                         {
                             ROLE: ROLE.ARCHER,
                             STATE: STATE.SPAWNING,
                             BODY: BODY.ARCHER,
-                            WANT: 0,
+                            WANT: 4,
                             HAVE: 0
                         },
                         {
                             ROLE: ROLE.MINER,
                             STATE: STATE.SPAWNING,
                             BODY: BODY.MINER,
-                            WANT: 5,
+                            WANT: 3,
                             HAVE: 0
                         },
                         {
                             ROLE: ROLE.PACKER,
                             STATE: STATE.SPAWNING,
-                            BODY: BODY.PACKER2,
-                            WANT: 6,
-                            HAVE: 0,
-                        },
-                        {
-                            ROLE: ROLE.WORKER,
-                            STATE: STATE.SPAWNING,
-                            BODY: BODY.WORKER,
-                            WANT: 3,
+                            BODY: BODY.PACKER,
+                            WANT: 2,
                             HAVE: 0,
                         },
                         {
                             ROLE: ROLE.MEDIC,
                             STATE: STATE.SPAWNING,
                             BODY: BODY.MEDIC,
-                            WANT: 2,
+                            WANT: 3,
                             HAVE: 0
                         }
                     ]},
