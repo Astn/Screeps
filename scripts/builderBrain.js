@@ -95,7 +95,7 @@ module.exports = {
                     creep.memory.state = STATE.MOVE_TO_TRANSFER;
                 }
                 break;
-            };
+            }
             case STATE.MOVE_TO_TRANSFER: {
                 site = creep.pos.findClosest(Game.CONSTRUCTION_SITES, { filter: function (item) { return item.progress > 0 } });
                 if (!site)

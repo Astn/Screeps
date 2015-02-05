@@ -9,12 +9,13 @@ var STATE = require('state');
 
 module.exports = {
     think: function (creep) {
+        var runAway;
+        var hostile;
         switch (creep.memory.state) {
             case STATE.NONE:
                 {
                     //console.log('Valid state:' + creep.name + ':' + creep.memory.state);
-
-                    var hostile = creep.pos.findNearest(Game.HOSTILE_CREEPS);
+                    hostile = creep.pos.findNearest(Game.HOSTILE_CREEPS);
                     if (hostile) {
                         creep.memory.state = STATE.ATTACKING;
                         creep.memory.target = null;
@@ -24,7 +25,7 @@ module.exports = {
                     if (closestSpawn) {
                         var tooCloseToSpawn = creep.pos.inRangeTo(closestSpawn, 3);
                         if (tooCloseToSpawn) {
-                            var runAway = closestSpawn.pos.getDirectionTo(creep);
+                            runAway = closestSpawn.pos.getDirectionTo(creep);
                             var door = creep.pos.findNearest(Game.EXIT_TOP);
                             creep.move(runAway);
                         }
@@ -53,14 +54,14 @@ module.exports = {
                         }*/
             case STATE.ATTACKING:
                 {
-                    var hostile = creep.pos.findNearest(Game.HOSTILE_CREEPS, { filter: function (item) { return item.getActiveBodyparts(Game.HEAL) > 0 && creep.pos.inRangeTo(item.pos, 5); } });
+                    hostile = creep.pos.findNearest(Game.HOSTILE_CREEPS, { filter: function (item) { return item.getActiveBodyparts(Game.HEAL) > 0 && creep.pos.inRangeTo(item.pos, 5); } });
                     if (!hostile)
                         hostile = creep.pos.findNearest(Game.HOSTILE_CREEPS);
                     if (hostile) {
                         if (!creep.memory.target) {
                             creep.memory.target = hostile.id;
                         }
-                        var runAway = hostile.pos.getDirectionTo(creep);
+                        runAway = hostile.pos.getDirectionTo(creep);
                         var ranged = creep.getActiveBodyparts(Game.RANGED_ATTACK);
                         var close = creep.getActiveBodyparts(Game.ATTACK);
                         var inRanged = creep.pos.inRangeTo(hostile.pos, 3);
@@ -89,7 +90,7 @@ module.exports = {
                     }
 
                     break;
-                };
+                }
             case STATE.MOVE_TO_TRANSFER:
                 {
                     var spawn = creep.pos.findNearest(Game.MY_SPAWNS);

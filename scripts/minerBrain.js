@@ -9,6 +9,7 @@ var STATE = require('state');
 
 module.exports = {
     think: function (creep) {
+        var source;
         switch (creep.memory.state) {
             case STATE.NONE:
                 {
@@ -29,8 +30,7 @@ module.exports = {
                         }
                         creep.memory.target = nearest.id;
                     }
-
-                    var source = Game.getObjectById(creep.memory.target);
+                    source = Game.getObjectById(creep.memory.target);
                     if (!source || creep.pos.inRangeTo(source.pos, 1)) {
 
                         creep.memory.target = null;
@@ -55,8 +55,7 @@ module.exports = {
                 }
             case STATE.HARVESTING:
                 {
-                    var source = creep.pos.findNearest(Game.SOURCES_ACTIVE);
-
+                    source = creep.pos.findNearest(Game.SOURCES_ACTIVE);
                     if (source) {
                         var prevEnergy = creep.energy;
                         var code = creep.harvest(source);
@@ -72,7 +71,7 @@ module.exports = {
                         }
                     }
                     break;
-                };
+                }
             case STATE.MOVE_TO_TRANSFER:
                 {
                     creep.dropEnergy();

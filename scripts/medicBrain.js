@@ -87,7 +87,7 @@ module.exports = {
                     }
 
                     break;
-                };
+                }
                 /*case STATE.MOVE_TO_TRANSFER: {
                             var spawn = creep.pos.findNearest(Game.MY_SPAWNS);
                             if(spawn){
