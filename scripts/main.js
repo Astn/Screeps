@@ -93,12 +93,15 @@ for (var roomName in _.uniq(roomNames)){
                         },{'wear':-1})
                         .value();
         // if # construction sites is less then 2, then make another.
+		// For the moment, we are waisting too many resources on construction. Need a better way to manage this.
+		/*
         var sites = room.find(Game.CONSTRUCTION_SITES);
         if(hotSpot.wear>0 && sites.length < 2){
             console.log('hottest wear for '+room.name+' is ' + hotSpot.wear + ' at: ' + hotSpot.name);
             hotSpot.construction = Game.STRUCTURE_ROAD;
             room.createConstructionSite(hotSpot.x,hotSpot.y,hotSpot.construction);
         }
+		*/
     }
 }
 
