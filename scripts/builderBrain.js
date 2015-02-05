@@ -72,7 +72,7 @@ var STATE = require('state');
                         {
                             matchDrop.reserved -= creep.energyCapacity;
                             
-                             if(matchDrop.reserved == 0 && matchDrop.energy < 50){
+                             if(matchDrop.reserved === 0 && matchDrop.energy < 50){
                                 var idx = Memory.drops.indexOf(matchDrop);
                              
                                 console.log("removing "+ matchDrop.id + " energy: " + parseInt(matchDrop.energy) + " reserved: " + parseInt(matchDrop.reserved));
@@ -124,7 +124,7 @@ var STATE = require('state');
                     {
                         creep.moveTo(site);
                         creep.build(site);
-                        if(creep.energy == 0)
+                        if(creep.energy === 0)
                             creep.memory.state = STATE.NONE;
                     }
                     else
