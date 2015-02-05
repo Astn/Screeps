@@ -18,46 +18,17 @@ var STATE = require('state');
                         Memory.drops = [];
                     
                     // refresh energy numbers
-                    var drops = creep.room.find(Game.DROPPED_ENERGY);
-                    if(drops)
+                    var best = creep.pos.findClosest(Game.DROPPED_ENERGY, { filter: function(drop) {
+                        return drop.energy >= creep.energyCapacity;
+                    }});
+                    if(best)
                     {
-                        drops.forEach(function (drop){
-                            var matchDrop = null;
-                            Memory.drops.forEach(function (md){
-                               if(md.id == drop.id){
-                                   matchDrop = md;
-                               } 
-                            });
-                            if(!matchDrop){
-                                Memory.drops.push({
-                                    "id":drop.id,
-                                    "energy":drop.energy,
-                                    "reserved":0
-                                });
-                            } 
-                            else{
-                                matchDrop.energy = drop.energy;
-                            }
-                        });
                         
-                        // sort by size
-                        var best = Memory.drops.sort(function(a,b){
-                             if ((a.energy - a.reserved) < (b.energy - b.reserved))
-                                return 1;
-                            if ((a.energy - a.reserved) > (b.energy - b.reserved))
-                                return -1;
-                            return 0;
-                        })[0];
-                        
-                       
-                       if(best && best.energy > best.reserved){ 
-                            console.log("best "+ best.id + " energy: " + parseInt(best.energy) + " reserved: " + parseInt(best.reserved));
+                            console.log("best "+ best.id + " energy: " + parseInt(best.energy));
                             // reserve some energy and set target
-                            best.reserved += creep.energyCapacity;
                             creep.memory.target = best.id;
                             creep.memory.state =  STATE.MOVE_TO_HARVEST;
-                       }
-                        
+               
                     }
                     
                     break;
