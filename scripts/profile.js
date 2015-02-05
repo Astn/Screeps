@@ -12,7 +12,7 @@ var STATE = require('state');
  
  module.exports = [
                     {
-                     "population":3,
+                     "population":2,
                      "profile":[
                         {
                             ROLE: ROLE.CAPTIAN,
@@ -25,7 +25,7 @@ var STATE = require('state');
                             ROLE: ROLE.BRUTE,
                             STATE: STATE.SPAWNING,
                             BODY: BODY.BRUTE,
-                            WANT: 0,
+                            WANT: 1,
                             HAVE: 0
                         },
                         {
@@ -39,14 +39,14 @@ var STATE = require('state');
                             ROLE: ROLE.MINER,
                             STATE: STATE.SPAWNING,
                             BODY: BODY.MINER,
-                            WANT: 2,
+                            WANT: 1,
                             HAVE: 0
                         },
                         {
                             ROLE: ROLE.PACKER,
                             STATE: STATE.SPAWNING,
                             BODY: BODY.PACKER,
-                            WANT: 2,
+                            WANT: 1,
                             HAVE: 0,
                         },
                         {
@@ -57,8 +57,8 @@ var STATE = require('state');
                             HAVE: 0
                         }
                     ]},
-                    {
-                     "population":4,
+					{
+                     "population":5,
                      "profile":[
                         {
                             ROLE: ROLE.CAPTIAN,
@@ -99,7 +99,7 @@ var STATE = require('state');
                             ROLE: ROLE.MEDIC,
                             STATE: STATE.SPAWNING,
                             BODY: BODY.MEDIC,
-                            WANT: 0,
+                            WANT: 1,
                             HAVE: 0
                         }
                     ]},
@@ -117,7 +117,7 @@ var STATE = require('state');
                             ROLE: ROLE.BRUTE,
                             STATE: STATE.SPAWNING,
                             BODY: BODY.BRUTE,
-                            WANT: 1,
+                            WANT: 4,
                             HAVE: 0
                         },
                         {
@@ -131,66 +131,13 @@ var STATE = require('state');
                             ROLE: ROLE.MINER,
                             STATE: STATE.SPAWNING,
                             BODY: BODY.MINER,
-                            WANT: 5,
+                            WANT: 3,
                             HAVE: 0
                         },
                         {
                             ROLE: ROLE.PACKER,
                             STATE: STATE.SPAWNING,
-                            BODY: BODY.PACKER2,
-                            WANT: 4,
-                            HAVE: 0,
-                        },
-                        {
-                            ROLE: ROLE.MEDIC,
-                            STATE: STATE.SPAWNING,
-                            BODY: BODY.MEDIC,
-                            WANT: 1,
-                            HAVE: 0
-                        }
-                    ]},
-                    {
-                     "population":12,
-                     "profile":[
-                        {
-                            ROLE: ROLE.CAPTIAN,
-                            STATE: STATE.SPAWNING,
-                            BODY: BODY.CAPTIAN,
-                            WANT: 0,
-                            HAVE: 0
-                        },
-                        {
-                            ROLE: ROLE.BRUTE,
-                            STATE: STATE.SPAWNING,
-                            BODY: BODY.BRUTE,
-                            WANT: 2,
-                            HAVE: 0
-                        },
-                        {
-                            ROLE: ROLE.ARCHER,
-                            STATE: STATE.SPAWNING,
-                            BODY: BODY.ARCHER,
-                            WANT: 0,
-                            HAVE: 0
-                        },
-                        {
-                            ROLE: ROLE.MINER,
-                            STATE: STATE.SPAWNING,
-                            BODY: BODY.MINER,
-                            WANT: 4,
-                            HAVE: 0
-                        },
-                        {
-                            ROLE: ROLE.PACKER,
-                            STATE: STATE.SPAWNING,
-                            BODY: BODY.PACKER2,
-                            WANT: 4,
-                            HAVE: 0,
-                        },
-                        {
-                            ROLE: ROLE.WORKER,
-                            STATE: STATE.SPAWNING,
-                            BODY: BODY.WORKER,
+                            BODY: BODY.PACKER,
                             WANT: 2,
                             HAVE: 0,
                         },
@@ -198,12 +145,12 @@ var STATE = require('state');
                             ROLE: ROLE.MEDIC,
                             STATE: STATE.SPAWNING,
                             BODY: BODY.MEDIC,
-                            WANT: 1,
+                            WANT: 2,
                             HAVE: 0
                         }
                     ]},
                     {
-                     "population":20,
+                     "population":15,
                      "profile":[
                         {
                             ROLE: ROLE.CAPTIAN,
@@ -216,42 +163,81 @@ var STATE = require('state');
                             ROLE: ROLE.BRUTE,
                             STATE: STATE.SPAWNING,
                             BODY: BODY.BRUTE2,
-                            WANT: 5,
+                            WANT: 6,
                             HAVE: 0
                         },
                         {
                             ROLE: ROLE.ARCHER,
                             STATE: STATE.SPAWNING,
                             BODY: BODY.ARCHER,
-                            WANT: 0,
+                            WANT: 2,
                             HAVE: 0
                         },
                         {
                             ROLE: ROLE.MINER,
                             STATE: STATE.SPAWNING,
                             BODY: BODY.MINER,
-                            WANT: 5,
+                            WANT: 3,
                             HAVE: 0
                         },
                         {
                             ROLE: ROLE.PACKER,
                             STATE: STATE.SPAWNING,
-                            BODY: BODY.PACKER2,
-                            WANT: 6,
-                            HAVE: 0,
-                        },
-                        {
-                            ROLE: ROLE.WORKER,
-                            STATE: STATE.SPAWNING,
-                            BODY: BODY.WORKER,
-                            WANT: 3,
+                            BODY: BODY.PACKER,
+                            WANT: 2,
                             HAVE: 0,
                         },
                         {
                             ROLE: ROLE.MEDIC,
                             STATE: STATE.SPAWNING,
                             BODY: BODY.MEDIC,
+                            WANT: 3,
+                            HAVE: 0
+                        }
+                    ]},
+                    {
+                     "population":21,
+                     "profile":[
+                        {
+                            ROLE: ROLE.CAPTIAN,
+                            STATE: STATE.SPAWNING,
+                            BODY: BODY.CAPTIAN,
+                            WANT: 0,
+                            HAVE: 0
+                        },
+                        {
+                            ROLE: ROLE.BRUTE,
+                            STATE: STATE.SPAWNING,
+                            BODY: BODY.BRUTE2,
+                            WANT: 10,
+                            HAVE: 0
+                        },
+                        {
+                            ROLE: ROLE.ARCHER,
+                            STATE: STATE.SPAWNING,
+                            BODY: BODY.ARCHER,
+                            WANT: 4,
+                            HAVE: 0
+                        },
+                        {
+                            ROLE: ROLE.MINER,
+                            STATE: STATE.SPAWNING,
+                            BODY: BODY.MINER,
+                            WANT: 3,
+                            HAVE: 0
+                        },
+                        {
+                            ROLE: ROLE.PACKER,
+                            STATE: STATE.SPAWNING,
+                            BODY: BODY.PACKER,
                             WANT: 2,
+                            HAVE: 0,
+                        },
+                        {
+                            ROLE: ROLE.MEDIC,
+                            STATE: STATE.SPAWNING,
+                            BODY: BODY.MEDIC,
+                            WANT: 3,
                             HAVE: 0
                         }
                     ]},
