@@ -1,20 +1,23 @@
 var job = require('job');
 var roster = require('roster');
-
+var doSpawn = require('doSpawn');
 var doHarvest = require('doHarvest');
 var doPack = require('doPack');
 var doBuild = require('doBuild');
 var doKill = require('doKill');
+var doMedic = require('doMedic');
 
-var spawn1 = Game.spawns.Spawn1; 
+var spawn1 = Game.spawns.Spawn1;
+if (!spawn1.memory.hits)
+	spawn1.memory.hits = spawn1.hits;
 
-doHarvest.enlist(spawn1);
+doSpawn.nextUp(spawn1);
 
-doKill.enlist(spawn1);
-
-doPack.enlist(spawn1);
-
-doBuild.enlist(spawn1);
+Game.getUsedCpu(function(cpu) {
+	if (cpu > Game.cpuLimit / 2) {
+		console.log("Used half of CPU already!");
+	}
+});
 
 /*
 Did you notice how slow your creeps moved when transferring energy? Let's make their work easier and build a road to the energy source. A creep tires 2 times slower when moves by the road.
@@ -38,18 +41,19 @@ for (var id in Game.creeps) {
 		doPack.assist(creep, spawn1);
 	}
 
-	if (creep.memory.role == job.archer.role) {
-
-		doKill.attack(creep);
-	}
-
-	if (creep.memory.role == job.brute.role) {
+	if ((creep.memory.role == job.archer.role) ||
+		(creep.memory.role == job.brute.role)) {
 
 		doKill.attack(creep);
 	}
 
 	if (creep.memory.role == job.builder.role) {
 
-		doBuild.do(creep, spawn1);
+		doBuild.pave(creep, spawn1);
+	}
+
+	if (creep.memory.role == job.medic.role) {
+
+		doMedic.healGimpiest(creep);
 	}
 }

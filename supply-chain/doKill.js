@@ -5,32 +5,7 @@ var creepLog = require('creepLog');
 var helper = require('helper');
 var opposition = require('opposition');
 
-var enlisting = function(roster, quota) {
-
-	return roster && (roster.length < quota);
-};
-var enlistingArchers = function() {
-
-	return enlisting(roster.of(job.archer), job.archer.quota);
-};
-var enlistingBrutes = function() {
-
-	return enlisting(roster.of(job.brute), job.brute.quota);
-};
-
 module.exports = {
-	enlist: function(spawn) {
-
-		if (enlistingArchers()) {
-
-			return doSpawn.a(spawn, job.archer);
-		}
-		if (enlistingBrutes()) {
-
-			return doSpawn.a(spawn, job.brute);
-		}
-	},
-	enlisting: enlisting,
 
 	attack: function(creep) {
 

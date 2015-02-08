@@ -28,5 +28,10 @@ module.exports = {
 
 		console.log(target + ' transferring energy to ' + creep);
 	},
-	hungry: hungry
+	hungry: hungry,
+
+	getCreepId: function(creep) {
+
+		return creep.name.substr(creep.memory.role.length) * 1;
+	}
 }

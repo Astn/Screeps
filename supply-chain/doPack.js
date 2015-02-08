@@ -7,20 +7,7 @@ var doHarvest = require('doHarvest');
 
 var helper = require('helper');
 
-var enlisting = function() {
-
-	var packers = roster.of(job.packer);
-
-	return packers && (packers.length < job.packer.quota);
-};
-
 module.exports = {
-	enlist: function(spawn) {
-
-		if (!doHarvest.enlisting() && enlisting())
-			return doSpawn.a(spawn, job.packer);
-	},
-	enlisting: enlisting,
 
 	assist: function(creep, spawn) {
 
@@ -38,7 +25,15 @@ module.exports = {
 			}
 		} else {
 
-			helper.energyFromTo(creep, spawn);
+			var target = creep.pos.findClosest(Game.DROPPED_ENERGY);
+			if (target) {
+
+				creep.moveTo(target);
+				creep.pickup(target);
+				
+				helper.energyFromTo(creep, spawn);
+			} else
+				helper.energyFromTo(creep, spawn);
 		}
 	}
 }

@@ -1,30 +1,13 @@
 var roster = require('roster');
 var job = require('job');
+var helper = require('helper');
 
 var doSpawn = require('doSpawn');
 var doPack = require('doPack');
 
-var enlisting = function() {
-
-	var builders = roster.of(job.builder);
-
-	return builders && (builders.length < job.builder.quota);
-};
-
 module.exports = {
-	enlist: function(spawn) {
 
-		if (!doPack.enlisting()) {
-
-			if (enlisting()) {
-				
-				return doSpawn.a(spawn, job.builder);
-			}
-		}
-	},
-	enlisting: enlisting,
-
-	do: function(creep, spawn) {
+	pave: function(creep, spawn) {
 
 		if (creep.energy === 0) {
 
@@ -44,6 +27,10 @@ module.exports = {
 					siteName = toString.substr(0, indexOf).trim() + ']';
 
 				console.log(creep + ' building ' + siteName);
+			} else {
+				console.log('do something');
+				creep.moveTo(spawn);
+				creep.build(Game.STRUCTURE_ROAD);
 			}
 		}
 	}
