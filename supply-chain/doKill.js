@@ -5,18 +5,30 @@ var creepLog = require('creepLog');
 var helper = require('helper');
 var opposition = require('opposition');
 
-var enlisting = function() {
+var enlisting = function(roster, quota) {
 
-	var brutes = roster.of(job.brute);
+	return roster && (roster.length < quota);
+};
+var enlistingArchers = function() {
 
-	return brutes && (brutes.length < job.brute.quota);
+	return enlisting(roster.of(job.archer), job.archer.quota);
+};
+var enlistingBrutes = function() {
+
+	return enlisting(roster.of(job.brute), job.brute.quota);
 };
 
 module.exports = {
 	enlist: function(spawn) {
 
-		if (enlisting())
+		if (enlistingArchers()) {
+
+			return doSpawn.a(spawn, job.archer);
+		}
+		if (enlistingBrutes()) {
+
 			return doSpawn.a(spawn, job.brute);
+		}
 	},
 	enlisting: enlisting,
 
@@ -27,7 +39,15 @@ module.exports = {
 
 			creep.moveTo(asshole);
 
-			creep.attack(asshole);
+			if (creep.getActiveBodyparts(Game.ATTACK)) {
+
+				creep.attack(asshole);
+			}
+
+			if (creep.getActiveBodyparts(Game.RANGED_ATTACK)) {
+
+				creep.rangedAttack(asshole);
+			}
 
 			console.log(creep + ' killing ' + asshole);
 		} else {

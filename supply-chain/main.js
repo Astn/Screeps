@@ -10,11 +10,11 @@ var spawn1 = Game.spawns.Spawn1;
 
 doHarvest.enlist(spawn1);
 
+doKill.enlist(spawn1);
+
 doPack.enlist(spawn1);
 
 doBuild.enlist(spawn1);
-
-doKill.enlist(spawn1);
 
 /*
 Did you notice how slow your creeps moved when transferring energy? Let's make their work easier and build a road to the energy source. A creep tires 2 times slower when moves by the road.
@@ -36,6 +36,11 @@ for (var id in Game.creeps) {
 	if (creep.memory.role == job.packer.role) {
 
 		doPack.assist(creep, spawn1);
+	}
+
+	if (creep.memory.role == job.archer.role) {
+
+		doKill.attack(creep);
 	}
 
 	if (creep.memory.role == job.brute.role) {
