@@ -10,12 +10,12 @@ module.exports = function (grunt) {
                 password: '<you_password>'
             },
             dist: {
-                src: ['**/supply-chain/*.js']
+                src: ['**/do-over/*.js']
             }
         },
         watch: {
             scripts: {
-                files: ['**/supply-chain/*.js'],
+                files: ['**/do-over/*.js'],
                 tasks: ['screeps'],
                 options: {
                     spawn: false,
