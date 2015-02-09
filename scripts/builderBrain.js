@@ -29,7 +29,7 @@ module.exports = {
             // find nearest carrier who is less then full, and is closer to spawner
             var buddyCloserToASiteOrSpawn = creep.pos.findClosest(Game.MY_CREEPS, {
                 filter: function (c) {
-                    return c.getActiveBodyparts(Game.CARRY) > 0 && (c.memory.role == ROLE.PACKER || c.memory.role == ROLE.WORKER);
+                    return c.getActiveBodyparts(Game.CARRY) > 0 && (c.memory.role == creep.memory.role || c.memory.role == ROLE.WORKER);
                 }
             });
             if (buddyCloserToASiteOrSpawn) {

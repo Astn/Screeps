@@ -25,7 +25,7 @@ module.exports = {
                     
                     var closestSpawn = creep.pos.findClosest(Game.MY_SPAWNS);
                     if (closestSpawn) {
-                        var tooCloseToSpawn = creep.pos.inRangeTo(closestSpawn, 3);
+                        var tooCloseToSpawn = creep.pos.inRangeTo(closestSpawn, 1);
                         if (tooCloseToSpawn) {
                             runAway = closestSpawn.pos.getDirectionTo(creep);
                             var door = creep.pos.findClosest(Game.EXIT_TOP);
