@@ -55,13 +55,11 @@ module.exports =
                         closestSettingsPop = setting;
                         closestSettings = setting.profile;
                         closestDiff = closestSettingsPop.population - weHave;
-                        console.log("closest1 : " + parseInt(closestSettingsPop.population));
                     } else if (!closestSettingsPop) {
                         
                         closestSettingsPop = setting;
                         closestSettings = setting.profile;
                         closestDiff = closestSettingsPop.population - weHave;
-                        console.log("closest2 : " + parseInt(closestSettingsPop.population));
                     }
                 });
                 
@@ -99,9 +97,11 @@ module.exports =
                         var parts = current.BODY[i].parts.slice(0);
                         var toughScale = (Game.time - Memory.startTime) / 300;
                         toughScale += (Game.time - Memory.startTime) / 500;
+                        console.log(toughScale);
                         var toughness = [];
                         for (var j = 0; j < toughScale; j++) {
                             toughness.push(Game.TOUGH);
+                            console.log(toughness);
                         }
                         parts = toughness.concat(parts);
                         var id = 1;

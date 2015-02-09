@@ -107,29 +107,22 @@ module.exports = {
                             }
                         }
                         creep.memory.target = null;
-                        creep.memory.state = STATE.NONE;
+                        creep.memory.state = STATE.MOVE_TO_TRANSFER;
                     }
                     
                     break;
                 }
-                /*case STATE.MOVE_TO_TRANSFER: {
-                            var spawn = creep.pos.findClosest(Game.MY_SPAWNS);
-                            if(spawn){
-                                creep.moveTo(spawn);
-                                if(creep.pos.inRangeTo(spawn.pos,1)){
-                                    creep.memory.state = STATE.TRANSFERING;
-                                }
-                            }
-                            break;
+            case STATE.MOVE_TO_TRANSFER:
+                {
+                    var spawn = creep.pos.findClosest(Game.MY_SPAWNS);
+                    if (spawn) {
+                        creep.moveTo(spawn);
+                        if (creep.pos.inRangeTo(spawn.pos, 3) ) {
+                            creep.memory.state = STATE.NONE;
                         }
-                        case STATE.TRANSFERING: {
-                            var spawn = creep.pos.findClosest(Game.MY_SPAWNS);
-                            if(spawn){
-                                creep.transferEnergy(spawn,creep.energy);
-                                creep.memory.state = STATE.NONE;
-                            }
-                            break;
-                        }*/
+                    }
+                    break;
+                }
             default:
                 {
                     creep.memory.state = STATE.NONE;

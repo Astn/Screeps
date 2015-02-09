@@ -24,7 +24,7 @@ module.exports = {
 
                         var nearest = creep.pos.findClosest(Game.SOURCES_ACTIVE, {
                             filter: function (src){
-                                return src.pos.findInRange(Game.MY_CREEPS, 1).length < 3;
+                                return src.pos.findInRange(Game.MY_CREEPS, 1).length < 2;
                             }
                         });
                         if (!nearest) {

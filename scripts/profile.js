@@ -12,6 +12,7 @@ var STATE = require('state');
 
 module.exports = [
     {
+        "toughness": 1,
         "population": 2,
         "profile": [
             {
@@ -63,6 +64,7 @@ module.exports = [
         ]
     },
     {
+        "toughness": 2,
         "population": 5,
         "profile": [
             {
@@ -114,6 +116,7 @@ module.exports = [
         ]
     },
     {
+        "toughness": 4,
         "population": 10,
         "profile": [
             {
@@ -165,6 +168,7 @@ module.exports = [
         ]
     },
     {
+        "toughness": 8,
         "population": 15,
         "profile": [
             {
@@ -212,6 +216,7 @@ module.exports = [
         ]
     },
     {
+        "toughness": 16,
         "population": 21,
         "profile": [
             {
@@ -250,6 +255,13 @@ module.exports = [
                 HAVE: 0,
             },
             {
+                ROLE: ROLE.PACKER,
+                STATE: STATE.SPAWNING,
+                BODY: BODY.BUILDERWORKER,
+                WANT: 1,
+                HAVE: 0,
+            },
+            {
                 ROLE: ROLE.MEDIC,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.MEDIC,
@@ -259,6 +271,7 @@ module.exports = [
         ]
     },
     {
+        "toughness": 25,
         "population": 33,
         "profile": [
             {
@@ -294,6 +307,13 @@ module.exports = [
                 STATE: STATE.SPAWNING,
                 BODY: BODY.PACKER,
                 WANT: 4,
+                HAVE: 0,
+            },
+            {
+                ROLE: ROLE.PACKER,
+                STATE: STATE.SPAWNING,
+                BODY: BODY.BUILDERWORKER,
+                WANT: 1,
                 HAVE: 0,
             },
             {

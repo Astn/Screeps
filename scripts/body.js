@@ -16,7 +16,7 @@ module.exports = {
         { parts: [Game.TOUGH, Game.TOUGH, Game.TOUGH, Game.TOUGH, Game.TOUGH, Game.TOUGH, Game.ATTACK, Game.ATTACK, Game.ATTACK, Game.MOVE, Game.MOVE] }
     ],
     ARCHER: [
-        { parts: [Game.TOUGH, Game.TOUGH, Game.TOUGH, Game.RANGED_ATTACK, Game.RANGED_ATTACK, Game.MOVE, Game.MOVE] }
+        { parts: [Game.TOUGH, Game.TOUGH, Game.TOUGH, Game.TOUGH, Game.TOUGH, Game.RANGED_ATTACK, Game.RANGED_ATTACK, Game.RANGED_ATTACK, Game.MOVE] }
     ],
     BUILDER: [
         { parts: [Game.CARRY, Game.CARRY, Game.MOVE, Game.MOVE] },
@@ -25,13 +25,13 @@ module.exports = {
         { parts: [Game.CARRY, Game.CARRY, Game.CARRY, Game.MOVE, Game.MOVE] },
     ],
     BUILDERWORKER: [
-        { parts: [Game.MOVE, Game.CARRY, Game.CARRY, Game.CARRY, Game.WORK] },
+        { parts: [Game.MOVE, Game.CARRY, Game.CARRY, Game.WORK, Game.WORK] },
     ],
     MINER: [
-        { parts: [Game.MOVE, Game.CARRY, Game.WORK, Game.WORK, Game.WORK] }
+        { parts: [Game.MOVE, Game.WORK, Game.WORK, Game.WORK, Game.WORK] }
     ],
     MEDIC: [
-        { parts: [Game.TOUGH, Game.TOUGH, Game.MOVE, Game.MOVE, Game.HEAL, Game.HEAL, Game.HEAL] }
+        { parts: [Game.TOUGH, Game.TOUGH, Game.TOUGH, Game.TOUGH, Game.TOUGH, Game.MOVE, Game.MOVE, Game.HEAL, Game.HEAL, Game.HEAL] }
     ],
     PACKER: [
         { parts: [Game.MOVE, Game.MOVE, Game.CARRY, Game.CARRY, Game.CARRY] }
