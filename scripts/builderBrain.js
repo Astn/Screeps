@@ -23,7 +23,7 @@ module.exports = {
                 // refresh energy numbers
                 var best = creep.pos.findClosest(Game.DROPPED_ENERGY, {
                     filter: function (drop) {
-                        return drop.energy >= creep.energyCapacity;
+                        return true; //drop.energy >= creep.energyCapacity;
                     }
                 });
 
@@ -54,6 +54,14 @@ module.exports = {
                     if (creep.pos.inRangeTo(source.pos, 1)) {
                         creep.memory.state = STATE.HARVESTING;
                     }
+
+                    var hostile = creep.pos.findClosest(Game.HOSTILE_CREEPS);
+                    if (hostile && creep.pos.inRangeTo(hostile.pos, 4)) {
+                        var closestSpawn = creep.pos.findClosest(Game.MY_SPAWNS);
+                        if (closestSpawn) {
+                            creep.moveTo(closestSpawn);
+                        }
+                    }
                 }
                 else {
                     creep.memory.state = STATE.NONE;
@@ -66,33 +74,20 @@ module.exports = {
 
                     creep.pickup(source);
                     // unreserve energy
-                    var matchDrop = null;
-                    Memory.drops.forEach(function (md) {
-                        if (md.id == creep.memory.target) {
-                            matchDrop = md;
-                        }
-                    });
-                    if (matchDrop) {
-                        matchDrop.reserved -= creep.energyCapacity;
-
-                             if(matchDrop.reserved === 0 && matchDrop.energy < 50){
-                            var idx = Memory.drops.indexOf(matchDrop);
-
-                            console.log("removing " + matchDrop.id + " energy: " + parseInt(matchDrop.energy) + " reserved: " + parseInt(matchDrop.reserved));
-                            Memory.drops.splice(idx, 1);
-                            break;
-                        }
-
-                    }
 
                     // check if there is more close energy and grab it
                     var drop = creep.pos.findClosest(Game.DROPPED_ENERGY);
-                    if (creep.pos.inRangeTo(drop, 5) && creep.energy < creep.energyCapacity) {
+                    if (creep.pos.inRangeTo(drop, 1) && creep.energy < creep.energyCapacity) {
                         creep.memory.target = drop.id;
-                        creep.memory.state = STATE.MOVE_TO_HARVEST;
+                        creep.pickup(drop);
                     }
-
-                    creep.memory.state = STATE.MOVE_TO_TRANSFER;
+                    else if (creep.pos.inRangeTo(drop, 3) && creep.energy < creep.energyCapacity) {
+                        creep.memory.target = drop.id;
+                        creep.moveTo(drop);
+                    }
+                    else {
+                        creep.memory.state = STATE.MOVE_TO_TRANSFER;
+                    }
                 }
                 break;
             }
