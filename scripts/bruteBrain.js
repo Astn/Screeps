@@ -15,12 +15,17 @@ module.exports = {
             case STATE.NONE:
                 {
                     //console.log('Valid state:' + creep.name + ':' + creep.memory.state);
-                    hostile = creep.pos.findClosest(Game.HOSTILE_CREEPS);
+                    if (Memory[creep.room.name].closestHostile) {
+                        hostile = Game.getObjectById(Memory[creep.room.name].closestHostile);
+                    }
+                    
+                    //hostile = creep.pos.findClosest(Game.HOSTILE_CREEPS);
+                    
                     if (hostile) {
                         creep.memory.state = STATE.ATTACKING;
                         creep.memory.target = null;
                     }
-
+                    
                     var closestSpawn = creep.pos.findClosest(Game.MY_SPAWNS);
                     if (closestSpawn) {
                         var tooCloseToSpawn = creep.pos.inRangeTo(closestSpawn, 3);
@@ -39,7 +44,7 @@ module.exports = {
                     if (closestBuddy && creep.pos.inRangeTo(closestBuddy.pos, 2) === false) {
                         creep.moveTo(closestBuddy);
                     }
-
+                    
                     break;
                 }
                 /*case STATE.MOVE_TO_ATTACK: {
@@ -88,14 +93,14 @@ module.exports = {
                         creep.moveTo(closestHealer);
                         break;
                     }
-                    else if (closestHealer === null) {                        
+                    else if (closestHealer === null) {
                         if (creep.pos.inRangeTo(spawn.pos, 1) === false) {
                             creep.moveTo(spawn);
                             break;
                         }
                     }
                     
-                    hostile = spawn.pos.findClosest(Game.HOSTILE_CREEPS);
+                    hostile = Game.getObjectById(Memory[creep.room.name].closestHostile);
                     if (hostile) {
                         var myBiggestThreat = creep.pos.findClosest(Game.HOSTILE_CREEPS);
                         if (myBiggestThreat && creep.pos.inRangeTo(myBiggestThreat.pos, 2)) {
@@ -105,13 +110,13 @@ module.exports = {
                             creep.memory.target = hostile.id;
                         }
                         
-
+                        
                         runAway = hostile.pos.getDirectionTo(creep);
                         var ranged = creep.getActiveBodyparts(Game.RANGED_ATTACK);
                         var close = creep.getActiveBodyparts(Game.ATTACK);
                         
                         
-
+                        
                         var inRanged = creep.pos.inRangeTo(hostile.pos, 3);
                         if (ranged && inRanged) {
                             creep.rangedAttack(hostile);
@@ -122,8 +127,8 @@ module.exports = {
                             creep.moveTo(hostile);
                             creep.attack(hostile);
                         }
-
-
+                        
+                        
                         var inClose = creep.pos.inRangeTo(hostile.pos, 1);
                         if (close && inClose) {
                             creep.attack(hostile);
@@ -138,7 +143,7 @@ module.exports = {
                         creep.memory.target = null;
                         creep.memory.state = STATE.MOVE_TO_TRANSFER;
                     }
-
+                    
                     break;
                 }
             case STATE.MOVE_TO_TRANSFER:
