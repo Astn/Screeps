@@ -7,9 +7,8 @@
  */
 var ROLE = require('role');
 
-module.exports =
-{
-    remember: function (creep, state, role) {
+module.exports = {
+    remember: function(creep, state, role) {
         if (!creep.memory) {
             creep.memory = {
                 state: state,
@@ -19,14 +18,14 @@ module.exports =
             creep.memory.state = state;
         }
     },
-    comp: function (a, b) {
+    comp: function(a, b) {
         if ((a.WANT - a.HAVE) < (b.WANT - b.HAVE))
             return 1;
         if ((a.WANT - a.HAVE) > (b.WANT - b.HAVE))
             return -1;
         return 0;
     },
-    compRatio: function (a, b) {
+    compRatio: function(a, b) {
         if ((a.TARGET - a.RATIO) < (b.TARGET - b.RATIO))
             return 1;
         if ((a.TARGET - a.RATIO) > (b.WANT - b.RATIO))
@@ -34,13 +33,13 @@ module.exports =
         return 0;
     },
     _settings: [],
-    profile: function (settings) {
+    profile: function(settings) {
         this._settings = settings;
     },
-    spawn: function () {
+    spawn: function() {
         var result = [];
 
-        var getName = function (role) {
+        var getName = function(role) {
             switch (role) {
                 case ROLE.BRUTE:
                     return 'Bruce';
@@ -54,12 +53,12 @@ module.exports =
             var spawn = Game.spawns[s];
             if (spawn.spawning === null) {
 
-                // find the settings that are for a population more then, but closest to what we have.
+                // find the settings that are for a population more than, but closest to what we have.
                 var weHave = spawn.room.find(Game.MY_CREEPS).length;
                 var closestDiff = 0;
                 var closestSettingsPop = null;
                 var closestSettings = null;
-                this._settings.forEach(function (setting) {
+                this._settings.forEach(function(setting) {
 
                     //if(closestSettingsPop)
                     //    console.log("avail setting: " + parseInt(setting.population) + " we are: "  + parseInt(closestSettingsPop.population - weHave) + " could have: "+ parseInt(setting.population - weHave));
@@ -83,10 +82,10 @@ module.exports =
                 // so check creep.memory.role and accumulate it to update how many we have.
 
                 if (closestSettings) {
-                    closestSettings.forEach(function (x) {
+                    closestSettings.forEach(function(x) {
 
                         x.HAVE = spawn.room.find(Game.MY_CREEPS, {
-                            filter: function (f) {
+                            filter: function(f) {
                                 // console.log('mem role: '+ f.memory.role +' other role: ' + x.ROLE)
                                 return f.memory.role == x.ROLE;
                             }
@@ -94,7 +93,7 @@ module.exports =
 
                         x.TOTAL = spawn.room.find(Game.MY_CREEPS).length;
                         x.RATIO = x.HAVE / x.TOTAL;
-                        x.TARGET = x.WANT / (closestSettings.reduce(function (a, b) {
+                        x.TARGET = x.WANT / (closestSettings.reduce(function(a, b) {
                             return a + b.WANT;
                         }, 0));
                     });
@@ -115,11 +114,17 @@ module.exports =
                         var parts = current.BODY[i].parts;
                         var id = 1;
                         var name = getName(current.ROLE) + ' ' + parseInt(spawn.room.find(Game.CREEPS).length);
-                        var buildCode = spawn.createCreep(parts, name, { state: current.STATE, role: current.ROLE });
+                        var buildCode = spawn.createCreep(parts, name, {
+                            state: current.STATE,
+                            role: current.ROLE
+                        });
                         var tries = 5;
                         while (buildCode == -3 && --tries > 0) {
 
-                            spawn.createCreep(parts, current.ROLE + ' ' + parseInt(++id), { state: current.STATE, role: current.ROLE });
+                            spawn.createCreep(parts, current.ROLE + ' ' + parseInt(++id), {
+                                state: current.STATE,
+                                role: current.ROLE
+                            });
                         }
 
                         if (buildCode >= 0) {

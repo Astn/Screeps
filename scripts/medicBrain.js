@@ -8,7 +8,7 @@
 var STATE = require('state');
 
 module.exports = {
-    think: function (creep) {
+    think: function(creep) {
 
         var injured;
         switch (creep.memory.state) {
@@ -16,7 +16,7 @@ module.exports = {
                 {
                     //console.log('Valid state:' + creep.name + ':' + creep.memory.state);
                     injured = creep.pos.findNearest(Game.MY_CREEPS, {
-                        filter: function (otherCreep) {
+                        filter: function(otherCreep) {
                             return otherCreep.hits < otherCreep.hitsMax;
                         }
                     });
@@ -41,21 +41,21 @@ module.exports = {
             case STATE.HEALING:
                 {
                     injured = creep.pos.findNearest(Game.MY_CREEPS, {
-                        filter: function (otherCreep) {
+                        filter: function(otherCreep) {
                             return otherCreep.getActiveBodyparts(Game.HEAL) && otherCreep.hits < otherCreep.hitsMax;
                         }
                     });
 
                     if (!injured)
                         injured = creep.pos.findNearest(Game.MY_CREEPS, {
-                            filter: function (otherCreep) {
+                            filter: function(otherCreep) {
                                 return otherCreep.getActiveBodyparts(Game.ATTACK) && otherCreep.hits < otherCreep.hitsMax;
                             }
                         });
 
                     if (!injured)
                         injured = creep.pos.findNearest(Game.MY_CREEPS, {
-                            filter: function (otherCreep) {
+                            filter: function(otherCreep) {
                                 return otherCreep.hits < otherCreep.hitsMax;
                             }
                         });
@@ -72,12 +72,10 @@ module.exports = {
                         var inClose = creep.pos.inRangeTo(injured.pos, 1);
                         if (inClose) {
                             creep.heal(injured);
-                        }
-                        else if (inRange) {
+                        } else if (inRange) {
                             creep.moveTo(injured);
                             creep.rangedHeal(injured);
-                        }
-                        else {
+                        } else {
                             creep.moveTo(injured);
                         }
 
