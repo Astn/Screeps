@@ -15,9 +15,9 @@ module.exports = [
         "population": 2,
         "profile": [
             {
-                ROLE: ROLE.CAPTIAN,
+                ROLE: ROLE.CAPTAIN,
                 STATE: STATE.SPAWNING,
-                BODY: BODY.CAPTIAN,
+                BODY: BODY.CAPTAIN,
                 WANT: 0,
                 HAVE: 0
             },
@@ -62,9 +62,9 @@ module.exports = [
         "population": 5,
         "profile": [
             {
-                ROLE: ROLE.CAPTIAN,
+                ROLE: ROLE.CAPTAIN,
                 STATE: STATE.SPAWNING,
-                BODY: BODY.CAPTIAN,
+                BODY: BODY.CAPTAIN,
                 WANT: 0,
                 HAVE: 0
             },
@@ -109,9 +109,9 @@ module.exports = [
         "population": 10,
         "profile": [
             {
-                ROLE: ROLE.CAPTIAN,
+                ROLE: ROLE.CAPTAIN,
                 STATE: STATE.SPAWNING,
-                BODY: BODY.CAPTIAN,
+                BODY: BODY.CAPTAIN,
                 WANT: 0,
                 HAVE: 0
             },
@@ -156,9 +156,9 @@ module.exports = [
         "population": 15,
         "profile": [
             {
-                ROLE: ROLE.CAPTIAN,
+                ROLE: ROLE.CAPTAIN,
                 STATE: STATE.SPAWNING,
-                BODY: BODY.CAPTIAN,
+                BODY: BODY.CAPTAIN,
                 WANT: 0,
                 HAVE: 0
             },
@@ -203,9 +203,9 @@ module.exports = [
         "population": 21,
         "profile": [
             {
-                ROLE: ROLE.CAPTIAN,
+                ROLE: ROLE.CAPTAIN,
                 STATE: STATE.SPAWNING,
-                BODY: BODY.CAPTIAN,
+                BODY: BODY.CAPTAIN,
                 WANT: 0,
                 HAVE: 0
             },
@@ -250,9 +250,9 @@ module.exports = [
         "population": 33,
         "profile": [
             {
-                ROLE: ROLE.CAPTIAN,
+                ROLE: ROLE.CAPTAIN,
                 STATE: STATE.SPAWNING,
-                BODY: BODY.CAPTIAN,
+                BODY: BODY.CAPTAIN,
                 WANT: 0,
                 HAVE: 0
             },

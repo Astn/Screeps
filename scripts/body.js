@@ -6,7 +6,7 @@
  * var mod = require('body'); // -> 'a thing'
  */
 module.exports = {
-    CAPTIAN: [
+    CAPTAIN: [
         { parts: [Game.RANGED_ATTACK, Game.RANGED_ATTACK, Game.RANGED_ATTACK, Game.RANGED_ATTACK, Game.MOVE] }
     ],
     BRUTE: [

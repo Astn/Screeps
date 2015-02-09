@@ -55,7 +55,7 @@ module.exports = {
                     bruteBrain.think(creep);
                     break;
                 }
-            case ROLE.CAPTIAN:
+            case ROLE.CAPTAIN:
                 {
                     bruteBrain.think(creep);
                     break;

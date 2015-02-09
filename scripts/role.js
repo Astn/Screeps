@@ -6,7 +6,7 @@
  * var mod = require('role'); // -> 'a thing'
  */
 module.exports = {
-    CAPTIAN: 'captian',
+    CAPTAIN: 'CAPTAIN',
     BRUTE: 'brute',
     ARCHER: 'archer',
     PACKER: 'packer',
