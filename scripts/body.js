@@ -25,7 +25,7 @@ module.exports = {
         { parts: [Game.CARRY, Game.CARRY, Game.CARRY, Game.MOVE, Game.MOVE] },
     ],
     BUILDERWORKER: [
-        { parts: [Game.MOVE, Game.CARRY, Game.CARRY, Game.WORK, Game.WORK] },
+        { parts: [Game.MOVE, Game.CARRY, Game.CARRY, Game.CARRY, Game.WORK] },
     ],
     MINER: [
         { parts: [Game.MOVE, Game.WORK, Game.WORK, Game.WORK, Game.WORK] }

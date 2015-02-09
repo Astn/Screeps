@@ -116,7 +116,7 @@ module.exports = {
                     if (spawn) {
                         
                         creep.moveTo(spawn);
-                            if (creep.pos.inRangeTo(spawn.pos, 4) || creep.pos.inRangeTo(spawn.pos, 5) && creep.room.find(Game.MY_CREEPS).some(function (c) { return creep.pos.isNearTo(c) && creep.pos.getDirectionTo(c) == creep.pos.getDirectionTo(spawn); })) {
+                            if (creep.pos.inRangeTo(spawn.pos, 2) || creep.pos.inRangeTo(spawn.pos, 3) && creep.room.find(Game.MY_CREEPS).some(function (c) { return creep.pos.isNearTo(c) && creep.pos.getDirectionTo(c) == creep.pos.getDirectionTo(spawn); })) {
                                 creep.memory.state = STATE.NONE;
                             }
                         
