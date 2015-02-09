@@ -6,7 +6,7 @@
  * var mod = require('minerBrain'); // -> 'a thing'
  */
 var STATE = require('state');
-
+var ROLE = require('role');
 module.exports = {
         bestSiteOrSpawn : function (someCreep) {
             var place = someCreep.pos.findClosest(Game.CONSTRUCTION_SITES, { filter: function (item) { return item.progress > 0 } });
@@ -15,7 +15,42 @@ module.exports = {
             if (!place)
                 place = someCreep.pos.findClosest(Game.MY_SPAWNS);
             return place;
-        },
+    },
+    bucketBrigade: function(creep){
+            var place = creep.pos.findClosest(Game.CONSTRUCTION_SITES, { filter: function (item) { return item.progress > 0 } });
+            if (!place)
+                place = creep.pos.findClosest(Game.CONSTRUCTION_SITES);
+            if (!place)
+                place = creep.pos.findClosest(Game.MY_SPAWNS);
+        var bestAsICanTell = place;
+        if (bestAsICanTell) {
+            var myPath = creep.pos.findPathTo(bestAsICanTell);
+            myPathLength = myPath.length;
+            // find nearest carrier who is less then full, and is closer to spawner
+            var buddyCloserToASiteOrSpawn = creep.pos.findClosest(Game.MY_CREEPS, {
+                filter: function (c) {
+                    return c.getActiveBodyparts(Game.CARRY) > 0 && (c.memory.role == ROLE.PACKER || c.memory.role == ROLE.WORKER);
+                }
+            });
+            if (buddyCloserToASiteOrSpawn) {
+                var hisBestSiteOrSpawn = buddyCloserToASiteOrSpawn.pos.findPathTo(bestAsICanTell);
+                if (hisBestSiteOrSpawn.length >= this.lengthLimit) {
+                }
+                // if we are close enough to pass energy
+                
+                if (creep.pos.isNearTo(buddyCloserToASiteOrSpawn)) {
+                    creep.transferEnergy(buddyCloserToASiteOrSpawn);
+                    buddyCloserToASiteOrSpawn.memory.state = STATE.HARVESTING;
+                }
+                else {
+                    // move closer
+                    creep.moveTo(buddyCloserToASiteOrSpawn);
+                }
+                return true;
+            }
+        }
+            return false;
+    },
     think: function (creep) {
         var site;
         var spawn;
@@ -47,7 +82,18 @@ module.exports = {
                     creep.memory.state = STATE.MOVE_TO_HARVEST;
 
                 }
-
+                else {
+                    // bucket
+                    var passTheBucket = creep.pos.findClosest(Game.MY_CREEPS, {
+                        filter: function (f) {
+                            return f.energy > 0;
+                        }
+                    });
+                    if (passTheBucket) {
+                        creep.memory.target = passTheBucket.id;
+                        creep.memory.state = STATE.MOVE_TO_HARVEST;
+                    }
+                }
                 break;
             }
             case STATE.MOVE_TO_HARVEST: {
@@ -98,31 +144,7 @@ module.exports = {
                         creep.moveTo(drop);
                     }
                     else {
-                        var buddyCloserToASiteOrSpawn = creep.pos.findClosest(Game.MY_CREEPS , { filter: function (f) { return true; } });
-                        var place = creep.pos.findClosest(Game.CONSTRUCTION_SITES, { filter: function (item) { return item.progress > 0 } });
-                        if (!place)
-                            place = creep.pos.findClosest(Game.CONSTRUCTION_SITES);
-                        if (!place)
-                            place = creep.pos.findClosest(Game.MY_SPAWNS);
-                        var bestAsICanTell = place;
-                        var myPath = creep.pos.findPathTo(bestAsICanTell);
-                        myPathLength = myPath.length;
-                        // find nearest carrier who is less then full, and is closer to spawner
-                        
-                        if (buddyCloserToASiteOrSpawn) {
-                            var hisBestSiteOrSpawn = buddyCloserToASiteOrSpawn.pos.findPathTo(bestAsICanTell);
-                            if (hisBestSiteOrSpawn.length >= this.lengthLimit) {
-                            }
-                            // if we are close enough to pass energy
-                            
-                            if (creep.pos.isNearTo(buddyCloserToASiteOrSpawn)) {
-                                creep.transferEnergy(buddyCloserToASiteOrSpawn);
-                            }
-                            else {
-                                // move closer
-                                creep.moveTo(buddyCloserToASiteOrSpawn);
-                            }
-                        }
+                        this.bucketBrigade(creep);
 
                         creep.memory.state = STATE.MOVE_TO_TRANSFER;
                     }
@@ -131,34 +153,14 @@ module.exports = {
             }
             case STATE.MOVE_TO_TRANSFER: {
                 
-                var place = creep.pos.findClosest(Game.CONSTRUCTION_SITES, { filter: function (item) { return item.progress > 0 } });
-                if (!place)
-                    place = creep.pos.findClosest(Game.CONSTRUCTION_SITES);
-                if (!place)
-                    place = creep.pos.findClosest(Game.MY_SPAWNS);
-                var bestAsICanTell = place;
-                var myPath = creep.pos.findPathTo(bestAsICanTell);
-                myPathLength = myPath.length;
-                // find nearest carrier who is less then full, and is closer to spawner
-                var buddyCloserToASiteOrSpawn = creep.pos.findClosest(Game.MY_CREEPS);
-                if (buddyCloserToASiteOrSpawn) {
-                    var hisBestSiteOrSpawn = buddyCloserToASiteOrSpawn.pos.findPathTo(bestAsICanTell);
-                    if (hisBestSiteOrSpawn.length >= this.lengthLimit) {
-                    }
-                    // if we are close enough to pass energy
-                    
-                    if (creep.pos.isNearTo(buddyCloserToASiteOrSpawn)) {
-                        creep.transferEnergy(buddyCloserToASiteOrSpawn);
-                    }
-                    else {
-                        // move closer
-                        creep.moveTo(buddyCloserToASiteOrSpawn);
-                    }
-                }
+                
 
-                if (buddyCloserToASiteOrSpawn) {
-                    if(creep.energy === 0)
+                if (this.bucketBrigade(creep)) {
+                    if (creep.energy === 0) {
                         creep.memory.state = STATE.NONE;
+                        this.think(creep);
+                        break;
+                    }
                 }
                 
 
@@ -169,6 +171,8 @@ module.exports = {
                     creep.moveTo(site);
                     if (creep.pos.inRangeTo(site.pos, 1)) {
                         creep.memory.state = STATE.TRANSFERING;
+                        this.think(creep);
+                        break;
                     }
                 }
                 else {
@@ -177,6 +181,8 @@ module.exports = {
                         creep.moveTo(spawn);
                         if (creep.pos.inRangeTo(spawn.pos, 1)) {
                             creep.memory.state = STATE.TRANSFERING;
+                            this.think(creep);
+                            break;
                         }
                     }
                 }
@@ -187,23 +193,51 @@ module.exports = {
                 if (!site) {
                     site = creep.pos.findClosest(Game.CONSTRUCTION_SITES);
                 }
-
-                if (creep.getActiveBodyparts(Game.WORK) && site) {
-                    creep.moveTo(site);
-                    creep.build(site);
-                        if(creep.energy === 0)
+                var repair = creep.pos.findClosest(Game.MY_STRUCTURES, {
+                    filter: function (item) {
+                        return item.hits < item.hitsMax;
+                    }
+                });
+                
+                if (creep.getActiveBodyparts(Game.WORK) > 0 && (site || repair)) {
+                    if (site) {
+                        console.log("building");
+                        creep.moveTo(site);
+                        creep.build(site);
+                        
+                    }
+                    else {
+                        console.log("repairing");
+                        creep.moveTo(repair);
+                        creep.repair(repair);
+                    }
+                    
+                    if (creep.energy === 0) {
                         creep.memory.state = STATE.NONE;
+                        this.think(creep);
+                        break;
+                    }
+                    else {
+                        break;
+                    }
                 }
                 else {
                     spawn = creep.pos.findClosest(Game.MY_SPAWNS);
                     if (spawn) {
                         creep.transferEnergy(spawn, creep.energy);
-                        creep.memory.state = STATE.NONE;
+                        {
+                            creep.memory.state = STATE.NONE;
+                            this.think(creep);
+                            break;
+                        }
                     }
                 }
                 break;
             }
-            default: console.log('creep is in an unhandled state ' + creep.name + ':' + creep.memory.state);
+            default: {
+                console.log('creep is in an unhandled state ' + creep.name + ':' + creep.memory.state);
+                creep.memory.state = STATE.NONE;
+            }
         }
     }
 }

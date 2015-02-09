@@ -31,7 +31,7 @@ var linearDistance = function (pos1, pos2) {
     return Math.sqrt(x * x + y * y);
 };
 var spawnResult = spawner.spawn();
-
+console.log(spawnResult);
 for (var sp in Game.spawns) {
     var spawn = Game.spawns[sp];
     Memory[spawn.room.name] = {};

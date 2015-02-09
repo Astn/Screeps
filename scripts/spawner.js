@@ -44,6 +44,7 @@ module.exports =
                 var weHave = spawn.room.find(Game.MY_CREEPS).length;
                 var closestDiff = 0;
                 var closestSettingsPop = null;
+                var toughScale = 0;
                 var closestSettings = null;
                 this._settings.forEach(function (setting) {
                     
@@ -54,11 +55,13 @@ module.exports =
                         
                         closestSettingsPop = setting;
                         closestSettings = setting.profile;
+                        toughScale = setting.toughness;
                         closestDiff = closestSettingsPop.population - weHave;
                     } else if (!closestSettingsPop) {
                         
                         closestSettingsPop = setting;
                         closestSettings = setting.profile;
+                        toughScale = setting.toughness;
                         closestDiff = closestSettingsPop.population - weHave;
                     }
                 });
@@ -88,22 +91,20 @@ module.exports =
                 var onesWeWant = _.filter(closestSettings, function (n) { return n.WANT - n.HAVE > 0 });
                 var orderByRatio = _.sortBy(onesWeWant, function (n) { return n.HAVE / n.WANT });
                 var thenByPriority = _.sortBy(orderByRatio, function (n) { return n.PRIORITY });
-                
+                console.log(closestSettingsPop.population);
                 var current = thenByPriority[0];
                 
                 if (current && current.BODY) {
                     for (var i = 0; i < current.BODY.length; i++) {
                         
                         var parts = current.BODY[i].parts.slice(0);
-                        var toughScale = (Game.time - Memory.startTime) / 300;
-                        toughScale += (Game.time - Memory.startTime) / 500;
-                        console.log(toughScale);
-                        var toughness = [];
-                        for (var j = 0; j < toughScale; j++) {
-                            toughness.push(Game.TOUGH);
-                            console.log(toughness);
+                        if (_.some(parts, function (f) { return f == Game.ATTACK || f == Game.RANGED_ATTACK })) {
+                            var toughness = [];
+                            for (var j = 0; j < toughScale; j++) {
+                                toughness.push(Game.TOUGH);
+                            }
+                            parts = toughness.concat(parts);
                         }
-                        parts = toughness.concat(parts);
                         var id = 1;
                         var name = getName(current.ROLE) + ' ' + parseInt(spawn.room.find(Game.CREEPS).length);
                         var buildCode = spawn.createCreep(parts, name, { state: current.STATE, role: current.ROLE });
