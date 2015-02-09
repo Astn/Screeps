@@ -6,11 +6,11 @@
  * var mod = require('role'); // -> 'a thing'
  */
 module.exports = {
-    CAPTAIN: 'CAPTAIN',
-    BRUTE: 'brute',
-    ARCHER: 'archer',
-    PACKER: 'packer',
-    WORKER: 'builder',
-    MINER: 'miner',
-    MEDIC: 'medic'
+	CAPTAIN: 'captain',
+	BRUTE: 'brute',
+	ARCHER: 'archer',
+	PACKER: 'packer',
+	WORKER: 'builder',
+	MINER: 'miner',
+	MEDIC: 'medic'
 };

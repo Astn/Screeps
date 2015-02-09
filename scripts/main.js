@@ -66,43 +66,62 @@ for (var roomName in _.uniq(roomNames)) {
 				}
 
 				var memoryMap = Memory.map[creep.room.name];
-				var memoryPos = _.find(memoryMap, function (item) { return item.name == posName; });
+				var memoryPos = _.find(memoryMap, function(item) {
+					return item.name == posName;
+				});
 				if (!memoryPos) {
 
-					memoryMap.push({ 'name': posName, 'x': creep.memory.lastPos.x, 'y': creep.memory.lastPos.y, 'wear': 1 });
-				}
-				else {
+					memoryMap.push({
+						'name': posName,
+						'x': creep.memory.lastPos.x,
+						'y': creep.memory.lastPos.y,
+						'wear': 1
+					});
+				} else {
 
 					memoryPos.wear++;
 				}
 
 			}
 		}
-		creep.memory.lastPos = { 'x': creep.pos.x, 'y': creep.pos.y };
+		creep.memory.lastPos = {
+			'x': creep.pos.x,
+			'y': creep.pos.y
+		};
 	}
 	// find hottest pos with above average wear
 
 	if (Memory.map[room.name] && Memory.map[room.name].length > 1) {
 
 		var memoryMap = Memory.map[room.name];
-		var avg = _.reduce(memoryMap, function (agg, item) { return agg + item.wear; }, 0) / memoryMap.length;
+		var avg = _.reduce(memoryMap, function(agg, item) {
+			return agg + item.wear;
+		}, 0) / memoryMap.length;
 		avg++;
 
 		var avg2 = _.chain(memoryMap)
-			.filter(function (item) { return item.wear > avg; })
-			.reduce(memoryMap, function (agg, item) { return agg + item.wear; }, 0)
+			.filter(function(item) {
+				return item.wear > avg;
+			})
+			.reduce(memoryMap, function(agg, item) {
+				return agg + item.wear;
+			}, 0)
 			.value() / memoryMap.length;
 		avg2++;
 
 		var hotSpot = _.chain(memoryMap)
-			.filter(function (item) { return !item.construction && item.wear > avg2 && item.wear > 15; })
-			.reduce(function (agg, item) {
+			.filter(function(item) {
+				return !item.construction && item.wear > avg2 && item.wear > 15;
+			})
+			.reduce(function(agg, item) {
 				if (!agg)
 					return item;
 				if (item.wear > agg.wear)
 					return item;
 				return agg;
-			}, { 'wear': -1 })
+			}, {
+				'wear': -1
+			})
 			.value();
 
 		// if # construction sites is less then 2, then make another.

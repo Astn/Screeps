@@ -8,7 +8,7 @@
 var STATE = require('state');
 
 module.exports = {
-    think: function (creep) {
+    think: function(creep) {
         var runAway;
         var hostile;
         switch (creep.memory.state) {
@@ -54,7 +54,11 @@ module.exports = {
                         }*/
             case STATE.ATTACKING:
                 {
-                    hostile = creep.pos.findNearest(Game.HOSTILE_CREEPS, { filter: function (item) { return item.getActiveBodyparts(Game.HEAL) > 0 && creep.pos.inRangeTo(item.pos, 5); } });
+                    hostile = creep.pos.findNearest(Game.HOSTILE_CREEPS, {
+                        filter: function(item) {
+                            return item.getActiveBodyparts(Game.HEAL) > 0 && creep.pos.inRangeTo(item.pos, 5);
+                        }
+                    });
                     if (!hostile)
                         hostile = creep.pos.findNearest(Game.HOSTILE_CREEPS);
                     if (hostile) {
@@ -96,7 +100,9 @@ module.exports = {
                     var spawn = creep.pos.findNearest(Game.MY_SPAWNS);
                     if (spawn) {
                         creep.moveTo(spawn);
-                        if (creep.pos.inRangeTo(spawn.pos, 5) || creep.pos.inRangeTo(spawn.pos, 6) && creep.room.find(Game.MY_CREEPS).some(function (c) { return creep.pos.isNearTo(c) && creep.pos.getDirectionTo(c) == creep.pos.getDirectionTo(spawn); })) {
+                        if (creep.pos.inRangeTo(spawn.pos, 5) || creep.pos.inRangeTo(spawn.pos, 6) && creep.room.find(Game.MY_CREEPS).some(function(c) {
+                                return creep.pos.isNearTo(c) && creep.pos.getDirectionTo(c) == creep.pos.getDirectionTo(spawn);
+                            })) {
                             creep.memory.state = STATE.NONE;
                         }
                     }
