@@ -202,9 +202,14 @@ module.exports = {
                 if (creep.getActiveBodyparts(Game.WORK) > 0 && (site || repair)) {
                     if (site) {
                         console.log("building");
-                        creep.moveTo(site);
-                        creep.build(site);
-                        
+                        var result = creep.build(site);
+                        if (result == Game.ERR_NOT_IN_RANGE) {
+                            creep.moveTo(site);
+                        }
+                        if (result == Game.ERR_INVALID_TARGET) {
+                            spawn = creep.pos.findClosest(Game.MY_SPAWNS);
+                            creep.moveTo(spawn);
+                        }
                     }
                     else {
                         console.log("repairing");
