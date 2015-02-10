@@ -25,7 +25,6 @@ module.exports = {
         var bestAsICanTell = place;
         if (bestAsICanTell) {
             var myPath = creep.pos.findPathTo(bestAsICanTell);
-            myPathLength = myPath.length;
             // find nearest carrier who is less then full, and is closer to spawner
             var buddyCloserToASiteOrSpawn = creep.pos.findClosest(Game.MY_CREEPS, {
                 filter: function (c) {

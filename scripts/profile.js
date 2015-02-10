@@ -17,9 +17,9 @@ module.exports = [
         "profile": [
             {
                 PRIORITY: 3,
-                ROLE: ROLE.CAPTIAN,
+                ROLE: ROLE.CAPTAIN,
                 STATE: STATE.SPAWNING,
-                BODY: BODY.CAPTIAN,
+                BODY: BODY.CAPTAIN,
                 WANT: 1,
                 HAVE: 0
             },
@@ -68,9 +68,9 @@ module.exports = [
         "population": 5,
         "profile": [
             {
-                ROLE: ROLE.CAPTIAN,
+                ROLE: ROLE.CAPTAIN,
                 STATE: STATE.SPAWNING,
-                BODY: BODY.CAPTIAN,
+                BODY: BODY.CAPTAIN,
                 WANT: 1,
                 HAVE: 0
             },
@@ -120,9 +120,9 @@ module.exports = [
         "population": 11,
         "profile": [
             {
-                ROLE: ROLE.CAPTIAN,
+                ROLE: ROLE.CAPTAIN,
                 STATE: STATE.SPAWNING,
-                BODY: BODY.CAPTIAN,
+                BODY: BODY.CAPTAIN,
                 WANT: 2,
                 HAVE: 0
             },
@@ -180,9 +180,9 @@ module.exports = [
         "population": 15,
         "profile": [
             {
-                ROLE: ROLE.CAPTIAN,
+                ROLE: ROLE.CAPTAIN,
                 STATE: STATE.SPAWNING,
-                BODY: BODY.CAPTIAN,
+                BODY: BODY.CAPTAIN,
                 WANT: 3,
                 HAVE: 0
             },
@@ -241,9 +241,9 @@ module.exports = [
         "population": 43,
         "profile": [
             {
-                ROLE: ROLE.CAPTIAN,
+                ROLE: ROLE.CAPTAIN,
                 STATE: STATE.SPAWNING,
-                BODY: BODY.CAPTIAN,
+                BODY: BODY.CAPTAIN,
                 WANT: 6,
                 HAVE: 0
             },
