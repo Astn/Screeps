@@ -8,7 +8,7 @@
 var STATE = require('state');
 
 module.exports = {
-    think: function (creep) {
+    think: function(creep) {
         var source;
         switch (creep.memory.state) {
             case STATE.NONE:
@@ -44,8 +44,7 @@ module.exports = {
                         if (creep.pos.inRangeTo(source.pos, 1)) {
 
                             creep.memory.state = STATE.HARVESTING;
-                        }
-                        else {
+                        } else {
 
                             var moveResult = creep.moveTo(source);
                             if (moveResult == Game.ERR_NO_PATH) {
@@ -67,8 +66,7 @@ module.exports = {
 
                             creep.memory.digIn = true;
                             creep.memory.state = STATE.MOVE_TO_TRANSFER;
-                        }
-                        else if (code != Game.OK && creep.memory.digIn !== true) {
+                        } else if (code != Game.OK && creep.memory.digIn !== true) {
 
                             creep.memory.state = STATE.NONE;
                         }

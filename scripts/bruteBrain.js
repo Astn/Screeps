@@ -8,7 +8,7 @@
 var STATE = require('state');
 
 module.exports = {
-    think: function (creep) {
+    think: function(creep) {
         var runAway;
         var hostile;
         switch (creep.memory.state) {
@@ -117,6 +117,8 @@ module.exports = {
                         
                         creep.moveTo(spawn);
                             if (creep.pos.inRangeTo(spawn.pos, 2) || creep.pos.inRangeTo(spawn.pos, 3) && creep.room.find(Game.MY_CREEPS).some(function (c) { return creep.pos.isNearTo(c) && creep.pos.getDirectionTo(c) == creep.pos.getDirectionTo(spawn); })) {
+                                return creep.pos.isNearTo(c) && creep.pos.getDirectionTo(c) == creep.pos.getDirectionTo(spawn);
+                            })) {
                                 creep.memory.state = STATE.NONE;
                             }
                         

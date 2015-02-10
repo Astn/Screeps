@@ -13,7 +13,7 @@ var medicBrain = require('medicBrain');
 var builderBrain = require('builderBrain');
 
 module.exports = {
-    chew: function (creep) {
+    chew: function(creep) {
 
         // only job is to put any spawning creep into none state
         switch (creep.memory.state) {
@@ -55,7 +55,7 @@ module.exports = {
                     bruteBrain.think(creep);
                     break;
                 }
-            case ROLE.CAPTIAN:
+            case ROLE.CAPTAIN:
                 {
                     bruteBrain.think(creep);
                     break;
