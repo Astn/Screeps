@@ -25,7 +25,7 @@ module.exports = {
                     
                     var closestSpawn = creep.pos.findClosest(Game.MY_SPAWNS);
                     if (closestSpawn) {
-                        var tooCloseToSpawn = creep.pos.inRangeTo(closestSpawn, 1);
+                        var tooCloseToSpawn = creep.pos.inRangeTo(closestSpawn, 2);
                         if (tooCloseToSpawn) {
                             runAway = closestSpawn.pos.getDirectionTo(creep);
                             var door = creep.pos.findClosest(Game.EXIT_TOP);
@@ -116,9 +116,7 @@ module.exports = {
                     if (spawn) {
                         
                         creep.moveTo(spawn);
-                            if (creep.pos.inRangeTo(spawn.pos, 2) || creep.pos.inRangeTo(spawn.pos, 3) && creep.room.find(Game.MY_CREEPS).some(function (c) { return creep.pos.isNearTo(c) && creep.pos.getDirectionTo(c) == creep.pos.getDirectionTo(spawn); })) {
-                                return creep.pos.isNearTo(c) && creep.pos.getDirectionTo(c) == creep.pos.getDirectionTo(spawn);
-                            } else {
+                        if (creep.pos.inRangeTo(spawn.pos, 2) || creep.pos.inRangeTo(spawn.pos, 3)) {
                                 creep.memory.state = STATE.NONE;
                             }
                         
