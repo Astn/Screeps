@@ -20,7 +20,7 @@ module.exports = [
                 ROLE: ROLE.CAPTAIN,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.CAPTAIN,
-                WANT: 1,
+                WANT: 0,
                 HAVE: 0
             },
             {
@@ -28,7 +28,7 @@ module.exports = [
                 ROLE: ROLE.BRUTE,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.BRUTE,
-                WANT: 0,
+                WANT: 1,
                 HAVE: 0
             },
             {
@@ -102,7 +102,7 @@ module.exports = [
                 ROLE: ROLE.PACKER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.PACKER,
-                WANT: 2,
+                WANT: 1,
                 HAVE: 0,
             },
             {
@@ -110,7 +110,7 @@ module.exports = [
                 ROLE: ROLE.MEDIC,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.MEDIC,
-                WANT: 1,
+                WANT: 2,
                 HAVE: 0
             }
         ]

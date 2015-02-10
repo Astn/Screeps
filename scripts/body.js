@@ -31,7 +31,7 @@ module.exports = {
         parts: [Game.MOVE, Game.WORK, Game.WORK, Game.WORK, Game.WORK]
     }],
     MEDIC: [{
-        parts: [Game.MOVE, Game.HEAL, Game.HEAL, Game.HEAL, Game.HEAL]
+        parts: [Game.MOVE, Game.MOVE, Game.HEAL, Game.HEAL, Game.HEAL]
     }],
     PACKER: [{
         parts: [Game.MOVE, Game.CARRY, Game.CARRY, Game.CARRY, Game.CARRY]

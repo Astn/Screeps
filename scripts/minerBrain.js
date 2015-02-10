@@ -8,7 +8,7 @@
 var STATE = require('state');
 
 module.exports = {
-    think: function(creep) {
+    think: function (creep) {
         var source;
         switch (creep.memory.state) {
             case STATE.NONE:
@@ -20,20 +20,26 @@ module.exports = {
                 }
             case STATE.MOVE_TO_HARVEST:
                 {
-                    if (!creep.memory.target || !Game.getObjectById(creep.memory.target)) {
-
-                        var nearest = creep.pos.findClosest(Game.SOURCES_ACTIVE, {
-                            filter: function (src){
-                                return src.pos.findInRange(Game.MY_CREEPS, 1).length < 2;
-                            }
+                    var activeSources = creep.room.find(Game.SOURCES_ACTIVE);
+                    var shortestPath = 1000;
+                    var nearest = {};
+                    nearest = null;
+                    for (var as in activeSources) {
+                        var asPath = creep.room.findPath(creep.pos, activeSources[as].pos, {
+                            ignoreCreeps: false
                         });
-                        if (!nearest) {
-                            creep.suicide();
-                            break;
+                        if (asPath.length < shortestPath) {
+                            shortestPath = asPath.length;
+                            nearest = activeSources[as];
                         }
-                        creep.memory.target = nearest.id;
                     }
-                    source = Game.getObjectById(creep.memory.target);
+
+                    if (!nearest) {
+                        creep.suicide();
+                        break;
+                    }
+                    creep.memory.target = nearest.id;
+                    source = nearest;
                     if (!source || creep.pos.inRangeTo(source.pos, 1)) {
 
                         creep.memory.target = null;
@@ -57,7 +63,20 @@ module.exports = {
                 }
             case STATE.HARVESTING:
                 {
-                    source = creep.pos.findClosest(Game.SOURCES_ACTIVE);
+                    var activeSources = creep.room.find(Game.SOURCES_ACTIVE);
+                    var shortestPath = 1000;
+                    var nearest = {};
+                    nearest = null;
+                    for (var as in activeSources) {
+                        var asPath = creep.room.findPath(creep.pos, activeSources[as].pos, {
+                            ignoreCreeps: false
+                        });
+                        if (asPath.length < shortestPath) {
+                            shortestPath = asPath.length;
+                            nearest = activeSources[as];
+                        }
+                    }
+                    source = nearest;
                     if (source) {
                         var prevEnergy = creep.energy;
                         var code = creep.harvest(source);
