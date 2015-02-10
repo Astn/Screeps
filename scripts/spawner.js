@@ -105,6 +105,13 @@ module.exports =
                             }
                             parts = toughness.concat(parts);
                         }
+                        else if (_.some(parts, function (f) { return f == Game.HEAL })) {
+                            var toughness = [];
+                            for (var j = 0; j < toughScale / 3; j++) {
+                                toughness.push(Game.TOUGH);
+                            }
+                            parts = toughness.concat(parts);
+                        }
                         var id = 1;
                         var name = getName(current.ROLE) + ' ' + parseInt(spawn.room.find(Game.CREEPS).length);
                         var buildCode = spawn.createCreep(parts, name, { state: current.STATE, role: current.ROLE });

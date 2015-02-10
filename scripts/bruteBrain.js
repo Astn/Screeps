@@ -19,8 +19,9 @@ module.exports = {
                     
                     if (hostile) {
                         creep.memory.state = STATE.ATTACKING;
+                        creep.moveTo(hostile);
                         creep.memory.target = null;
-                        this.think(creep);                   
+                        break;
                     }
                     
                     var closestSpawn = creep.pos.findClosest(Game.MY_SPAWNS);
@@ -45,25 +46,7 @@ module.exports = {
 
                     break;
                 }
-                /*case STATE.MOVE_TO_ATTACK: {
-                            
-                            var hostile = creep.pos.findClosest(Game.HOSTILE_CREEPS);
-                            if(hostile){
-                                if(!creep.memory.target){
-                                    creep.memory.target = hostile.id;
-                                }
-                                creep.moveTo(hostile);
-                                if(creep.pos.inRangeTo(hostile.pos,1)){
-                                    creep.memory.state = STATE.ATTACKING;
-                                    this.think(creep);
-                                }
-                            }
-                            else{
-                                creep.memory.target = null;
-                            }
-                            
-                            break;
-                        }*/
+
             case STATE.ATTACKING:
                 {
                     var spawn = {};
@@ -85,18 +68,16 @@ module.exports = {
                             creep.memory.target = hostile.id;
                         }
                         
-                        
-                        runAway = hostile.pos.getDirectionTo(creep);
                         var ranged = creep.getActiveBodyparts(Game.RANGED_ATTACK);
                         var close = creep.getActiveBodyparts(Game.ATTACK);
                         
-                        var inRanged = creep.pos.inRangeTo(hostile.pos, 3);
-                        if (ranged && inRanged) {
+                        if (ranged) {
                             creep.moveTo(hostile);
                             creep.rangedAttack(hostile);
-                            if (creep.pos.inRangeTo(hostile.pos, 2))
+                            if (creep.pos.inRangeTo(hostile.pos, 2)) {
+                                runAway = hostile.pos.getDirectionTo(creep);
                                 creep.move(runAway);
-                            break;
+                            }
                         } else {
                             creep.moveTo(hostile);
                             creep.attack(hostile);
@@ -117,9 +98,8 @@ module.exports = {
                         
                         creep.moveTo(spawn);
                         if (creep.pos.inRangeTo(spawn.pos, 2) || creep.pos.inRangeTo(spawn.pos, 3)) {
-                                creep.memory.state = STATE.NONE;
-                            }
-                        
+                            creep.memory.state = STATE.NONE;
+                        }
                     }
                     break;
                 }

@@ -207,7 +207,7 @@ module.exports = [
                 ROLE: ROLE.MINER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.MINER,
-                WANT: 4,
+                WANT: 3,
                 HAVE: 0
             },
             {
@@ -215,7 +215,7 @@ module.exports = [
                 ROLE: ROLE.PACKER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.PACKER,
-                WANT: 2,
+                WANT: 3,
                 HAVE: 0,
             },
             {
@@ -265,14 +265,14 @@ module.exports = [
                 ROLE: ROLE.MINER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.MINER,
-                WANT: 5,
+                WANT: 3,
                 HAVE: 0
             },
             {
                 ROLE: ROLE.PACKER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.PACKER,
-                WANT: 6,
+                WANT: 7,
                 HAVE: 0,
             },
             {
@@ -287,7 +287,7 @@ module.exports = [
                 ROLE: ROLE.MEDIC,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.MEDIC,
-                WANT: 6,
+                WANT: 7,
                 HAVE: 0
             }
         ]
