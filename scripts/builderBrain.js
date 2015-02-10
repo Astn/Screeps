@@ -153,16 +153,16 @@ module.exports = {
                     break;
                 }
             case STATE.MOVE_TO_TRANSFER:
-                
+                {
                 
 
-                if (this.bucketBrigade(creep)) {
-                    if (creep.energy === 0) {
-                        creep.memory.state = STATE.NONE;
-                        this.think(creep);
-                        break;
+                    if (this.bucketBrigade(creep)) {
+                        if (creep.energy === 0) {
+                            creep.memory.state = STATE.NONE;
+                            this.think(creep);
+                            break;
+                        }
                     }
-                }
                 
 
                     if (!site)
