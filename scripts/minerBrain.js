@@ -22,9 +22,12 @@ module.exports = {
                 {
                     if (!creep.memory.target || !Game.getObjectById(creep.memory.target)) {
 
-                        var nearest = creep.pos.findNearest(Game.SOURCES_ACTIVE);
+                        var nearest = creep.pos.findClosest(Game.SOURCES_ACTIVE, {
+                            filter: function (src){
+                                return src.pos.findInRange(Game.MY_CREEPS, 1).length < 2;
+                            }
+                        });
                         if (!nearest) {
-
                             creep.suicide();
                             break;
                         }
@@ -54,7 +57,7 @@ module.exports = {
                 }
             case STATE.HARVESTING:
                 {
-                    source = creep.pos.findNearest(Game.SOURCES_ACTIVE);
+                    source = creep.pos.findClosest(Game.SOURCES_ACTIVE);
                     if (source) {
                         var prevEnergy = creep.energy;
                         var code = creep.harvest(source);
@@ -78,7 +81,7 @@ module.exports = {
                 }
             case STATE.TRANSFERING:
                 {
-                    var spawn = creep.pos.findNearest(Game.MY_SPAWNS);
+                    var spawn = creep.pos.findClosest(Game.MY_SPAWNS);
                     if (spawn) {
                         creep.transferEnergy(spawn, creep.energy);
                         creep.memory.state = STATE.NONE;

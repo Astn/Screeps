@@ -6,7 +6,7 @@
  * var mod = require('bruteBrain'); // -> 'a thing'
  */
 var STATE = require('state');
-
+var _ = require('lodash');
 module.exports = {
     think: function(creep) {
 
@@ -15,50 +15,62 @@ module.exports = {
             case STATE.NONE:
                 {
                     //console.log('Valid state:' + creep.name + ':' + creep.memory.state);
-                    injured = creep.pos.findNearest(Game.MY_CREEPS, {
+                    injured = creep.pos.findClosest(Game.MY_CREEPS, {
                         filter: function(otherCreep) {
                             return otherCreep.hits < otherCreep.hitsMax;
                         }
                     });
 
-                    if (injured || creep.pos.findNearest(Game.HOSTILE_CREEPS)) {
+                    if (injured || creep.pos.findClosest(Game.HOSTILE_CREEPS)) {
                         creep.memory.state = STATE.HEALING;
                         creep.memory.target = null;
                     }
 
-                    var closestSpawn = creep.pos.findNearest(Game.MY_SPAWNS);
+                    var closestSpawn = creep.pos.findClosest(Game.MY_SPAWNS);
                     if (closestSpawn) {
 
                         var tooCloseToSpawn = creep.pos.inRangeTo(closestSpawn, 3);
                         if (tooCloseToSpawn) {
-                            var door = creep.pos.findNearest(Game.EXIT_TOP);
+                            var door = creep.pos.findClosest(Game.EXIT_TOP);
                             creep.moveTo(door);
                         }
                     }
-
+                    
                     break;
                 }
             case STATE.HEALING:
                 {
-                    injured = creep.pos.findNearest(Game.MY_CREEPS, {
+                    var hostile = creep.pos.findClosest(Game.HOSTILE_CREEPS);
+                    var healerHelpWhenAt = 1;
+                    if (hostile) {
+                        healerHelpWhenAt = .60;
+                    }
+
+                    injured = creep.pos.findClosest(Game.MY_CREEPS, {
                         filter: function(otherCreep) {
-                            return otherCreep.getActiveBodyparts(Game.HEAL) && otherCreep.hits < otherCreep.hitsMax;
+                            return otherCreep.getActiveBodyparts(Game.HEAL) && otherCreep.hits < (otherCreep.hitsMax * healerHelpWhenAt);
                         }
                     });
 
-                    if (!injured)
-                        injured = creep.pos.findNearest(Game.MY_CREEPS, {
+                    if (!injured) {
+                        var closeInjured = creep.pos.findInRange(Game.MY_CREEPS, 10, {
                             filter: function(otherCreep) {
-                                return otherCreep.getActiveBodyparts(Game.ATTACK) && otherCreep.hits < otherCreep.hitsMax;
+                                return (otherCreep.getActiveBodyparts(Game.ATTACK) || otherCreep.getActiveBodyparts(Game.RANGED_ATTACK)) && otherCreep.hits < otherCreep.hitsMax;
                             }
                         });
-
-                    if (!injured)
-                        injured = creep.pos.findNearest(Game.MY_CREEPS, {
+                        _.sortBy(closeInjured, function (n) { return n.hits / n.hitsMax });
+                        injured = closeInjured[0];
+                    }
+                    if (!injured) {
+                        var closeInjured = creep.pos.findInRange(Game.MY_CREEPS, 10, {
                             filter: function(otherCreep) {
                                 return otherCreep.hits < otherCreep.hitsMax;
                             }
                         });
+                        _.sortBy(closeInjured, function (n) { return n.hits / n.hitsMax });
+                        injured = closeInjured[0];
+                    }
+                   
 
                     if (injured) {
                         if (!creep.memory.target) {
@@ -80,30 +92,35 @@ module.exports = {
                         }
 
                     } else {
+                        var hostile = creep.pos.findClosest(Game.HOSTILE_CREEPS);
+                        if (hostile) {
+                            var runAway = hostile.pos.getDirectionTo(creep);
+                            if (creep.pos.inRangeTo(hostile.pos, 5)) {
+                                creep.move(runAway);
+                            }
+                            else {
+                                // we want to be close to the enemy because that is
+                                // were the action is so we can help our friends.
+                                creep.moveTo(hostile);
+                            }
+                        }
                         creep.memory.target = null;
-                        creep.memory.state = STATE.NONE;
+                        creep.memory.state = STATE.MOVE_TO_TRANSFER;
                     }
-
+                    
                     break;
                 }
-                /*case STATE.MOVE_TO_TRANSFER: {
-                            var spawn = creep.pos.findNearest(Game.MY_SPAWNS);
-                            if(spawn){
-                                creep.moveTo(spawn);
-                                if(creep.pos.inRangeTo(spawn.pos,1)){
-                                    creep.memory.state = STATE.TRANSFERING;
-                                }
-                            }
-                            break;
+            case STATE.MOVE_TO_TRANSFER:
+                {
+                    var spawn = creep.pos.findClosest(Game.MY_SPAWNS);
+                    if (spawn) {
+                        creep.moveTo(spawn);
+                        if (creep.pos.inRangeTo(spawn.pos, 3) ) {
+                            creep.memory.state = STATE.NONE;
                         }
-                        case STATE.TRANSFERING: {
-                            var spawn = creep.pos.findNearest(Game.MY_SPAWNS);
-                            if(spawn){
-                                creep.transferEnergy(spawn,creep.energy);
-                                creep.memory.state = STATE.NONE;
-                            }
-                            break;
-                        }*/
+                    }
+                    break;
+                }
             default:
                 {
                     creep.memory.state = STATE.NONE;
