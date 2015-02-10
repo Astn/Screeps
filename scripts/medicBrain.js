@@ -40,6 +40,14 @@ module.exports = {
                 }
             case STATE.HEALING:
                 {
+                    var spawn = {};
+                    for (var sp in Game.spawns) {
+                        if (Game.spawns[sp].room == creep.room) {
+                            spawn = Game.spawns[sp];
+                            break;
+                        }
+                    }
+
                     var hostile = creep.pos.findClosest(Game.HOSTILE_CREEPS);
                     var healerHelpWhenAt = 1;
                     if (hostile) {
@@ -62,7 +70,7 @@ module.exports = {
                         injured = closeInjured[0];
                     }
                     if (!injured) {
-                        var closeInjured = creep.pos.findInRange(Game.MY_CREEPS, 10, {
+                        var closeInjured = creep.pos.findInRange(Game.MY_CREEPS, 50, {
                             filter: function(otherCreep) {
                                 return otherCreep.hits < otherCreep.hitsMax;
                             }
@@ -70,7 +78,16 @@ module.exports = {
                         _.sortBy(closeInjured, function (n) { return n.hits / n.hitsMax });
                         injured = closeInjured[0];
                     }
-                   
+                    if (!injured) {
+                        var closeInjured = creep.pos.findInRange(Game.MY_CREEPS, 50, {
+                            filter: function (otherCreep) {
+                                return (otherCreep.getActiveBodyparts(Game.ATTACK) || otherCreep.getActiveBodyparts(Game.RANGED_ATTACK)) ;
+                            }
+                        });
+                        
+                        injured = closeInjured[0];
+                    }
+
 
                     if (injured) {
                         if (!creep.memory.target) {
@@ -108,6 +125,13 @@ module.exports = {
                         creep.memory.state = STATE.MOVE_TO_TRANSFER;
                     }
                     
+                    var pathToSpawn = creep.room.findPath(creep.pos, spawn.pos, {
+                        ignoreCreeps: true
+                    });
+                    if (pathToSpawn.length > 20) {
+                        creep.moveTo(spawn);
+                    }
+
                     break;
                 }
             case STATE.MOVE_TO_TRANSFER:

@@ -32,6 +32,12 @@ module.exports = {
                             var door = creep.pos.findClosest(Game.EXIT_TOP);
                             creep.move(runAway);
                         }
+                        var pathToSpawn = creep.room.findPath(creep.pos, closestSpawn.pos, {
+                            ignoreCreeps: true
+                        });
+                        if (pathToSpawn.length > 12) {
+                            creep.moveTo(closestSpawn);
+                        }
                     }
                     
                     var closestBuddy = creep.pos.findClosest(Game.MY_CREEPS, {
@@ -39,10 +45,11 @@ module.exports = {
                             return (close && otherCreep.getActiveBodyparts(Game.ATTACK)) || (ranged && otherCreep.getActiveBodyparts(Game.RANGED_ATTACK));
                         }
                     });
-                    if (closestBuddy && creep.pos.inRangeTo(closestBuddy.pos, 2) === false) {
+                    if (closestBuddy && creep.pos.inRangeTo(closestBuddy.pos, 3) === false) {
                         creep.moveTo(closestBuddy);
                     }
                     
+
 
                     break;
                 }
@@ -59,17 +66,32 @@ module.exports = {
                     
                     // find closest hostile, then find the closest friend to that hostile, then find that friends
                     // closest enemy. make him the target.
-                    hostile = creep.pos.findClosest(Game.HOSTILE_CREEPS);
+                    var hosilteCreeps = creep.room.find(Game.HOSTILE_CREEPS);
+                    var shortestPath = 1000;
+                    var nearest = {};
+                    nearest = null;
+                    for (var as in hosilteCreeps) {
+                        var asPath = creep.room.findPath(creep.pos, hosilteCreeps[as].pos, {
+                            ignoreCreeps: true
+                        });
+                        if (asPath.length < shortestPath) {
+                            shortestPath = asPath.length;
+                            nearest = hosilteCreeps[as];
+                        }
+                    }
+
+
+                    hostile = nearest;
                     
-                   
+                   var ranged = creep.getActiveBodyparts(Game.RANGED_ATTACK);
+                   var close = creep.getActiveBodyparts(Game.ATTACK);
                     if (hostile) {
                         
                         if (!creep.memory.target) {
                             creep.memory.target = hostile.id;
                         }
                         
-                        var ranged = creep.getActiveBodyparts(Game.RANGED_ATTACK);
-                        var close = creep.getActiveBodyparts(Game.ATTACK);
+                        
                         
                         if (ranged) {
                             creep.moveTo(hostile);
@@ -86,8 +108,19 @@ module.exports = {
 
                     } else {
                         creep.memory.target = null;
-                        creep.memory.state = STATE.MOVE_TO_TRANSFER;
+                        creep.memory.state = STATE.NONE;
                     }
+                    var pathToSpawn = creep.room.findPath(creep.pos, spawn.pos, {
+                        ignoreCreeps: true
+                    });
+                    var maxRoamingDistance = 20;
+                    if (close)
+                        maxRoamingDistance++;
+
+                    if (pathToSpawn.length > 20) {
+                        creep.moveTo(spawn);
+                    }
+
                     
                     break;
                 }
