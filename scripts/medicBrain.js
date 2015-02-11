@@ -60,35 +60,32 @@ module.exports = {
                         }
                     });
 
-                    if (!injured) {
-                        var closeInjured = creep.pos.findInRange(Game.MY_CREEPS, 10, {
-                            filter: function(otherCreep) {
-                                return (otherCreep.getActiveBodyparts(Game.ATTACK) || otherCreep.getActiveBodyparts(Game.RANGED_ATTACK)) && otherCreep.hits < otherCreep.hitsMax;
-                            }
-                        });
-                        _.sortBy(closeInjured, function (n) { return n.hits / n.hitsMax });
-                        injured = closeInjured[0];
-                    }
-                    if (!injured) {
-                        var closeInjured = creep.pos.findInRange(Game.MY_CREEPS, 50, {
-                            filter: function(otherCreep) {
-                                return otherCreep.hits < otherCreep.hitsMax;
-                            }
-                        });
-                        _.sortBy(closeInjured, function (n) { return n.hits / n.hitsMax });
-                        injured = closeInjured[0];
-                    }
-                    if (!injured) {
-                        var closeInjured = creep.pos.findInRange(Game.MY_CREEPS, 50, {
-                            filter: function (otherCreep) {
-                                return (otherCreep.getActiveBodyparts(Game.ATTACK) || otherCreep.getActiveBodyparts(Game.RANGED_ATTACK)) ;
-                            }
-                        });
-                        
-                        injured = closeInjured[0];
-                    }
 
 
+                    if (!injured) {
+                        var injuredCreeps = creep.room.find(Game.MY_CREEPS);
+                        injuredCreeps = _.filter(injuredCreeps, function(n){
+                            return (n.getActiveBodyparts(Game.ATTACK) > 0 || n.getActiveBodyparts(Game.RANGED_ATTACK) > 0) && n.hits < n.hitsMax;
+                        });
+                        injuredCreeps = _.filter(injuredCreeps, function(n){
+                            return (n.hits < n.hitsMax);
+                        });
+                        var shortestPath = 1000;
+                        var nearestInjured = {};
+                        nearestInjured = null;
+                        for (var idx in injuredCreeps) {
+                            var injuredCreep = injuredCreeps[idx];
+                            var asPath = creep.room.findPath(creep.pos, injuredCreep.pos, {
+                                ignoreCreeps: true
+                            });
+                            if (asPath.length < shortestPath) {
+                                shortestPath = asPath.length;
+                                nearestInjured = injuredCreep;
+                            }
+                        }
+                        //_.sortBy(closeInjured, function (n) { return n.hits / n.hitsMax });
+                        injured = nearestInjured;
+                    }
                     if (injured) {
                         if (!creep.memory.target) {
                             creep.memory.target = injured.id;
@@ -101,37 +98,46 @@ module.exports = {
                         var inClose = creep.pos.inRangeTo(injured.pos, 1);
                         if (inClose) {
                             creep.heal(injured);
+                            creep.moveTo(spawn);
                         } else if (inRange) {
-                            creep.moveTo(injured);
                             creep.rangedHeal(injured);
+                            creep.moveTo(injured);
                         } else {
                             creep.moveTo(injured);
                         }
 
                     } else {
-                        var hostile = creep.pos.findClosest(Game.HOSTILE_CREEPS);
-                        if (hostile) {
-                            var runAway = hostile.pos.getDirectionTo(creep);
-                            if (creep.pos.inRangeTo(hostile.pos, 5)) {
-                                creep.move(runAway);
+                        var frontLineCreeps = creep.room.find(Game.MY_CREEPS);
+                        frontLineCreeps = _.filter(frontLineCreeps, function (n) {
+                            return (n.getActiveBodyparts(Game.ATTACK) > 0 || n.getActiveBodyparts(Game.RANGED_ATTACK) > 0);
+                        });
+                        if (frontLineCreeps && frontLineCreeps.length > 0) {
+                            
+                            var currentLen = frontLineCreeps.length;
+                            for (var i = 0; i < currentLen / 6; i++){
+                                frontLineCreeps.push(spawn);
                             }
-                            else {
-                                // we want to be close to the enemy because that is
-                                // were the action is so we can help our friends.
-                                creep.moveTo(hostile);
+                            var sumX = _.reduce(frontLineCreeps,  function (sum, n) { return sum+ n.pos.x; }, 0);
+                            var sumY = _.reduce(frontLineCreeps,  function (sum, n) { return sum+ n.pos.y; }, 0);
+                            var avgX = Math.round( sumX / frontLineCreeps.length );
+                            var avgY = Math.round( sumY / frontLineCreeps.length );
+
+                            var spotPos = creep.room.getPositionAt(avgX, avgY);
+                            var spotInfo = creep.room.lookAt(spotPos);
+
+                            spotInfo = _.filter(spotInfo, function (n) { return n.type == 'terrain' && n.terrain == 'plain' || n.terrain == 'swamp' });
+                            if (spotInfo.length > 0) {
+                                var asPath = creep.room.findPath(creep.pos, spotPos, {
+                                    ignoreCreeps: false
+                                });
+                                if (asPath && asPath.length > 0) {
+                                    creep.move(asPath[0].direction);
+                                }
                             }
                         }
                         creep.memory.target = null;
-                        creep.memory.state = STATE.MOVE_TO_TRANSFER;
                     }
                     
-                    var pathToSpawn = creep.room.findPath(creep.pos, spawn.pos, {
-                        ignoreCreeps: true
-                    });
-                    if (pathToSpawn.length > 20) {
-                        creep.moveTo(spawn);
-                    }
-
                     break;
                 }
             case STATE.MOVE_TO_TRANSFER:

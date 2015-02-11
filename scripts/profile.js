@@ -180,6 +180,7 @@ module.exports = [
         "population": 15,
         "profile": [
             {
+                PRIORITY: 3,
                 ROLE: ROLE.CAPTAIN,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.CAPTAIN,
@@ -237,10 +238,11 @@ module.exports = [
         ]
     },
     {
-        "toughness": 25,
+        "toughness": 16,
         "population": 43,
         "profile": [
             {
+                PRIORITY: 2,
                 ROLE: ROLE.CAPTAIN,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.CAPTAIN,
@@ -248,6 +250,7 @@ module.exports = [
                 HAVE: 0
             },
             {
+                PRIORITY: 2,
                 ROLE: ROLE.BRUTE,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.BRUTE2,
@@ -255,6 +258,7 @@ module.exports = [
                 HAVE: 0
             },
             {
+                PRIORITY: 2,
                 ROLE: ROLE.ARCHER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.ARCHER,
@@ -262,6 +266,7 @@ module.exports = [
                 HAVE: 0
             },
             {
+                PRIORITY: 2,
                 ROLE: ROLE.MINER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.MINER,
@@ -269,10 +274,11 @@ module.exports = [
                 HAVE: 0
             },
             {
+                PRIORITY: 2,
                 ROLE: ROLE.PACKER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.PACKER,
-                WANT: 7,
+                WANT: 3,
                 HAVE: 0,
             },
             {
@@ -284,6 +290,7 @@ module.exports = [
                 HAVE: 0,
             },
             {
+                PRIORITY: 1,
                 ROLE: ROLE.MEDIC,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.MEDIC,

@@ -68,13 +68,16 @@ module.exports = {
                     // closest enemy. make him the target.
                     var hosilteCreeps = creep.room.find(Game.HOSTILE_CREEPS);
                     var shortestPath = 1000;
+                    var nearestCreepPath = [];
                     var nearest = {};
                     nearest = null;
                     for (var as in hosilteCreeps) {
                         var asPath = creep.room.findPath(creep.pos, hosilteCreeps[as].pos, {
-                            ignoreCreeps: true
+                            ignoreCreeps: true,
+                            ignoreDestructibleStructures: true
                         });
                         if (asPath.length < shortestPath) {
+                            nearestCreepPath = asPath;
                             shortestPath = asPath.length;
                             nearest = hosilteCreeps[as];
                         }
@@ -91,17 +94,15 @@ module.exports = {
                             creep.memory.target = hostile.id;
                         }
                         
-                        
-                        
                         if (ranged) {
-                            creep.moveTo(hostile);
+                            creep.move(nearestCreepPath[0].direction);
                             creep.rangedAttack(hostile);
                             if (creep.pos.inRangeTo(hostile.pos, 2)) {
                                 runAway = hostile.pos.getDirectionTo(creep);
                                 creep.move(runAway);
                             }
                         } else {
-                            creep.moveTo(hostile);
+                            creep.move(nearestCreepPath[0].direction);
                             creep.attack(hostile);
                         }
                                                
