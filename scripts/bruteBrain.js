@@ -6,7 +6,7 @@
  * var mod = require('bruteBrain'); // -> 'a thing'
  */
 var STATE = require('state');
-
+var _ = require('lodash');
 module.exports = {
     think: function(creep) {
         var runAway;
@@ -102,6 +102,23 @@ module.exports = {
                                 creep.move(runAway);
                             }
                         } else {
+                            // check if we should swap places with the creep next to us if we are trying to go that way.
+                            var atThatSpot = creep.room.lookAt(nearestCreepPath[0].x, nearestCreepPath[0].y);
+                            var isACreepThere = _.some(atThatSpot, function (n) { return n.type == 'creep' });
+                            if (isACreepThere) {
+                                 var justCreeps = _.filter(atThatSpot, function (n) { return n.type == 'creep' });
+                                 var otherCreep =_.first(justCreeps).creep;
+                                var isCloseAttacker = _.some(otherCreep.body, function (part) { return part.type == Game.ATTACK; });
+                                if (!isCloseAttacker) {
+                                    directionToMySpotFromTheirSpot = 0;
+                                    if (nearestCreepPath[0].direction >= 4)
+                                        directionToMySpotFromTheirSpot = nearestCreepPath[0].direction - 4;
+                                    else
+                                        directionToMySpotFromTheirSpot = nearestCreepPath[0].direction + 4;
+                                    otherCreep.move(directionToMySpotFromTheirSpot)
+                                    console.log('swap places please!! :)')
+                                }
+                            }
                             creep.move(nearestCreepPath[0].direction);
                             if (creep.pos.inRangeTo(hostile.pos, 1)) {
                                 creep.attack(hostile);

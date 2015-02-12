@@ -13,7 +13,6 @@ module.exports = {
         switch (creep.memory.state) {
             case STATE.NONE:
                 {
-                    //console.log('Valid state:' + creep.name + ':' + creep.memory.state);
                     creep.memory.state = STATE.MOVE_TO_HARVEST;
                     creep.memory.target = null;
                     break;

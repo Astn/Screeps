@@ -58,7 +58,6 @@ module.exports = {
         var source;
         switch (creep.memory.state) {
             case STATE.NONE: {
-                console.log('Valid state:' + creep.name + ':' + creep.memory.state);
 
                 creep.memory.target = null;
                 if (!Memory.drops)
@@ -77,7 +76,6 @@ module.exports = {
 
                 if (best) {
 
-                    console.log("best " + best.id + " energy: " + parseInt(best.energy));
                     // reserve some energy and set target
                     creep.memory.target = best.id;
                     creep.memory.state = STATE.MOVE_TO_HARVEST;

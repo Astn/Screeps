@@ -14,7 +14,6 @@ module.exports = {
         switch (creep.memory.state) {
             case STATE.NONE:
                 {
-                    //console.log('Valid state:' + creep.name + ':' + creep.memory.state);
                     injured = creep.pos.findClosest(Game.MY_CREEPS, {
                         filter: function (otherCreep) {
                             return otherCreep.hits < otherCreep.hitsMax;

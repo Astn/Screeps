@@ -48,8 +48,6 @@ module.exports =
                 var closestSettings = null;
                 this._settings.forEach(function (setting) {
                     
-                    //if(closestSettingsPop)
-                    //    console.log("avail setting: " + parseInt(setting.population) + " we are: "  + parseInt(closestSettingsPop.population - weHave) + " could have: "+ parseInt(setting.population - weHave));
                     
                     if (closestSettingsPop && closestSettingsPop.population < weHave) {
                         
@@ -74,7 +72,6 @@ module.exports =
                         
                         x.HAVE = spawn.room.find(Game.MY_CREEPS, {
                             filter: function (f) {
-                                // console.log('mem role: '+ f.memory.role +' other role: ' + x.ROLE)
                                 return f.memory.role == x.ROLE;
                             }
                         }).length;
@@ -91,7 +88,7 @@ module.exports =
                 var onesWeWant = _.filter(closestSettings, function (n) { return n.WANT - n.HAVE > 0 });
                 var orderByRatio = _.sortBy(onesWeWant, function (n) { return n.HAVE / n.WANT });
                 var thenByPriority = _.sortBy(orderByRatio, function (n) { return n.PRIORITY });
-                console.log(closestSettingsPop.population);
+
                 var current = thenByPriority[0];
                 
                 if (current && current.BODY) {
