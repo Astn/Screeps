@@ -39,7 +39,9 @@ module.exports = {
 
                 if (creep.pos.isNearTo(buddyCloserToASiteOrSpawn)) {
                     creep.transferEnergy(buddyCloserToASiteOrSpawn);
-                    buddyCloserToASiteOrSpawn.memory.state = STATE.HARVESTING;
+                    if (buddyCloserToASiteOrSpawn.memory) {
+                        buddyCloserToASiteOrSpawn.memory.state = STATE.HARVESTING;
+                    }
                 }
                 else {
                     // move closer

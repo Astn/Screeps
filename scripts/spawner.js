@@ -98,16 +98,23 @@ module.exports =
                     for (var i = 0; i < current.BODY.length; i++) {
                         
                         var parts = current.BODY[i].parts.slice(0);
-                        if (_.some(parts, function (f) { return f == Game.ATTACK || f == Game.RANGED_ATTACK })) {
+                        if (_.some(parts, function (f) { return f == Game.ATTACK})) {
                             var toughness = [];
                             for (var j = 0; j < toughScale; j++) {
                                 toughness.push(Game.TOUGH);
                             }
                             parts = toughness.concat(parts);
                         }
-                        else if (_.some(parts, function (f) { return f == Game.HEAL })) {
+                        else if (_.some(parts, function (f) { return f == Game.RANGED_ATTACK })) {
                             var toughness = [];
                             for (var j = 0; j < toughScale / 3; j++) {
+                                toughness.push(Game.TOUGH);
+                            }
+                            parts = toughness.concat(parts);
+                        }
+                        else if (_.some(parts, function (f) { return f == Game.HEAL })) {
+                            var toughness = [];
+                            for (var j = 0; j < toughScale / 6; j++) {
                                 toughness.push(Game.TOUGH);
                             }
                             parts = toughness.concat(parts);

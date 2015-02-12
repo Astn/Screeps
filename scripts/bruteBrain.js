@@ -35,19 +35,19 @@ module.exports = {
                         var pathToSpawn = creep.room.findPath(creep.pos, closestSpawn.pos, {
                             ignoreCreeps: true
                         });
-                        if (pathToSpawn.length > 12) {
-                            creep.moveTo(closestSpawn);
+                        if (pathToSpawn.length > 16) {
+                            creep.move(pathToSpawn[0].direction);
                         }
                     }
                     
-                    var closestBuddy = creep.pos.findClosest(Game.MY_CREEPS, {
-                        filter: function (otherCreep) {
-                            return (close && otherCreep.getActiveBodyparts(Game.ATTACK)) || (ranged && otherCreep.getActiveBodyparts(Game.RANGED_ATTACK));
-                        }
-                    });
-                    if (closestBuddy && creep.pos.inRangeTo(closestBuddy.pos, 3) === false) {
-                        creep.moveTo(closestBuddy);
-                    }
+                    //var closestBuddy = creep.pos.findClosest(Game.MY_CREEPS, {
+                    //    filter: function (otherCreep) {
+                    //        return (close && otherCreep.getActiveBodyparts(Game.ATTACK)) || (ranged && otherCreep.getActiveBodyparts(Game.RANGED_ATTACK));
+                    //    }
+                    //});
+                    //if (closestBuddy && creep.pos.inRangeTo(closestBuddy.pos, 3) === false) {
+                    //    creep.moveTo(closestBuddy);
+                    //}
                     
 
 
@@ -103,7 +103,9 @@ module.exports = {
                             }
                         } else {
                             creep.move(nearestCreepPath[0].direction);
-                            creep.attack(hostile);
+                            if (creep.pos.inRangeTo(hostile.pos, 1)) {
+                                creep.attack(hostile);
+                            }
                         }
                                                
 
@@ -114,12 +116,12 @@ module.exports = {
                     var pathToSpawn = creep.room.findPath(creep.pos, spawn.pos, {
                         ignoreCreeps: true
                     });
-                    var maxRoamingDistance = 20;
+                    var maxRoamingDistance = 17;
                     if (close)
                         maxRoamingDistance++;
 
-                    if (pathToSpawn.length > 20) {
-                        creep.moveTo(spawn);
+                    if (pathToSpawn.length > maxRoamingDistance) {
+                        creep.move(pathToSpawn[0].direction);
                     }
 
                     

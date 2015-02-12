@@ -8,7 +8,7 @@
 var STATE = require('state');
 var _ = require('lodash');
 module.exports = {
-    think: function(creep) {
+    think: function (creep) {
 
         var injured;
         switch (creep.memory.state) {
@@ -16,7 +16,7 @@ module.exports = {
                 {
                     //console.log('Valid state:' + creep.name + ':' + creep.memory.state);
                     injured = creep.pos.findClosest(Game.MY_CREEPS, {
-                        filter: function(otherCreep) {
+                        filter: function (otherCreep) {
                             return otherCreep.hits < otherCreep.hitsMax;
                         }
                     });
@@ -34,8 +34,16 @@ module.exports = {
                             var door = creep.pos.findClosest(Game.EXIT_TOP);
                             creep.moveTo(door);
                         }
+                        // make sure that we dont go beyond our limit
+                        var pathToSpawn = creep.room.findPath(creep.pos, closestSpawn.pos, {
+                            ignoreCreeps: true
+                        });
+                        if (pathToSpawn.length > 15) {
+                            creep.move(pathToSpawn[0].direction);
+                        }
                     }
                     
+                
                     break;
                 }
             case STATE.HEALING:
@@ -51,11 +59,11 @@ module.exports = {
                     var hostile = creep.pos.findClosest(Game.HOSTILE_CREEPS);
                     var healerHelpWhenAt = 1;
                     if (hostile) {
-                        healerHelpWhenAt = .60;
+                        healerHelpWhenAt = .50;
                     }
 
                     injured = creep.pos.findClosest(Game.MY_CREEPS, {
-                        filter: function(otherCreep) {
+                        filter: function (otherCreep) {
                             return otherCreep.getActiveBodyparts(Game.HEAL) && otherCreep.hits < (otherCreep.hitsMax * healerHelpWhenAt);
                         }
                     });
@@ -64,27 +72,34 @@ module.exports = {
 
                     if (!injured) {
                         var injuredCreeps = creep.room.find(Game.MY_CREEPS);
-                        injuredCreeps = _.filter(injuredCreeps, function(n){
-                            return (n.getActiveBodyparts(Game.ATTACK) > 0 || n.getActiveBodyparts(Game.RANGED_ATTACK) > 0) && n.hits < n.hitsMax;
+                        injuredCreeps = _.filter(injuredCreeps, function (n) {
+                            var hasAttackOrRangedAttack = _.some(n.body, function (part) { return part.type == Game.ATTACK || part.type == Game.RANGED_ATTACK; });
+                            return hasAttackOrRangedAttack;
                         });
-                        injuredCreeps = _.filter(injuredCreeps, function(n){
+                        injuredCreeps = _.filter(injuredCreeps, function (n) {
                             return (n.hits < n.hitsMax);
                         });
                         var shortestPath = 1000;
-                        var nearestInjured = {};
-                        nearestInjured = null;
-                        for (var idx in injuredCreeps) {
-                            var injuredCreep = injuredCreeps[idx];
-                            var asPath = creep.room.findPath(creep.pos, injuredCreep.pos, {
-                                ignoreCreeps: true
-                            });
-                            if (asPath.length < shortestPath) {
-                                shortestPath = asPath.length;
-                                nearestInjured = injuredCreep;
-                            }
+                        var mostInjured = {};
+                        if (injuredCreeps.length) {
+                            _.sortBy(injuredCreeps, function (n) { return n.hits / n.hitsMax });
+                            mostInjured = injuredCreeps[0];
+                            injured = mostInjured;
                         }
-                        //_.sortBy(closeInjured, function (n) { return n.hits / n.hitsMax });
-                        injured = nearestInjured;
+                    }
+                    if (!injured) {
+                        var injuredCreeps = creep.room.find(Game.MY_CREEPS);
+
+                        injuredCreeps = _.filter(injuredCreeps, function (n) {
+                            return (n.hits < n.hitsMax);
+                        });
+                        var shortestPath = 1000;
+                        var mostInjured = {};
+                        if (injuredCreeps.length) {
+                            _.sortBy(injuredCreeps, function (n) { return n.hits / n.hitsMax });
+                            mostInjured = injuredCreeps[0];
+                            injured = mostInjured;
+                        }
                     }
                     if (injured) {
                         if (!creep.memory.target) {
@@ -107,20 +122,21 @@ module.exports = {
                         }
 
                     } else {
+                        // Move to the position that is the average of
+                        // the front attacking creeps
                         var frontLineCreeps = creep.room.find(Game.MY_CREEPS);
                         frontLineCreeps = _.filter(frontLineCreeps, function (n) {
                             return (n.getActiveBodyparts(Game.ATTACK) > 0 || n.getActiveBodyparts(Game.RANGED_ATTACK) > 0);
                         });
                         if (frontLineCreeps && frontLineCreeps.length > 0) {
-                            
-                            var currentLen = frontLineCreeps.length;
-                            for (var i = 0; i < currentLen / 6; i++){
+
+                            if (!hostile) {
                                 frontLineCreeps.push(spawn);
                             }
-                            var sumX = _.reduce(frontLineCreeps,  function (sum, n) { return sum+ n.pos.x; }, 0);
-                            var sumY = _.reduce(frontLineCreeps,  function (sum, n) { return sum+ n.pos.y; }, 0);
-                            var avgX = Math.round( sumX / frontLineCreeps.length );
-                            var avgY = Math.round( sumY / frontLineCreeps.length );
+                            var sumX = _.reduce(frontLineCreeps, function (sum, n) { return sum + n.pos.x; }, 0);
+                            var sumY = _.reduce(frontLineCreeps, function (sum, n) { return sum + n.pos.y; }, 0);
+                            var avgX = Math.round(sumX / frontLineCreeps.length);
+                            var avgY = Math.round(sumY / frontLineCreeps.length);
 
                             var spotPos = creep.room.getPositionAt(avgX, avgY);
                             var spotInfo = creep.room.lookAt(spotPos);
@@ -135,9 +151,19 @@ module.exports = {
                                 }
                             }
                         }
+                        // make sure that we dont go beyond our limit
+                        var closestSpawn = creep.pos.findClosest(Game.MY_SPAWNS);
+                        if (closestSpawn) {
+                            var pathToSpawn = creep.room.findPath(creep.pos, closestSpawn.pos, {
+                                ignoreCreeps: true
+                            });
+                            if (pathToSpawn.length > 15) {
+                                creep.move(pathToSpawn[0].direction);
+                            }
+                        }
                         creep.memory.target = null;
                     }
-                    
+
                     break;
                 }
             case STATE.MOVE_TO_TRANSFER:
@@ -145,7 +171,7 @@ module.exports = {
                     var spawn = creep.pos.findClosest(Game.MY_SPAWNS);
                     if (spawn) {
                         creep.moveTo(spawn);
-                        if (creep.pos.inRangeTo(spawn.pos, 3) ) {
+                        if (creep.pos.inRangeTo(spawn.pos, 3)) {
                             creep.memory.state = STATE.NONE;
                         }
                     }
