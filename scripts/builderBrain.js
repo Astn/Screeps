@@ -200,7 +200,6 @@ module.exports = {
 
                 if (creep.getActiveBodyparts(Game.WORK) > 0 && (site || repair)) {
                     if (site) {
-                        console.log("building");
                         var result = creep.build(site);
                         if (result == Game.ERR_NOT_IN_RANGE) {
                             creep.moveTo(site);
@@ -211,7 +210,6 @@ module.exports = {
                         }
                     }
                     else {
-                        console.log("repairing");
                         creep.moveTo(repair);
                         creep.repair(repair);
                     }

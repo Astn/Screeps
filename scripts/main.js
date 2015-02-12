@@ -57,10 +57,11 @@ for (var roomName in Game.rooms) {
         continue;
     
     var myCreeps = room.find(Game.MY_CREEPS);
-    
-    for (var i = 0; i < myCreeps.length; i++) {
-        var creep = myCreeps[i];
-        machine.chew(myCreeps[i]);
+    // sort by creep type so that brutes can control ranged creeps
+    var orderBrutesLast = _.sortBy(myCreeps, function (n) { return !_.some(n.body, function (j) { return j.type == Game.ATTACK; });  });
+    for (var i = 0; i < orderBrutesLast.length; i++) {
+        var creep = orderBrutesLast[i];
+        machine.chew(orderBrutesLast[i]);
     }
 	// find hottest pos with above average wear
 
