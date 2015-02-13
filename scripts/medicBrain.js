@@ -6,6 +6,7 @@
  * var mod = require('bruteBrain'); // -> 'a thing'
  */
 var STATE = require('state');
+var utility = require('utility');
 var _ = require('lodash');
 module.exports = {
     think: function (creep) {
@@ -14,11 +15,7 @@ module.exports = {
         switch (creep.memory.state) {
             case STATE.NONE:
                 {
-                    injured = creep.pos.findClosest(Game.MY_CREEPS, {
-                        filter: function (otherCreep) {
-                            return otherCreep.hits < otherCreep.hitsMax;
-                        }
-                    });
+                    injured = creep.pos.findClosest(Game.MY_CREEPS, { filter: utility.creepIsDamaged });
 
                     if (injured || creep.pos.findClosest(Game.HOSTILE_CREEPS)) {
                         creep.memory.state = STATE.HEALING;
@@ -71,31 +68,23 @@ module.exports = {
 
                     if (!injured) {
                         var injuredCreeps = creep.room.find(Game.MY_CREEPS);
-                        injuredCreeps = _.filter(injuredCreeps, function (n) {
-                            var hasAttackOrRangedAttack = _.some(n.body, function (part) { return part.type == Game.ATTACK || part.type == Game.RANGED_ATTACK; });
-                            return hasAttackOrRangedAttack;
-                        });
-                        injuredCreeps = _.filter(injuredCreeps, function (n) {
-                            return (n.hits < n.hitsMax);
-                        });
+                        injuredCreeps = _.filter(injuredCreeps, utility.creepIsDamaged);
+                        injuredCreeps = _.filter(injuredCreeps, utility.creepCanAttack);
                         var shortestPath = 1000;
                         var mostInjured = {};
                         if (injuredCreeps.length) {
-                            _.sortBy(injuredCreeps, function (n) { return n.hits / n.hitsMax });
+                            _.sortBy(injuredCreeps, utility.creepHitsRatio);
                             mostInjured = injuredCreeps[0];
                             injured = mostInjured;
                         }
                     }
                     if (!injured) {
                         var injuredCreeps = creep.room.find(Game.MY_CREEPS);
-
-                        injuredCreeps = _.filter(injuredCreeps, function (n) {
-                            return (n.hits < n.hitsMax);
-                        });
+                        injuredCreeps = _.filter(injuredCreeps, utility.creepIsDamaged);
                         var shortestPath = 1000;
                         var mostInjured = {};
                         if (injuredCreeps.length) {
-                            _.sortBy(injuredCreeps, function (n) { return n.hits / n.hitsMax });
+                            _.sortBy(injuredCreeps, utility.creepHitsRatio);
                             mostInjured = injuredCreeps[0];
                             injured = mostInjured;
                         }
@@ -129,14 +118,14 @@ module.exports = {
                         // Move to the position that is the average of
                         // the front attacking creeps
                         var frontLineCreeps = creep.room.find(Game.MY_CREEPS);
-                        frontLineCreeps = _.filter(frontLineCreeps, function (n) {
-                            return (n.getActiveBodyparts(Game.ATTACK) > 0 || n.getActiveBodyparts(Game.RANGED_ATTACK) > 0);
-                        });
+                        frontLineCreeps = _.filter(frontLineCreeps, utility.creepCanAttack);
                         if (frontLineCreeps && frontLineCreeps.length > 0) {
-
+                            //if (!hostile) {
+                            //    frontLineCreeps.push(spawn);
+                            //}
                             
-                            var sumX = _.reduce(frontLineCreeps, function (sum, n) { return sum + n.pos.x; }, 0);
-                            var sumY = _.reduce(frontLineCreeps, function (sum, n) { return sum + n.pos.y; }, 0);
+                            var sumX = _.reduce(frontLineCreeps, utility.sumPosX, 0);
+                            var sumY = _.reduce(frontLineCreeps, utility.sumPosY, 0);
                             var avgX = Math.round(sumX / frontLineCreeps.length);
                             var avgY = Math.round(sumY / frontLineCreeps.length);
 

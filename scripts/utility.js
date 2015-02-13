@@ -1,5 +1,24 @@
 ﻿var _ = require('lodash');
 module.exports = {
+    bodyPartIsATTACK: function (part) { return part.type == Game.ATTACK; },
+    bodyPartIsRANGED_ATTACK: function (part) { return part.type == Game.RANGED_ATTACK; },
+    bodyPartIsANY_ATTACK: function (part) { return part.type == Game.ATTACK || part.type == Game.RANGED_ATTACK; },
+    creepCanAttack: function (n) {
+        var hasAttackOrRangedAttack = _.some(n.body, this.bodyPartIsANY_ATTACK);
+        return hasAttackOrRangedAttack;
+    },
+    creepIsRanged: function (n) {
+        var hasAttackOrRangedAttack = _.some(n.body, this.bodyPartIsRANGED_ATTACK);
+        return hasAttackOrRangedAttack;
+    },
+    creepIsCloseRanged:  function (n) {
+        var hasAttackOrRangedAttack = _.some(n.body, this.bodyPartIsATTACK);
+    return hasAttackOrRangedAttack;
+    },
+    sumPosX: function (sum, n) { return sum + n.pos.x; },
+    sumPosY: function (sum, n) { return sum + n.pos.y; },
+    creepHitsRatio: function (n) { return n.hits / n.hitsMax; },
+    creepIsDamaged: function (n) { return (n.hits < n.hitsMax);},
     chooseSpawn: function (creep) {
         var spawn = {};
         for (var sp in Game.spawns) {

@@ -138,7 +138,7 @@ module.exports = [
                 ROLE: ROLE.ARCHER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.ARCHER,
-                WANT: 1,
+                WANT: 3,
                 HAVE: 0
             },
             {
@@ -146,7 +146,7 @@ module.exports = [
                 ROLE: ROLE.MINER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.MINER,
-                WANT: 3,
+                WANT: 2,
                 HAVE: 0
             },
             {
@@ -200,15 +200,15 @@ module.exports = [
                 ROLE: ROLE.ARCHER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.ARCHER,
-                WANT: 3,
+                WANT: 4,
                 HAVE: 0
             },
-            {
+            { 
                 PRIORITY: 2,
                 ROLE: ROLE.MINER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.MINER,
-                WANT: 3,
+                WANT: 2,
                 HAVE: 0
             },
             {
@@ -270,7 +270,7 @@ module.exports = [
                 ROLE: ROLE.MINER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.MINER,
-                WANT: 3,
+                WANT: 2,
                 HAVE: 0
             },
             {

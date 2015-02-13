@@ -56,6 +56,14 @@ module.exports = {
         var site;
         var spawn;
         var source;
+        if (creep.pos.findInRange(Game.HOSTILE_CREEPS, 4).length > 0) {
+            var closestSpawn = creep.pos.findClosest(Game.MY_SPAWNS);
+            if (closestSpawn) {
+                creep.moveTo(closestSpawn);
+                creep.memory.state = STATE.NONE;
+                return
+            }
+        }
         switch (creep.memory.state) {
             case STATE.NONE: {
 
@@ -112,13 +120,7 @@ module.exports = {
                         creep.memory.state = STATE.HARVESTING;
                     }
 
-                    var hostile = creep.pos.findClosest(Game.HOSTILE_CREEPS);
-                    if (hostile && creep.pos.inRangeTo(hostile.pos, 5)) {
-                        var closestSpawn = creep.pos.findClosest(Game.MY_SPAWNS);
-                        if (closestSpawn) {
-                            creep.moveTo(closestSpawn);
-                        }
-                    }
+                 
                 }
                 else {
                     creep.memory.state = STATE.NONE;
@@ -240,6 +242,8 @@ module.exports = {
                 console.log('creep is in an unhandled state ' + creep.name + ':' + creep.memory.state);
                 creep.memory.state = STATE.NONE;
             }
+             
+              
         }
     }
 }
