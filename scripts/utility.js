@@ -13,16 +13,16 @@ module.exports = {
     chooseHostile: function (creep) {
         var hostile = null;
         var hostileCreeps = creep.pos.findInRange(Game.HOSTILE_CREEPS, 1);
-        if (hostileCreeps) {
+        if (hostileCreeps.length) {
             hostile = hostileCreeps[0];
         }
         else {
             hostileCreeps = creep.pos.findInRange(Game.HOSTILE_CREEPS, 3);
-            if (hostileCreeps) {
+            if (hostileCreeps.length) {
                 hostile = hostileCreeps[0];
             } else {
                 hostileCreeps = creep.pos.findInRange(Game.HOSTILE_CREEPS, 30);
-                if (hostileCreeps) {
+                if (hostileCreeps.length) {
                     hostile = hostileCreeps[0];
                 }
             }
