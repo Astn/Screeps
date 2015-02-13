@@ -29,26 +29,15 @@ var linearDistance = function (pos1, pos2) {
     var y = pos1.y - pos2.y;
     return Math.sqrt(x * x + y * y);
 };
-var spawnResult = spawner.spawn();
 
-for (var sp in Game.spawns) {
-    var spawn = Game.spawns[sp];
-    Memory[spawn.room.name] = {};
-    Memory[spawn.room.name].closestHostile = null;
-    
-    var somewhatClose = spawn.pos.findInRange(Game.HOSTILE_CREEPS, 40);
-    if (somewhatClose && somewhatClose.length > 0) {
-        var distances = _.map(somewhatClose, function (n) {
-            var dist = linearDistance(n.pos, spawn.pos);
-            var myResult = { hostile: n.id, distance: dist };
-            return myResult;
-        });
-        var min = _.sortBy(distances, function (n) { n.distance });
-        if (min && min.length > 0) {
-            Memory[spawn.room.name].closestHostile = min[0].hostile;
-        }
+
+var hostileInterceptionPoint = function (pos, room) {
+        var exits = room.find(Game.EXIT_TOP)
     }
-}
+
+
+
+var spawnResult = spawner.spawn();
 
 for (var roomName in Game.rooms) {
     
@@ -57,13 +46,16 @@ for (var roomName in Game.rooms) {
         continue;
     
     var myCreeps = room.find(Game.MY_CREEPS);
-    // sort by creep type so that brutes can control ranged creeps
-    var orderBrutesLast = _.sortBy(myCreeps, function (n) { return !_.some(n.body, function (j) { return j.type == Game.ATTACK; });  });
-    for (var i = 0; i < orderBrutesLast.length; i++) {
-        var creep = orderBrutesLast[i];
-        machine.chew(orderBrutesLast[i]);
+  
+    for (var i = 0; i < myCreeps.length; i++) {
+        machine.chew(myCreeps[i]);
     }
-	// find hottest pos with above average wear
 
-	
+    // override moves based on memory set
+    var creepsWithMemoryMoves = _.filter(myCreeps, function (n) { return n.memory.move });
+    for (var i = 0; i < creepsWithMemoryMoves.length; i++) {
+        creepsWithMemoryMoves[i].move(creepsWithMemoryMoves[i].memory.move);
+        creepsWithMemoryMoves[i].memory.move = null;
+       // creepsWithMemoryMoves[i].say('swapping..');
+    }
 }

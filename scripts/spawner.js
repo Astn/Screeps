@@ -104,22 +104,22 @@ module.exports =
                         }
                         else if (_.some(parts, function (f) { return f == Game.RANGED_ATTACK })) {
                             var toughness = [];
-                            for (var j = 0; j < toughScale / 3; j++) {
+                            for (var j = 0; j < toughScale / 4; j++) {
                                 toughness.push(Game.TOUGH);
                             }
                             parts = toughness.concat(parts);
                         }
-                        else if (_.some(parts, function (f) { return f == Game.HEAL })) {
-                            var toughness = [];
-                            for (var j = 0; j < toughScale / 6; j++) {
-                                toughness.push(Game.TOUGH);
-                            }
-                            parts = toughness.concat(parts);
-                        }
+                        //else if (_.some(parts, function (f) { return f == Game.HEAL })) {
+                        //    var toughness = [];
+                        //    for (var j = 0; j < toughScale / 6; j++) {
+                        //        toughness.push(Game.TOUGH);
+                        //    }
+                        //    parts = toughness.concat(parts);
+                        //}
                         var id = 1;
                         var name = getName(current.ROLE) + ' ' + parseInt(spawn.room.find(Game.CREEPS).length);
                         var buildCode = spawn.createCreep(parts, name, { state: current.STATE, role: current.ROLE });
-                        var tries = 5;
+                        var tries = 2;
                         while (buildCode == -3 && --tries > 0) {
                             
                             spawn.createCreep(parts, current.ROLE + ' ' + parseInt(++id), { state: current.STATE, role: current.ROLE });

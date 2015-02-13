@@ -7,6 +7,7 @@
  */
 var STATE = require('state');
 var _ = require('lodash');
+var util = require('utility');
 module.exports = {
     think: function(creep) {
         var runAway;
@@ -63,85 +64,53 @@ module.exports = {
                             break;
                         }
                     }
-                    
-                    // find closest hostile, then find the closest friend to that hostile, then find that friends
-                    // closest enemy. make him the target.
-                    var hosilteCreeps = creep.room.find(Game.HOSTILE_CREEPS);
-                    var shortestPath = 1000;
-                    var nearestCreepPath = [];
-                    var nearest = {};
-                    nearest = null;
-                    for (var as in hosilteCreeps) {
-                        var asPath = creep.room.findPath(creep.pos, hosilteCreeps[as].pos, {
-                            ignoreCreeps: true,
-                            ignoreDestructibleStructures: true
-                        });
-                        if (asPath.length < shortestPath) {
-                            nearestCreepPath = asPath;
-                            shortestPath = asPath.length;
-                            nearest = hosilteCreeps[as];
-                        }
-                    }
+                    var hostile = util.chooseHostile(creep);
 
-
-                    hostile = nearest;
-                    
-                   var ranged = creep.getActiveBodyparts(Game.RANGED_ATTACK);
-                   var close = creep.getActiveBodyparts(Game.ATTACK);
-                    if (hostile) {
-                        
-                        if (!creep.memory.target) {
-                            creep.memory.target = hostile.id;
-                        }
-                        
-                        if (ranged) {
-                            creep.move(nearestCreepPath[0].direction);
-                            creep.rangedAttack(hostile);
-                            if (creep.pos.inRangeTo(hostile.pos, 2)) {
-                                runAway = hostile.pos.getDirectionTo(creep);
-                                creep.move(runAway);
-                            }
-                        } else {
-                            // check if we should swap places with the creep next to us if we are trying to go that way.
-                            var atThatSpot = creep.room.lookAt(nearestCreepPath[0].x, nearestCreepPath[0].y);
-                            var isACreepThere = _.some(atThatSpot, function (n) { return n.type == 'creep' });
-                            if (isACreepThere) {
-                                 var justCreeps = _.filter(atThatSpot, function (n) { return n.type == 'creep' });
-                                 var otherCreep =_.first(justCreeps).creep;
-                                var isCloseAttacker = _.some(otherCreep.body, function (part) { return part.type == Game.ATTACK; });
-                                if (!isCloseAttacker) {
-                                    directionToMySpotFromTheirSpot = 0;
-                                    if (nearestCreepPath[0].direction >= 4)
-                                        directionToMySpotFromTheirSpot = nearestCreepPath[0].direction - 4;
-                                    else
-                                        directionToMySpotFromTheirSpot = nearestCreepPath[0].direction + 4;
-                                    otherCreep.move(directionToMySpotFromTheirSpot)
-                                    console.log('swap places please!! :)')
-                                }
-                            }
-                            creep.move(nearestCreepPath[0].direction);
-                            if (creep.pos.inRangeTo(hostile.pos, 1)) {
-                                creep.attack(hostile);
-                            }
-                        }
-                                               
-
-                    } else {
-                        creep.memory.target = null;
-                        creep.memory.state = STATE.NONE;
-                    }
                     var pathToSpawn = creep.room.findPath(creep.pos, spawn.pos, {
                         ignoreCreeps: true
                     });
                     var maxRoamingDistance = 17;
                     if (close)
                         maxRoamingDistance++;
+                    var moveBack = pathToSpawn.length > maxRoamingDistance;
+                    
+                    var ranged = creep.getActiveBodyparts(Game.RANGED_ATTACK);
+                    var close = creep.getActiveBodyparts(Game.ATTACK);
+                    if (hostile) {
 
-                    if (pathToSpawn.length > maxRoamingDistance) {
+                        if (!creep.memory.target) {
+                            creep.memory.target = hostile.id;
+                        }
+                        var nearestCreepPath = creep.pos.findPathTo(hostile);
+                        if (ranged) {
+                            
+                            creep.rangedAttack(hostile);
+                            if (creep.pos.inRangeTo(hostile.pos, 2)) {
+                                runAway = hostile.pos.getDirectionTo(creep);
+                                if(!moveBack)
+                                    creep.move(runAway);
+                            }
+                            else {
+                                if (!moveBack)
+                                creep.move(nearestCreepPath[0].direction);
+                            }
+                        }
+                        util.tradePlaces(creep, nearestCreepPath[0]);
+                        if (!moveBack)
+                            creep.move(nearestCreepPath[0].direction);
+                        if (creep.pos.inRangeTo(hostile.pos, 1)) {
+                            creep.attack(hostile);
+                        }
+                    } else {
+                        creep.memory.target = null;
+                        creep.memory.state = STATE.NONE;
+                    }
+                    if (moveBack) {
                         creep.move(pathToSpawn[0].direction);
                     }
-
                     
+
+
                     break;
                 }
             case STATE.MOVE_TO_TRANSFER:

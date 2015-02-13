@@ -110,11 +110,16 @@ module.exports = {
 
                         var inRange = creep.pos.inRangeTo(injured.pos, 3);
                         var inClose = creep.pos.inRangeTo(injured.pos, 1);
+                        if (!injured.memory) {
+                            injured.memory = { pain: 0 };
+                        }
                         if (inClose) {
                             creep.heal(injured);
+                            injured.memory.pain += 2;
                             creep.moveTo(spawn);
                         } else if (inRange) {
                             creep.rangedHeal(injured);
+                            injured.memory.pain += 2;
                             creep.moveTo(injured);
                         } else {
                             creep.moveTo(injured);
@@ -129,9 +134,7 @@ module.exports = {
                         });
                         if (frontLineCreeps && frontLineCreeps.length > 0) {
 
-                            if (!hostile) {
-                                frontLineCreeps.push(spawn);
-                            }
+                            
                             var sumX = _.reduce(frontLineCreeps, function (sum, n) { return sum + n.pos.x; }, 0);
                             var sumY = _.reduce(frontLineCreeps, function (sum, n) { return sum + n.pos.y; }, 0);
                             var avgX = Math.round(sumX / frontLineCreeps.length);
@@ -151,15 +154,15 @@ module.exports = {
                             }
                         }
                         // make sure that we dont go beyond our limit
-                        var closestSpawn = creep.pos.findClosest(Game.MY_SPAWNS);
-                        if (closestSpawn) {
-                            var pathToSpawn = creep.room.findPath(creep.pos, closestSpawn.pos, {
-                                ignoreCreeps: true
-                            });
-                            if (pathToSpawn.length > 15) {
-                                creep.move(pathToSpawn[0].direction);
-                            }
-                        }
+                        //var closestSpawn = creep.pos.findClosest(Game.MY_SPAWNS);
+                        //if (closestSpawn) {
+                        //    var pathToSpawn = creep.room.findPath(creep.pos, closestSpawn.pos, {
+                        //        ignoreCreeps: true
+                        //    });
+                        //    if (pathToSpawn.length > 15) {
+                        //        creep.move(pathToSpawn[0].direction);
+                        //    }
+                        //}
                         creep.memory.target = null;
                     }
 
