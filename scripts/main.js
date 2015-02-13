@@ -46,9 +46,9 @@ for (var roomName in Game.rooms) {
         continue;
     
     var myCreeps = room.find(Game.MY_CREEPS);
-  
+    var foundHostile = null;
     for (var i = 0; i < myCreeps.length; i++) {
-        machine.chew(myCreeps[i]);
+        foundHostile = machine.chew(myCreeps[i], foundHostile);
     }
 
     // override moves based on memory set

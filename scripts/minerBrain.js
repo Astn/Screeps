@@ -80,10 +80,11 @@ module.exports = {
                         var prevEnergy = creep.energy;
                         var code = creep.harvest(source);
                         var afterEnergy = creep.energy;
-                        if (creep.energy == creep.energyCapacity) {
-
+                        if (code == Game.OK) {
                             creep.memory.digIn = true;
-                            creep.memory.state = STATE.MOVE_TO_TRANSFER;
+                        }
+                        if (creep.energy > 0 && creep.energy == creep.energyCapacity) {
+                            creep.dropEnergy();
                         } else if (code != Game.OK && creep.memory.digIn !== true) {
 
                             creep.memory.state = STATE.NONE;
@@ -93,7 +94,6 @@ module.exports = {
                 }
             case STATE.MOVE_TO_TRANSFER:
                 {
-                    creep.dropEnergy();
                     creep.memory.state = STATE.HARVESTING;
                     break;
                 }

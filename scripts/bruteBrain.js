@@ -9,18 +9,30 @@ var STATE = require('state');
 var _ = require('lodash');
 var util = require('utility');
 module.exports = {
-    think: function(creep) {
+    think: function(creep, otherHostile) {
         var runAway;
         var hostile;
+        var ranged = creep.getActiveBodyparts(Game.RANGED_ATTACK);
+        var close = creep.getActiveBodyparts(Game.ATTACK);
+        var useOtherHostile = false;
+        if (otherHostile && ranged) {
+            useOtherHostile = creep.pos.inRangeTo(otherHostile, 4);
+            hostile = otherHostile;
+        } else if (otherHostile && close) {
+            useOtherHostile = creep.pos.inRangeTo(otherHostile, 2);
+            hostile = useOtherHostile;
+        }
+
         switch (creep.memory.state) {
             case STATE.NONE:
                 {
-
-                    hostile = creep.pos.findClosest(Game.HOSTILE_CREEPS);
+                    if(!useOtherHostile)
+                        hostile = creep.pos.findClosest(Game.HOSTILE_CREEPS);
                     
                     if (hostile) {
                         creep.memory.state = STATE.ATTACKING;
                         creep.moveTo(hostile);
+                        return hostile;
                         break;
                     }
                     
@@ -46,7 +58,8 @@ module.exports = {
             case STATE.ATTACKING:
                 {
                     var spawn = util.chooseSpawn(creep);
-                    var hostile = util.chooseHostile(creep);
+                    if (!useOtherHostile)
+                        hostile = util.chooseHostile(creep);
                     if (!hostile) {
                         //creep.say('none');
                         creep.memory.state = STATE.NONE;
@@ -54,8 +67,7 @@ module.exports = {
                     }
 
                     
-                    var ranged = creep.getActiveBodyparts(Game.RANGED_ATTACK);
-                    var close = creep.getActiveBodyparts(Game.ATTACK);
+                    
                     
                     
                     
@@ -91,7 +103,7 @@ module.exports = {
                         if (nearestCreepPath.length)
                         creep.move(nearestCreepPath[0].direction);
                     }
-
+                    return hostile;
                     break;
                 }
             default: {
