@@ -48,7 +48,7 @@ module.exports = {
                     var spawn = util.chooseSpawn(creep);
                     var hostile = util.chooseHostile(creep);
                     if (!hostile) {
-                        creep.say('none');
+                        //creep.say('none');
                         creep.memory.state = STATE.NONE;
                         break;
                     }
@@ -58,7 +58,7 @@ module.exports = {
                     var close = creep.getActiveBodyparts(Game.ATTACK);
                     
                     
-                    var nearestCreepPath = creep.pos.findPathTo(hostile);
+                    
                     if (ranged && creep.pos.inRangeTo(hostile.pos, 4)) {
                         creep.rangedAttack(hostile);
                     }
@@ -67,7 +67,12 @@ module.exports = {
                             creep.attack(hostile);
                         }
                     }
-                    util.tradePlaces(creep, nearestCreepPath[0]);
+                    var nearestCreepPath = creep.pos.findPathTo(hostile, {
+                        ignoreCreeps: true,
+                        ignoreDestructibleStructures: true
+                    });
+                    if(nearestCreepPath.length)
+                        util.tradePlaces(creep, nearestCreepPath[0]);
                     var maxRoamingDistance = 17;
                     if (close) {
                         maxRoamingDistance = 18;
@@ -75,14 +80,15 @@ module.exports = {
                     var pathToSpawn = creep.room.findPath(creep.pos, spawn.pos, {
                         ignoreCreeps: true
                     });
-                    creep.say(parseInt(pathToSpawn.length));
+                   // creep.say(parseInt(pathToSpawn.length));
                     var moveBack = pathToSpawn.length > maxRoamingDistance;
                     if (moveBack || (ranged && creep.pos.inRangeTo(hostile.pos, 2))) {
                         
                         creep.move(pathToSpawn[0].direction);
                     }
                     else {
-                        creep.say('only ' + parseInt(pathToSpawn.length));
+                        //creep.say('only ' + parseInt(pathToSpawn.length));
+                        if (nearestCreepPath.length)
                         creep.move(nearestCreepPath[0].direction);
                     }
 
