@@ -60,7 +60,7 @@ module.exports = {
                     var spawn = util.chooseSpawn(creep);
                     if (!useOtherHostile)
                         hostile = util.chooseHostile(creep);
-                    if (!hostile) {
+                    if (!hostile || !hostile.pos) {
                         //creep.say('none');
                         creep.memory.state = STATE.NONE;
                         break;
