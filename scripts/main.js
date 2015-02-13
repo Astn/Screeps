@@ -54,8 +54,9 @@ for (var roomName in Game.rooms) {
     // override moves based on memory set
     var creepsWithMemoryMoves = _.filter(myCreeps, function (n) { return n.memory.move });
     for (var i = 0; i < creepsWithMemoryMoves.length; i++) {
+        creepsWithMemoryMoves[i].say('swapping..');
         creepsWithMemoryMoves[i].move(creepsWithMemoryMoves[i].memory.move);
         creepsWithMemoryMoves[i].memory.move = null;
-       // creepsWithMemoryMoves[i].say('swapping..');
+       
     }
 }

@@ -1,5 +1,15 @@
-var _ = require('lodash');
+﻿var _ = require('lodash');
 module.exports = {
+    chooseSpawn: function (creep) {
+        var spawn = {};
+        for (var sp in Game.spawns) {
+            if (Game.spawns[sp].room == creep.room) {
+                spawn = Game.spawns[sp];
+                break;
+            }
+        }
+        return spawn;
+    },
     chooseHostile: function (creep) {
         var hostile = null;
         var hostileCreeps = creep.pos.findInRange(Game.HOSTILE_CREEPS, 1);
