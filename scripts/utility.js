@@ -1,4 +1,4 @@
-var _ = require('lodash');
+﻿var _ = require('lodash');
 module.exports = {
     chooseSpawn: function (creep) {
         var spawn = {};
@@ -29,7 +29,9 @@ module.exports = {
         }
         return hostile;
     },
-    tradePlaces: function(creep, pathStep){
+    tradePlaces: function (creep, pathStep) {
+        if (Math.random() * 5 > 2)
+            return;
         // swap is good, cause it prevents enemy from just hammering on one enemy.
         // check if we should swap places with the creep next to us if we are trying to go that way.
         var atThatSpot = creep.room.lookAt(pathStep.x, pathStep.y);
@@ -40,7 +42,7 @@ module.exports = {
             var otherCreep = _.first(justCreeps).creep;
             if (otherCreep.my) {
                 var isCloseAttacker = _.some(otherCreep.body, function (part) { return part.type == Game.ATTACK; });
-
+                var amICoseAttacker = _.some(creep.body, function (part) { return part.type == Game.ATTACK; });
                 var directionToMySpotFromTheirSpot = 0;
                 if (pathStep.direction >= 4)
                     directionToMySpotFromTheirSpot = pathStep.direction - 4;
@@ -49,7 +51,8 @@ module.exports = {
                 if (!otherCreep.memory) {
                     otherCreep.memory = {};
                 }
-                otherCreep.memory.move = directionToMySpotFromTheirSpot;
+                if (amICoseAttacker || !isCloseAttacker)
+                    otherCreep.memory.move = directionToMySpotFromTheirSpot;
             }
         }
     }

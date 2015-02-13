@@ -113,7 +113,7 @@ module.exports = {
                     }
 
                     var hostile = creep.pos.findClosest(Game.HOSTILE_CREEPS);
-                    if (hostile && creep.pos.inRangeTo(hostile.pos, 4)) {
+                    if (hostile && creep.pos.inRangeTo(hostile.pos, 5)) {
                         var closestSpawn = creep.pos.findClosest(Game.MY_SPAWNS);
                         if (closestSpawn) {
                             creep.moveTo(closestSpawn);
