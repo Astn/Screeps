@@ -1,4 +1,4 @@
-﻿var _ = require('lodash');
+var _ = require('lodash');
 module.exports = {
     chooseSpawn: function (creep) {
         var spawn = {};
