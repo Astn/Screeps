@@ -36,7 +36,6 @@ module.exports = {
                     
                     if (hostile) {
                         creep.memory.state = STATE.ATTACKING;
-                        creep.moveTo(hostile);
                         return hostile;
                         break;
                     }

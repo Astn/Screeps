@@ -177,15 +177,32 @@ module.exports = {
                     }
                 }
                 else {
-                    spawn = creep.pos.findClosest(Game.MY_SPAWNS);
-                    if (spawn) {
-                        creep.moveTo(spawn);
-                        if (creep.pos.inRangeTo(spawn.pos, 1)) {
+                    var ext = creep.pos.findClosest(Game.MY_STRUCTURES, {
+                        filter: function (n) {
+                            return n.structureType == Game.STRUCTURE_EXTENSION && n.energy < n.energyCapacity; 
+                        }
+                    });
+                    if (ext) {
+                        creep.moveTo(ext);
+                        if (creep.pos.inRangeTo(ext.pos, 1)) {
                             creep.memory.state = STATE.TRANSFERING;
                             this.think(creep);
                             break;
                         }
                     }
+                    else {
+                        //creep.say('nope');
+                        spawn = creep.pos.findClosest(Game.MY_SPAWNS);
+                        if (spawn) {
+                            creep.moveTo(spawn);                        
+                            if (creep.pos.inRangeTo(spawn.pos, 1)) {
+                                creep.memory.state = STATE.TRANSFERING;
+                                this.think(creep);
+                                break;
+                            }
+                        }
+                    }
+                    
                 }
                 break;
             }
@@ -226,14 +243,21 @@ module.exports = {
                     }
                 }
                 else {
-                    spawn = creep.pos.findClosest(Game.MY_SPAWNS);
-                    if (spawn) {
-                        creep.transferEnergy(spawn, creep.energy);
-                        {
+                    var ext = creep.pos.findClosest(Game.MY_STRUCTURES, { filter: function (n) { return n.structureType == Game.STRUCTURE_EXTENSION && n.energy < n.energyCapacity; } });
+                    if (ext) {
+                        creep.transferEnergy(ext, ext.energyCapacity - ext.energy);
+                        if (creep.energy === 0) {
                             creep.memory.state = STATE.NONE;
                             this.think(creep);
                             break;
                         }
+                    }
+                    spawn = creep.pos.findClosest(Game.MY_SPAWNS);
+                    if (spawn) {
+                        creep.transferEnergy(spawn, creep.energy);
+                        creep.memory.state = STATE.NONE;
+                        this.think(creep);
+                        break;
                     }
                 }
                 break;

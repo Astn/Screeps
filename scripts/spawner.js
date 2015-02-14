@@ -93,22 +93,32 @@ module.exports =
                 
                 if (current && current.BODY) {
                     for (var i = 0; i < current.BODY.length; i++) {
-                        
+                        var extAvail = _.filter(Game.structures, function (n) { return n.structureType == Game.STRUCTURE_EXTENSION && n.energy == n.energyCapacity }).length;
+                            
+                           
                         var parts = current.BODY[i].parts.slice(0);
                         if (_.some(parts, function (f) { return f == Game.ATTACK})) {
                             var toughness = [];
                             for (var j = 0; j < toughScale; j++) {
                                 toughness.push(Game.TOUGH);
                             }
-                            parts = toughness.concat(parts);
+                            for (var k = 0; k < extAvail; k++) {
+                                parts.push(Game.ATTACK);
+                            }
+                                parts = toughness.concat(parts);
                         }
                         else if (_.some(parts, function (f) { return f == Game.RANGED_ATTACK })) {
                             var toughness = [];
                             for (var j = 0; j < toughScale / 4; j++) {
                                 toughness.push(Game.TOUGH);
                             }
+                            for (var k = 0; k < extAvail; k++) {
+                                parts.push(Game.RANGED_ATTACK);
+                            }
                             parts = toughness.concat(parts);
                         }
+
+                        
                         //else if (_.some(parts, function (f) { return f == Game.HEAL })) {
                         //    var toughness = [];
                         //    for (var j = 0; j < toughScale / 6; j++) {
