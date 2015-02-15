@@ -81,8 +81,9 @@ module.exports = {
                     else if (creep.pos.inRangeTo(hostile.pos, 1)) {
                             creep.attack(hostile);
                     }
+                    var ignoreCreeps = Math.random() * 100 < 95;
                     var nearestCreepPath = creep.pos.findPathTo(hostile, {
-                        ignoreCreeps: true,
+                        ignoreCreeps: ignoreCreeps,
                         ignoreDestructibleStructures: true
                     });
                     if(nearestCreepPath.length)
@@ -93,7 +94,7 @@ module.exports = {
                     });
                    // creep.say(parseInt(pathToSpawn.length));
                     var moveBack = pathToSpawn.length > maxRoamingDistance;
-                    if (moveBack || (ranged && creep.pos.inRangeTo(hostile.pos, 2))) {
+                    if (moveBack || (ranged && creep.pos.inRangeTo(hostile.pos, 1))) {
                         
                         creep.move(pathToSpawn[0].direction);
                     }
