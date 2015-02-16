@@ -1,4 +1,4 @@
-﻿var ROLE = require('role');
+var ROLE = require('role');
 var _ = require('lodash');
 module.exports = {
     bodyPartIsATTACK: function (part) { return part.type == Game.ATTACK; },
