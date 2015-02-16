@@ -12,7 +12,7 @@ if (!Memory.map)
 var _ = require('lodash');
 var spawner = require('spawner');
 var machine = require('machine');
-
+var utility = require('utility');
 Memory.reset = false;
 
 if (!Memory.mine)
@@ -42,6 +42,9 @@ var spawnResult = spawner.spawn();
 
 
 for (var roomName in Game.rooms) {
+    if (!Memory[roomName]) {
+        Memory[roomName] = {};
+    }
     Memory[roomName].formation = [];
     var room = Game.getRoom(roomName);
     if (!room)
@@ -56,7 +59,7 @@ for (var roomName in Game.rooms) {
         var attackBrute = attackCreeps[i];
         // see if the spotbehind him is open
         var posBehindBuddy = utility.posBehindCreep(attackBrute);
-        var atThatSpot = creep.room.lookAt(posBehindBuddy.x, posBehindBuddy.y);
+        var atThatSpot = attackBrute.room.lookAt(posBehindBuddy.x, posBehindBuddy.y);
         var isACreepThere = _.some(atThatSpot, function (n) { return n.type == 'creep' });
         if (!isACreepThere) {
             // send a ranged guy there.

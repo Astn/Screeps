@@ -19,9 +19,9 @@ module.exports = {
     creepIsCloseRanged:  function (n) { return _.some(n.body, this.bodyPartIsATTACK); },
     creepIsMiner: function (n) { return n.memory.role == ROLE.MINER; },
     creepIsPacker: function (n) { return n.memory.role == ROLE.PACKER; },
-    firstPosAlongPathTo: function (target) {
-        if (target) {
-            var path = creep.pos.findPathTo(target);
+    firstPosAlongPathTo: function (n, creep) {
+        if (n) {
+            var path = creep.pos.findPathTo(n);
             if (path.length > 0) {
                 return path[0];
             }
@@ -31,9 +31,18 @@ module.exports = {
     exitsArray: [Game.EXIT_TOP, Game.EXIT_LEFT, Game.EXIT_RIGHT, Game.EXIT_BOTTOM],
     posBehindCreep: function(creep){
         // find paths to each of the exits
-        var firstPaths = _.map(this.exitsArray, function (n) { return this.firstPosAlongPathTo(creep.pos.findClosest(n)); });
+        var fullPaths = _.map(this.exitsArray, function (n) { return creep.pos.findClosest(n); });
+        var firstPaths = _.map(fullPaths, function (n) {
+            if (n) {
+                var path = creep.pos.findPathTo(n);
+                if (path.length > 0) {
+                    return path[0];
+                }
+            }
+            return null;
+        });
         // remove nulls
-        _.filter(firstPaths, function (f) { return f !== null; });
+        firstPaths = _.filter(firstPaths, function (f) { return f !== null; });
         // make an average position if the len is > 1;
         var inFrontOfCreep = { x: 0, y: 0 };
         if (firstPaths.length > 1) {
