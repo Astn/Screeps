@@ -57,9 +57,11 @@ module.exports = {
                         }
                         // try to back fill positions around our ATTACK creeps.
                         if (ranged) {
-                            var myTarget = _.find(Memory[creep.room.name].formation, function (f) { f.role == creep.memory.role });
+                            var myTarget = _.find(Memory[creep.room.name].formation, function (f) { return f.role == creep.memory.role });
                             creep.say('formate!');
-                            creep.moveTo(myTarget.x, myTarget.y);
+                            if (myTarget) {
+                                creep.moveTo(myTarget.x, myTarget.y);
+                            }
                         }
                     }
                     

@@ -1,16 +1,6 @@
 ﻿var ROLE = require('role');
 var _ = require('lodash');
 module.exports = {
-    simpleFormation: [
-
-       { leader: false, type: 'ATTACK', leaderOffset: { x: -1, y: 0 } },
-       { leader: true, type: 'ATTACK', leaderOffset: { x: 0, y: 0 } },
-       { leader: false, type: 'ATTACK', leaderOffset: { x: 1, y: 0 } },
-
-       { leader: false, type: 'ATTACK', leaderOffset: { x: -1, y: -1 } },
-       { leader: false, type: 'HEAL', leaderOffset: { x: 0, y: -1 } },
-       { leader: false, type: 'ATTACK', leaderOffset: { x: 1, y: -1 } },
-    ],
     bodyPartIsATTACK: function (part) { return part.type == Game.ATTACK; },
     bodyPartIsRANGED_ATTACK: function (part) { return part.type == Game.RANGED_ATTACK; },
     bodyPartIsANY_ATTACK: function (part) { return part.type == Game.ATTACK || part.type == Game.RANGED_ATTACK; },
@@ -44,21 +34,31 @@ module.exports = {
         // remove nulls
         firstPaths = _.filter(firstPaths, function (f) { return f !== null; });
         // make an average position if the len is > 1;
-        var inFrontOfCreep = { x: 0, y: 0 };
+        var inFrontOfCreep = {
+            x: 0,
+            y: 0
+        };
         if (firstPaths.length > 1) {
-            var summed = _.reduce(firstPaths, function (agg, f) { return { x: agg.x + f.x, y: agg.y + f.y } }, { x: 0, y: 0 });
-            inFrontOfCreep = {
-                x: Math.round(summed.x / firstPaths.length),
-                y: Math.round(summed.y / firstPaths.length)
+            var summed = _.reduce(firstPaths, function (agg, f) {
+                return { x: (agg.x + f.x), y: (agg.y + f.y) };
+            }, inFrontOfCreep);
+            var avged = { x: Math.round(summed.x / firstPaths.length), y: Math.round(summed.y / firstPaths.length) };
+            return {
+                x: creep.pos.x - (avged.x - creep.pos.x),
+                y: creep.pos.y - (avged.y - creep.pos.y)
             };
         }
         else if (firstPaths.length === 1) {
-            inFrontOfCreep = { x: firstPaths[0].x, y: firstPaths[0].y };
+            inFrontOfCreep = {
+                x: firstPaths[0].x,
+                y: firstPaths[0].y
+            };
         }
         var behindCreep = {
             x: creep.pos.x - (inFrontOfCreep.x - creep.pos.x),
             y: creep.pos.y - (inFrontOfCreep.y - creep.pos.y)
         };
+        
         return behindCreep;
     },
     sumPosX: function (sum, n) { return sum + n.pos.x; },

@@ -54,20 +54,24 @@ for (var roomName in Game.rooms) {
     var foundHostile = null;
 
     // add spots for ranged creeps in the formation
-    var attackCreeps = _.filter(myCreeps, utility.creepIsCloseRanged);
-    for (var i = 0; i < attackCreeps.length; i++) {
-        var attackBrute = attackCreeps[i];
-        // see if the spotbehind him is open
-        var posBehindBuddy = utility.posBehindCreep(attackBrute);
-        var atThatSpot = attackBrute.room.lookAt(posBehindBuddy.x, posBehindBuddy.y);
-        var isACreepThere = _.some(atThatSpot, function (n) { return n.type == 'creep' });
-        if (!isACreepThere) {
-            // send a ranged guy there.
-            Memory[roomName].formation.push({
-                x: posBehindBuddy.x,
-                y: posBehindBuddy.y,
-                role: ROLE.ARCHER
-            });
+    if (Math.random() * 100 > 95) {
+        var attackCreeps = _.filter(myCreeps, utility.creepIsCloseRanged);
+        for (var i = 0; i < attackCreeps.length; i++) {
+            var attackBrute = attackCreeps[i];
+            // see if the spotbehind him is open
+            var posBehindBuddy = utility.posBehindCreep(attackBrute);
+            //console.log('pushing position x:' + parseInt(posBehindBuddy.x) +' y:' + parseInt(posBehindBuddy.y));
+            var atThatSpot = attackBrute.room.lookAt(posBehindBuddy.x, posBehindBuddy.y);
+            var isACreepThere = _.some(atThatSpot, function (n) { return n.type == 'creep' });
+            if (!isACreepThere) {
+                // send a ranged guy there.
+               
+                Memory[roomName].formation.push({
+                    x: posBehindBuddy.x,
+                    y: posBehindBuddy.y,
+                    role: ROLE.ARCHER
+                });
+            }
         }
     }
 
