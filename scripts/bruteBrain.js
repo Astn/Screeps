@@ -24,9 +24,9 @@ module.exports = {
             if (useOtherHostile)
                 hostile = otherHostile;
         }
-        var maxRoamingDistance = 11;
+        var maxRoamingDistance = 5;
         if (close) {
-            maxRoamingDistance = 12;
+            maxRoamingDistance = 6;
         }
         switch (creep.memory.state) {
             case STATE.NONE:
@@ -53,6 +53,13 @@ module.exports = {
                         });
                         if (pathToSpawn.length > maxRoamingDistance) {
                             creep.move(pathToSpawn[0].direction);
+                            break;
+                        }
+                        // try to back fill positions around our ATTACK creeps.
+                        if (ranged) {
+                            var myTarget = _.find(Memory[creep.room.name].formation, function (f) { f.role == creep.memory.role });
+                            creep.say('formate!');
+                            creep.moveTo(myTarget.x, myTarget.y);
                         }
                     }
                     

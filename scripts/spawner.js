@@ -6,6 +6,7 @@
  * var mod = require('spawner'); // -> 'a thing'
  */
 var ROLE = require('role');
+var utility = require('utility');
 var _ = require('lodash');
 module.exports =
 {
@@ -42,6 +43,12 @@ module.exports =
                 
                 // find the settings that are for a population more then, but closest to what we have.
                 var weHave = spawn.room.find(Game.MY_CREEPS).length;
+                var weHaveMiners = spawn.room.find(Game.MY_CREEPS, { filter: utility.creepIsMiner }).length > 0;
+                var weHavePackers = spawn.room.find(Game.MY_CREEPS, { filter: utility.creepIsPacker }).length > 0;
+                if (weHavePackers && weHaveMiners && spawn.energy < 500 + (weHave * 100)) {
+                    continue;
+                }
+
                 var closestDiff = 0;
                 var closestSettingsPop = null;
                 var toughScale = 0;
@@ -91,6 +98,9 @@ module.exports =
 
                 var current = thenByPriority[0];
                 
+
+
+
                 if (current && current.BODY) {
                     for (var i = 0; i < current.BODY.length; i++) {
                         var extAvail = _.filter(Game.structures, function (n) { return n.structureType == Game.STRUCTURE_EXTENSION && n.energy == n.energyCapacity }).length;

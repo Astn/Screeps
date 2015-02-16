@@ -39,14 +39,35 @@ var hostileInterceptionPoint = function (pos, room) {
 
 var spawnResult = spawner.spawn();
 
+
+
 for (var roomName in Game.rooms) {
-    
+    Memory[roomName].formation = [];
     var room = Game.getRoom(roomName);
     if (!room)
         continue;
     
     var myCreeps = room.find(Game.MY_CREEPS);
     var foundHostile = null;
+
+    // add spots for ranged creeps in the formation
+    var attackCreeps = _.filter(myCreeps, utility.creepIsCloseRanged);
+    for (var i = 0; i < attackCreeps.length; i++) {
+        var attackBrute = attackCreeps[i];
+        // see if the spotbehind him is open
+        var posBehindBuddy = utility.posBehindCreep(attackBrute);
+        var atThatSpot = creep.room.lookAt(posBehindBuddy.x, posBehindBuddy.y);
+        var isACreepThere = _.some(atThatSpot, function (n) { return n.type == 'creep' });
+        if (!isACreepThere) {
+            // send a ranged guy there.
+            Memory[roomName].formation.push({
+                x: posBehindBuddy.x,
+                y: posBehindBuddy.y,
+                role: ROLE.ARCHER
+            });
+        }
+    }
+
     for (var i = 0; i < myCreeps.length; i++) {
         foundHostile = machine.chew(myCreeps[i], foundHostile);
     }
@@ -57,6 +78,5 @@ for (var roomName in Game.rooms) {
         //creepsWithMemoryMoves[i].say('swapping..');
         creepsWithMemoryMoves[i].move(creepsWithMemoryMoves[i].memory.move);
         creepsWithMemoryMoves[i].memory.move = null;
-       
     }
 }

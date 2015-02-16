@@ -44,40 +44,8 @@ module.exports = {
                 }
             case STATE.HEALING:
                 {
-                    var spawn = {};
-                    for (var sp in Game.spawns) {
-                        if (Game.spawns[sp].room == creep.room) {
-                            spawn = Game.spawns[sp];
-                            break;
-                        }
-                    }
+                    var spawn = utility.chooseSpawn(creep);
 
-                    var hostile = creep.pos.findClosest(Game.HOSTILE_CREEPS);
-                    var healerHelpWhenAt = 1;
-                    if (hostile) {
-                        healerHelpWhenAt = .50;
-                    }
-
-                    injured = creep.pos.findClosest(Game.MY_CREEPS, {
-                        filter: function (otherCreep) {
-                            return otherCreep.getActiveBodyparts(Game.HEAL) && otherCreep.hits < (otherCreep.hitsMax * healerHelpWhenAt);
-                        }
-                    });
-
-
-
-                    if (!injured) {
-                        var injuredCreeps = creep.room.find(Game.MY_CREEPS);
-                        injuredCreeps = _.filter(injuredCreeps, utility.creepIsDamaged);
-                        injuredCreeps = _.filter(injuredCreeps, utility.creepCanAttack);
-                        var shortestPath = 1000;
-                        var mostInjured = {};
-                        if (injuredCreeps.length) {
-                            _.sortBy(injuredCreeps, utility.creepHitsRatio);
-                            mostInjured = injuredCreeps[0];
-                            injured = mostInjured;
-                        }
-                    }
                     if (!injured) {
                         var injuredCreeps = creep.room.find(Game.MY_CREEPS);
                         injuredCreeps = _.filter(injuredCreeps, utility.creepIsDamaged);
@@ -104,21 +72,32 @@ module.exports = {
                         }
                         if (inClose) {
                             creep.heal(injured);
-                            injured.memory.pain += 2;
-                            creep.moveTo(spawn);
+                            injured.memory.pain += 2;                           
                         } else if (inRange) {
+                            var pathToInjured = creep.room.findPath(creep.pos, injured.pos, {
+                                ignoreCreeps: true
+                            });
                             creep.rangedHeal(injured);
                             injured.memory.pain += 2;
-                            creep.moveTo(injured);
+                            if (pathToInjured.length > 0) {
+                                creep.move(pathToInjured[0].direction);
+                            }
                         } else {
-                            creep.moveTo(injured);
+                            var pathToInjured = creep.room.findPath(creep.pos, injured.pos, {
+                                ignoreCreeps: true
+                            });
+                            if (pathToInjured.length > 0)
+                            {
+                                creep.move(pathToInjured[0].direction);
+                            }
+                            
                         }
 
                     } else {
                         // Move to the position that is the average of
                         // the front attacking creeps
-                        var frontLineCreeps = creep.room.find(Game.MY_CREEPS);
-                        frontLineCreeps = _.filter(frontLineCreeps, utility.creepCanAttack);
+                        var frontLineCreeps = creep.room.find(Game.MY_CREEPS, { filter: utility.creepCanAttack });
+                       
                         if (frontLineCreeps && frontLineCreeps.length > 0) {
                             //if (!hostile) {
                             //    frontLineCreeps.push(spawn);

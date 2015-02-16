@@ -128,7 +128,16 @@ module.exports = {
                 break;
             }
             case STATE.HARVESTING: {
-                source = creep.pos.findClosest(Game.DROPPED_ENERGY);
+                source = creep.pos.findClosest(Game.DROPPED_ENERGY, { filter: function (n) { return n.energy > creep.energy; } });
+                if (!source) {
+                    source = creep.pos.findClosest(Game.DROPPED_ENERGY, { filter: function (n) { return n.energy > creep.energy *.5; } });
+                }
+                if (!source) {
+                    source = creep.pos.findClosest(Game.DROPPED_ENERGY, { filter: function (n) { return n.energy > creep.energy * .25; } });
+                }
+                if (!source) {
+                    source = creep.pos.findClosest(Game.DROPPED_ENERGY);
+                }
                 if (source) {
 
                     creep.pickup(source);
@@ -139,13 +148,14 @@ module.exports = {
                     if (creep.pos.inRangeTo(drop, 1) && creep.energy < creep.energyCapacity) {
                         creep.memory.target = drop.id;
                         creep.pickup(drop);
+                        creep.move(Math.round(Math.random() * 8));
                     }
                     else if (creep.pos.inRangeTo(drop, 3) && creep.energy < creep.energyCapacity) {
                         creep.memory.target = drop.id;
                         creep.moveTo(drop);
                     }
                     else {
-                        this.bucketBrigade(creep);
+                        //this.bucketBrigade(creep);
 
                         creep.memory.state = STATE.MOVE_TO_TRANSFER;
                     }
@@ -156,13 +166,13 @@ module.exports = {
 
 
 
-                if (this.bucketBrigade(creep)) {
-                    if (creep.energy === 0) {
-                        creep.memory.state = STATE.NONE;
-                        this.think(creep);
-                        break;
-                    }
-                }
+                //if (this.bucketBrigade(creep)) {
+                //    if (creep.energy === 0) {
+                //        creep.memory.state = STATE.NONE;
+                //        this.think(creep);
+                //        break;
+                //    }
+                //}
 
 
                 site = creep.pos.findClosest(Game.CONSTRUCTION_SITES, { filter: function (item) { return item.progress > 0 } });
@@ -245,12 +255,13 @@ module.exports = {
                 else {
                     var ext = creep.pos.findClosest(Game.MY_STRUCTURES, { filter: function (n) { return n.structureType == Game.STRUCTURE_EXTENSION && n.energy < n.energyCapacity; } });
                     if (ext) {
-                        creep.transferEnergy(ext, ext.energyCapacity - ext.energy);
+                        creep.transferEnergy(ext);
                         if (creep.energy === 0) {
                             creep.memory.state = STATE.NONE;
                             this.think(creep);
-                            break;
+                            
                         }
+                        break;
                     }
                     spawn = creep.pos.findClosest(Game.MY_SPAWNS);
                     if (spawn) {

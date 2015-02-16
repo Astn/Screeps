@@ -25,15 +25,15 @@ module.exports = {
         parts: [Game.CARRY, Game.WORK, Game.CARRY, Game.CARRY, Game.MOVE]
     }, ],
     BUILDERWORKER: [{
-        parts: [Game.MOVE, Game.CARRY, Game.CARRY, Game.CARRY, Game.WORK]
+        parts: [Game.CARRY, Game.CARRY, Game.CARRY, Game.WORK, Game.MOVE]
     }, ],
     MINER: [{
-        parts: [Game.MOVE, Game.WORK, Game.WORK, Game.WORK, Game.WORK]
+        parts: [Game.WORK, Game.WORK, Game.WORK, Game.WORK, Game.MOVE]
     }],
     MEDIC: [{
-        parts: [Game.MOVE, Game.HEAL, Game.HEAL, Game.HEAL, Game.HEAL]
+        parts: [Game.HEAL, Game.HEAL, Game.HEAL, Game.HEAL, Game.MOVE]
     }],
     PACKER: [{
-        parts: [Game.MOVE, Game.CARRY, Game.CARRY, Game.CARRY, Game.CARRY]
+        parts: [Game.CARRY, Game.CARRY, Game.CARRY, Game.CARRY, Game.MOVE]
     }]
 };
