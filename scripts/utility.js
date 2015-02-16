@@ -32,7 +32,7 @@ module.exports = {
             return null;
         });
         // remove nulls
-        firstPaths = _.filter(firstPaths, function (f) { return f !=== null; });
+        firstPaths = _.filter(firstPaths, function (f) { return f !== null; });
         // make an average position if the len is > 1;
         var inFrontOfCreep = {
             x: 0,

@@ -85,7 +85,7 @@ module.exports = {
                         }
                         if (creep.energy > 0 && creep.energy === creep.energyCapacity) {
                             creep.dropEnergy();
-                        } else if (code !== Game.OK && creep.memory.digIn !=== true) {
+                        } else if (code !== Game.OK && creep.memory.digIn !== true) {
 
                             creep.memory.state = STATE.NONE;
                         }
