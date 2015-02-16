@@ -116,7 +116,7 @@ module.exports = [
                 ROLE: ROLE.ARCHER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.ARCHER,
-                WANT: 5,
+                WANT: 2,
                 HAVE: 0
             },
             {
@@ -140,7 +140,7 @@ module.exports = [
                 ROLE: ROLE.WORKER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.BUILDERWORKER,
-                WANT: 1,
+                WANT: 3,
                 HAVE: 0,
             },
             {

@@ -63,7 +63,7 @@ module.exports = {
     },
     sumPosX: function (sum, n) { return sum + n.pos.x; },
     sumPosY: function (sum, n) { return sum + n.pos.y; },
-    creepHitsRatio: function (n) { return n.hits / n.hitsMax; },
+    creepHitsRatio: function (n) { return -n.hits / n.hitsMax; },
     creepIsDamaged: function (n) { return (n.hits < n.hitsMax);},
     chooseSpawn: function (creep) {
         var spawn = {};

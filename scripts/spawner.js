@@ -45,7 +45,7 @@ module.exports =
                 var weHave = spawn.room.find(Game.MY_CREEPS).length;
                 var weHaveMiners = spawn.room.find(Game.MY_CREEPS, { filter: utility.creepIsMiner }).length > 0;
                 var weHavePackers = spawn.room.find(Game.MY_CREEPS, { filter: utility.creepIsPacker }).length > 0;
-                if (weHavePackers && weHaveMiners && spawn.energy < 500 + (weHave * 100)) {
+                if (weHavePackers && weHaveMiners && spawn.energy < 500 + (weHave * 25)) {
                     continue;
                 }
 
