@@ -111,7 +111,7 @@ module.exports = {
                             var spotPos = creep.room.getPositionAt(avgX, avgY);
                             var spotInfo = creep.room.lookAt(spotPos);
 
-                            spotInfo = _.filter(spotInfo, function (n) { return n.type == 'terrain' && n.terrain == 'plain' || n.terrain == 'swamp' });
+                            spotInfo = _.filter(spotInfo, function (n) { return n.type === 'terrain' && n.terrain === 'plain' || n.terrain === 'swamp' });
                             if (spotInfo.length > 0) {
                                 var asPath = creep.room.findPath(creep.pos, spotPos, {
                                     ignoreCreeps: false

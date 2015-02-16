@@ -52,7 +52,7 @@ module.exports = {
                         } else {
 
                             var moveResult = creep.moveTo(source);
-                            if (moveResult == Game.ERR_NO_PATH) {
+                            if (moveResult === Game.ERR_NO_PATH) {
 
                                 creep.memory.state = STATE.NONE;
                             }
@@ -80,12 +80,12 @@ module.exports = {
                         var prevEnergy = creep.energy;
                         var code = creep.harvest(source);
                         var afterEnergy = creep.energy;
-                        if (code == Game.OK) {
+                        if (code === Game.OK) {
                             creep.memory.digIn = true;
                         }
-                        if (creep.energy > 0 && creep.energy == creep.energyCapacity) {
+                        if (creep.energy > 0 && creep.energy === creep.energyCapacity) {
                             creep.dropEnergy();
-                        } else if (code != Game.OK && creep.memory.digIn !== true) {
+                        } else if (code !== Game.OK && creep.memory.digIn !=== true) {
 
                             creep.memory.state = STATE.NONE;
                         }

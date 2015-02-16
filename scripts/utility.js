@@ -1,14 +1,14 @@
-var ROLE = require('role');
+﻿var ROLE = require('role');
 var _ = require('lodash');
 module.exports = {
-    bodyPartIsATTACK: function (part) { return part.type == Game.ATTACK; },
-    bodyPartIsRANGED_ATTACK: function (part) { return part.type == Game.RANGED_ATTACK; },
-    bodyPartIsANY_ATTACK: function (part) { return part.type == Game.ATTACK || part.type == Game.RANGED_ATTACK; },
+    bodyPartIsATTACK: function (part) { return part.type === Game.ATTACK; },
+    bodyPartIsRANGED_ATTACK: function (part) { return part.type === Game.RANGED_ATTACK; },
+    bodyPartIsANY_ATTACK: function (part) { return part.type === Game.ATTACK || part.type === Game.RANGED_ATTACK; },
     creepCanAttack: function (n) { return _.some(n.body, this.bodyPartIsANY_ATTACK); },
     creepIsRanged: function (n) { return _.some(n.body, this.bodyPartIsRANGED_ATTACK); },
     creepIsCloseRanged:  function (n) { return _.some(n.body, this.bodyPartIsATTACK); },
-    creepIsMiner: function (n) { return n.memory.role == ROLE.MINER; },
-    creepIsPacker: function (n) { return n.memory.role == ROLE.PACKER; },
+    creepIsMiner: function (n) { return n.memory.role === ROLE.MINER; },
+    creepIsPacker: function (n) { return n.memory.role === ROLE.PACKER; },
     firstPosAlongPathTo: function (n, creep) {
         if (n) {
             var path = creep.pos.findPathTo(n);
@@ -32,7 +32,7 @@ module.exports = {
             return null;
         });
         // remove nulls
-        firstPaths = _.filter(firstPaths, function (f) { return f !== null; });
+        firstPaths = _.filter(firstPaths, function (f) { return f !=== null; });
         // make an average position if the len is > 1;
         var inFrontOfCreep = {
             x: 0,
@@ -44,8 +44,8 @@ module.exports = {
             }, inFrontOfCreep);
             var avged = { x: Math.round(summed.x / firstPaths.length), y: Math.round(summed.y / firstPaths.length) };
             return {
-                x: creep.pos.x - (avged.x - creep.pos.x),
-                y: creep.pos.y - (avged.y - creep.pos.y)
+                x: creep.pos.x + (avged.x - creep.pos.x),
+                y: creep.pos.y + (avged.y - creep.pos.y)
             };
         }
         else if (firstPaths.length === 1) {
@@ -68,7 +68,7 @@ module.exports = {
     chooseSpawn: function (creep) {
         var spawn = {};
         for (var sp in Game.spawns) {
-            if (Game.spawns[sp].room == creep.room) {
+            if (Game.spawns[sp].room === creep.room) {
                 spawn = Game.spawns[sp];
                 break;
             }
@@ -100,14 +100,14 @@ module.exports = {
         // swap is good, cause it prevents enemy from just hammering on one enemy.
         // check if we should swap places with the creep next to us if we are trying to go that way.
         var atThatSpot = creep.room.lookAt(pathStep.x, pathStep.y);
-        var isACreepThere = _.some(atThatSpot, function (n) { return n.type == 'creep' });
+        var isACreepThere = _.some(atThatSpot, function (n) { return n.type === 'creep' });
         if (isACreepThere) {
-            var justCreeps = _.filter(atThatSpot, function (n) { return n.type == 'creep' });
+            var justCreeps = _.filter(atThatSpot, function (n) { return n.type === 'creep' });
                             
             var otherCreep = _.first(justCreeps).creep;
             if (otherCreep.my) {
-                var isCloseAttacker = _.some(otherCreep.body, function (part) { return part.type == Game.ATTACK; });
-                var amICoseAttacker = _.some(creep.body, function (part) { return part.type == Game.ATTACK; });
+                var isCloseAttacker = _.some(otherCreep.body, function (part) { return part.type === Game.ATTACK; });
+                var amICoseAttacker = _.some(creep.body, function (part) { return part.type === Game.ATTACK; });
                 var directionToMySpotFromTheirSpot = 0;
                 if (pathStep.direction >= 4)
                     directionToMySpotFromTheirSpot = pathStep.direction - 4;

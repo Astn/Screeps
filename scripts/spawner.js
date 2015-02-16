@@ -79,7 +79,7 @@ module.exports =
                         
                         x.HAVE = spawn.room.find(Game.MY_CREEPS, {
                             filter: function (f) {
-                                return f.memory.role == x.ROLE;
+                                return f.memory.role === x.ROLE;
                             }
                         }).length;
                         
@@ -103,11 +103,11 @@ module.exports =
 
                 if (current && current.BODY) {
                     for (var i = 0; i < current.BODY.length; i++) {
-                        var extAvail = _.filter(Game.structures, function (n) { return n.structureType == Game.STRUCTURE_EXTENSION && n.energy == n.energyCapacity }).length;
+                        var extAvail = _.filter(Game.structures, function (n) { return n.structureType === Game.STRUCTURE_EXTENSION && n.energy === n.energyCapacity }).length;
                             
                            
                         var parts = current.BODY[i].parts.slice(0);
-                        if (_.some(parts, function (f) { return f == Game.ATTACK})) {
+                        if (_.some(parts, function (f) { return f === Game.ATTACK})) {
                             var toughness = [];
                             for (var j = 0; j < toughScale; j++) {
                                 toughness.push(Game.TOUGH);
@@ -117,7 +117,7 @@ module.exports =
                             }
                                 parts = toughness.concat(parts);
                         }
-                        else if (_.some(parts, function (f) { return f == Game.RANGED_ATTACK })) {
+                        else if (_.some(parts, function (f) { return f === Game.RANGED_ATTACK })) {
                             var toughness = [];
                             for (var j = 0; j < toughScale / 4; j++) {
                                 toughness.push(Game.TOUGH);
@@ -129,7 +129,7 @@ module.exports =
                         }
 
                         
-                        //else if (_.some(parts, function (f) { return f == Game.HEAL })) {
+                        //else if (_.some(parts, function (f) { return f === Game.HEAL })) {
                         //    var toughness = [];
                         //    for (var j = 0; j < toughScale / 6; j++) {
                         //        toughness.push(Game.TOUGH);
@@ -140,7 +140,7 @@ module.exports =
                         var name = getName(current.ROLE) + ' ' + parseInt(spawn.room.find(Game.CREEPS).length);
                         var buildCode = spawn.createCreep(parts, name, { state: current.STATE, role: current.ROLE });
                         var tries = 2;
-                        while (buildCode == -3 && --tries > 0) {
+                        while (buildCode === -3 && --tries > 0) {
                             
                             spawn.createCreep(parts, current.ROLE + ' ' + parseInt(++id), { state: current.STATE, role: current.ROLE });
                         }

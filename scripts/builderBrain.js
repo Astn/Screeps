@@ -28,7 +28,7 @@ module.exports = {
             // find nearest carrier who is less then full, and is closer to spawner
             var buddyCloserToASiteOrSpawn = creep.pos.findClosest(Game.MY_CREEPS, {
                 filter: function (c) {
-                    return c.getActiveBodyparts(Game.CARRY) > 0 && (c.memory.role == creep.memory.role || c.memory.role == ROLE.WORKER);
+                    return c.getActiveBodyparts(Game.CARRY) > 0 && (c.memory.role === creep.memory.role || c.memory.role === ROLE.WORKER);
                 }
             });
             if (buddyCloserToASiteOrSpawn) {
@@ -100,6 +100,7 @@ module.exports = {
                         creep.memory.target = passTheBucket.id;
                         creep.memory.state = STATE.MOVE_TO_HARVEST;
                     }
+                    // make a random move.
                 }
                 break;
             }
@@ -113,7 +114,7 @@ module.exports = {
                 if (source) {
 
                     var moveResult = creep.moveTo(source);
-                    if (moveResult == Game.ERR_NO_PATH) {
+                    if (moveResult === Game.ERR_NO_PATH) {
                         creep.memory.state = STATE.NONE;
                     }
                     if (creep.pos.inRangeTo(source.pos, 1)) {
@@ -189,7 +190,7 @@ module.exports = {
                 else {
                     var ext = creep.pos.findClosest(Game.MY_STRUCTURES, {
                         filter: function (n) {
-                            return n.structureType == Game.STRUCTURE_EXTENSION && n.energy < n.energyCapacity; 
+                            return n.structureType === Game.STRUCTURE_EXTENSION && n.energy < n.energyCapacity; 
                         }
                     });
                     if (ext) {
@@ -230,10 +231,10 @@ module.exports = {
                 if (creep.getActiveBodyparts(Game.WORK) > 0 && (site || repair)) {
                     if (site) {
                         var result = creep.build(site);
-                        if (result == Game.ERR_NOT_IN_RANGE) {
+                        if (result === Game.ERR_NOT_IN_RANGE) {
                             creep.moveTo(site);
                         }
-                        if (result == Game.ERR_INVALID_TARGET) {
+                        if (result === Game.ERR_INVALID_TARGET) {
                             spawn = creep.pos.findClosest(Game.MY_SPAWNS);
                             creep.moveTo(spawn);
                         }
@@ -253,7 +254,7 @@ module.exports = {
                     }
                 }
                 else {
-                    var ext = creep.pos.findClosest(Game.MY_STRUCTURES, { filter: function (n) { return n.structureType == Game.STRUCTURE_EXTENSION && n.energy < n.energyCapacity; } });
+                    var ext = creep.pos.findClosest(Game.MY_STRUCTURES, { filter: function (n) { return n.structureType === Game.STRUCTURE_EXTENSION && n.energy < n.energyCapacity; } });
                     if (ext) {
                         creep.transferEnergy(ext);
                         if (creep.energy === 0) {
