@@ -220,8 +220,8 @@ module.exports = [
         ]
     },
     {
-        "time": 2300,
-        "toughness": 10,
+        "time": 1700,
+        "toughness": 22,
         "population": 15,
         "profile": [
             {
@@ -275,8 +275,8 @@ module.exports = [
         ]
     },
     {
-        "time": 2800,
-        "toughness": 20,
+        "time": 2300,
+        "toughness": 22,
         "population": 33,
         "profile": [
             {
@@ -308,7 +308,7 @@ module.exports = [
                 ROLE: ROLE.PACKER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.PACKER,
-                WANT: 2,
+                WANT: 1,
                 HAVE: 0,
             },
             {
