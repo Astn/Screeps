@@ -1,18 +1,29 @@
+var _ = require('lodash');
+var spawner = require('spawner');
+var machine = require('machine');
+var utility = require('utility');
+var creepCt = 0;
+for (var c in Game.creeps) {
+    creepCt++;
+}
+for (var s in Game.spawns) {
+    var spawn = Game.spawns[s];
+    if (
+        creepCt === 0
+        && spawn.energy === 1000
+        ) {
+        Memory.startTime = Game.time;
+        console.log('starting...');
+    }
+}
 if (Game.time <= 0) {
     Memory.creeps = {};
     Memory.mine = {};
     Memory.map = {};
 }
-if (!Memory.time) {
-    Memory.startTime = Game.time;
-}
 if (!Memory.map)
     Memory.map = {};
 
-var _ = require('lodash');
-var spawner = require('spawner');
-var machine = require('machine');
-var utility = require('utility');
 Memory.reset = false;
 
 if (!Memory.mine)

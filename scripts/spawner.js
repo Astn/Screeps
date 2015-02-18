@@ -35,7 +35,10 @@ module.exports =
                     return role;
             }
         };
-        
+        var duration = 0;
+        if (Memory.startTime ) {
+            duration = Game.time - Memory.startTime;
+        }
         for (var s in Game.spawns) {
             
             var spawn = Game.spawns[s];
@@ -53,6 +56,7 @@ module.exports =
                 var closestSettingsPop = null;
                 var toughScale = 0;
                 var closestSettings = null;
+                var settingTime = 0;
                 this._settings.forEach(function (setting) {
                     
                     
@@ -61,20 +65,29 @@ module.exports =
                         closestSettingsPop = setting;
                         closestSettings = setting.profile;
                         toughScale = setting.toughness;
+                        settingTime = setting.time;
                         closestDiff = closestSettingsPop.population - weHave;
                     } else if (!closestSettingsPop) {
                         
                         closestSettingsPop = setting;
                         closestSettings = setting.profile;
                         toughScale = setting.toughness;
+                        settingTime = setting.time;
                         closestDiff = closestSettingsPop.population - weHave;
                     }
                 });
                 
+                if (duration > 0 && settingTime > 0) {
+                    if (settingTime > duration) {
+                        console.log("too soon.. " + parseInt(settingTime) + " > " + parseInt(duration));
+                        return; // its too early to use these.
+                    }
+                }
                 // TODO: before the sort will work we need to collect the number of creeps we have in each state
                 // so check creep.memory.role and accumulate it to update how many we have.
                 
                 if (closestSettings) {
+                    
                     closestSettings.forEach(function (x) {
                         
                         x.HAVE = spawn.room.find(Game.MY_CREEPS, {
@@ -136,6 +149,7 @@ module.exports =
                         //    }
                         //    parts = toughness.concat(parts);
                         //}
+                        
                         var id = 1;
                         var name = getName(current.ROLE) + ' ' + parseInt(spawn.room.find(Game.CREEPS).length);
                         var buildCode = spawn.createCreep(parts, name, { state: current.STATE, role: current.ROLE });

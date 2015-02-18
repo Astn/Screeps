@@ -222,13 +222,13 @@ module.exports = {
                 if (!site) {
                     site = creep.pos.findClosest(Game.CONSTRUCTION_SITES);
                 }
-                var repair = creep.pos.findClosest(Game.MY_STRUCTURES, {
-                    filter: function (item) {
-                        return item.hits < item.hitsMax;
-                    }
-                });
+                //var repair = creep.pos.findClosest(Game.MY_STRUCTURES, {
+                //    filter: function (item) {
+                //        return item.hits < item.hitsMax;
+                //    }
+                //});
 
-                if (creep.getActiveBodyparts(Game.WORK) > 0 && (site || repair)) {
+                if (creep.getActiveBodyparts(Game.WORK) > 0 && (site )) {//(site || repair)) {
                     if (site) {
                         var result = creep.build(site);
                         if (result === Game.ERR_NOT_IN_RANGE) {
@@ -239,10 +239,10 @@ module.exports = {
                             creep.moveTo(spawn);
                         }
                     }
-                    else {
-                        creep.moveTo(repair);
-                        creep.repair(repair);
-                    }
+                    //else {
+                    //    creep.moveTo(repair);
+                    //    creep.repair(repair);
+                    //}
 
                     if (creep.energy === 0) {
                         creep.memory.state = STATE.NONE;

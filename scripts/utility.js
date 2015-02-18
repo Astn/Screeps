@@ -1,12 +1,14 @@
 ﻿var ROLE = require('role');
 var _ = require('lodash');
 module.exports = {
-    bodyPartIsATTACK: function (part) { return part.type === Game.ATTACK; },
-    bodyPartIsRANGED_ATTACK: function (part) { return part.type === Game.RANGED_ATTACK; },
-    bodyPartIsANY_ATTACK: function (part) { return part.type === Game.ATTACK || part.type === Game.RANGED_ATTACK; },
-    creepCanAttack: function (n) { return _.some(n.body, this.bodyPartIsANY_ATTACK); },
-    creepIsRanged: function (n) { return _.some(n.body, this.bodyPartIsRANGED_ATTACK); },
-    creepIsCloseRanged:  function (n) { return _.some(n.body, this.bodyPartIsATTACK); },
+    creepCanAttack: function (n) {
+        var count = _.filter(n.body, function (part) {
+            return part.type === Game.ATTACK || part.type === Game.RANGED_ATTACK;
+        }).length;
+        return count > 0;
+    },
+    creepIsRanged: function (n) { return _.filter(n.body, function (part) { return part.type === Game.RANGED_ATTACK; }).length > 0; },
+    creepIsCloseRanged: function (n) { return _.filter(n.body, function (part) { return part.type === Game.ATTACK; }).length > 0; },
     creepIsMiner: function (n) { return n.memory.role === ROLE.MINER; },
     creepIsPacker: function (n) { return n.memory.role === ROLE.PACKER; },
     firstPosAlongPathTo: function (n, creep) {
@@ -55,8 +57,8 @@ module.exports = {
             };
         }
         var behindCreep = {
-            x: creep.pos.x - (inFrontOfCreep.x - creep.pos.x),
-            y: creep.pos.y - (inFrontOfCreep.y - creep.pos.y)
+            x: creep.pos.x + (creep.pos.x - inFrontOfCreep.x),
+            y: creep.pos.y + (creep.pos.y - inFrontOfCreep.y)
         };
         
         return behindCreep;
