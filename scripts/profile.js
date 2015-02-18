@@ -13,7 +13,7 @@ var STATE = require('state');
 module.exports = [
     {
         "time":0,
-        "toughness": 2,
+        "toughness": 6,
         "population": 2,
         "profile": [
             {
