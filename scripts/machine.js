@@ -80,5 +80,11 @@ module.exports = {
                     break;
                 }
         }
+    },
+    chewAll: function(creeps){
+      var foundHostile = null;
+      for (var i = 0; i < creeps.length; i++) {
+          foundHostile = this.chew(creeps[i], foundHostile);
+      }
     }
 };

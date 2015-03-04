@@ -1,6 +1,41 @@
 ﻿var ROLE = require('role');
 var _ = require('lodash');
 module.exports = {
+    crepsWithMoves = function(creeps){
+      return _.filter(creeps, function (n) { return n.memory.move; });
+    },
+    moveCreepsWithStoredMove = function(creeps){
+      var creepsWithMoves = utility.crepsWithMoves(creeps);
+      _.forEach(creepsWithMoves, function (creep){
+        creep.move(creep.memory.move);
+        creep.memory.move = null;
+      });
+    },
+    initializeRoomMemory = function(roomName){
+      if(!Memory[roomName]){
+        Memory[roomName] = [];
+      }
+    },
+    setStartTimeAndInitializeMemory = function(){
+      var creepCt = _.transform(Game.creeps, function(acc,prop){
+        return acc + 1;
+      }, 0);
+      for (var spawnName in Game.spawns){
+        var spawn = Game.spawns[spawnName];
+        if (creepCt === 0 && spawn.energy === 1000) {
+            Memory.startTime = Game.time;
+            Memory.creeps = {};
+            Memory.mine = {};
+            Memory.map = {};
+            console.log('starting...');
+        }
+      }
+    },
+    linearDistance = function (pos1, pos2) {
+        var x = pos1.x - pos2.x;
+        var y = pos1.y - pos2.y;
+        return Math.sqrt(x * x + y * y);
+    },
     creepCanAttack: function (n) {
         var count = _.filter(n.body, function (part) {
             return part.type === Game.ATTACK || part.type === Game.RANGED_ATTACK;
@@ -60,7 +95,7 @@ module.exports = {
             x: creep.pos.x + (creep.pos.x - inFrontOfCreep.x),
             y: creep.pos.y + (creep.pos.y - inFrontOfCreep.y)
         };
-        
+
         return behindCreep;
     },
     sumPosX: function (sum, n) { return sum + n.pos.x; },
@@ -105,7 +140,7 @@ module.exports = {
         var isACreepThere = _.some(atThatSpot, function (n) { return n.type === 'creep' });
         if (isACreepThere) {
             var justCreeps = _.filter(atThatSpot, function (n) { return n.type === 'creep' });
-                            
+
             var otherCreep = _.first(justCreeps).creep;
             if (otherCreep.my) {
                 var isCloseAttacker = _.some(otherCreep.body, function (part) { return part.type === Game.ATTACK; });
