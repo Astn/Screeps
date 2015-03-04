@@ -1,22 +1,22 @@
-﻿var ROLE = require('role');
+var ROLE = require('role');
 var _ = require('lodash');
 module.exports = {
-    crepsWithMoves = function(creeps){
+    crepsWithMoves : function(creeps){
       return _.filter(creeps, function (n) { return n.memory.move; });
     },
-    moveCreepsWithStoredMove = function(creeps){
+    moveCreepsWithStoredMove : function(creeps){
       var creepsWithMoves = utility.crepsWithMoves(creeps);
       _.forEach(creepsWithMoves, function (creep){
         creep.move(creep.memory.move);
         creep.memory.move = null;
       });
     },
-    initializeRoomMemory = function(roomName){
+    initializeRoomMemory : function(roomName){
       if(!Memory[roomName]){
         Memory[roomName] = [];
       }
     },
-    setStartTimeAndInitializeMemory = function(){
+    setStartTimeAndInitializeMemory : function(){
       var creepCt = _.transform(Game.creeps, function(acc,prop){
         return acc + 1;
       }, 0);
@@ -31,7 +31,7 @@ module.exports = {
         }
       }
     },
-    linearDistance = function (pos1, pos2) {
+    linearDistance : function (pos1, pos2) {
         var x = pos1.x - pos2.x;
         var y = pos1.y - pos2.y;
         return Math.sqrt(x * x + y * y);
