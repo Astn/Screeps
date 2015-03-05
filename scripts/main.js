@@ -56,7 +56,8 @@ for (var roomName in Game.rooms) {
 }
 
 var overCpu = false;
-while (true){
+var ctr  =0;
+//while (true){
   for (var roomName in Game.rooms) {
     // use extra cycles to update map
     utility.updateMap(roomName);
@@ -68,8 +69,9 @@ while (true){
         }
     });
 
-    if(overCpu){
+    if(overCpu || ctr > 100){
       break;
     }
+    ctr++;
   }
-}
+//}
