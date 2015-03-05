@@ -43,9 +43,10 @@ module.exports = {
         map.nextPos.x = 0;
         map.nextPos.y ++;
       }
-      else if (map.nextPos.x === 50
-        && map.nextPos.y === 50){
+      else if (map.nextPos.x === 49
+        && map.nextPos.y === 49){
         map.done = true;
+        return false;
       }
       else{
           map.nextPos.x ++;
@@ -137,8 +138,9 @@ module.exports = {
           }
         }
       }
+      var offset = {x:creep.pos.x - bestXY.x +1, y:creep.pos.y - bestXY.y +1};
 
-      return directionLookup[creep.pos.x - bestXY.x][creep.pos.y - bestXY.y];
+      return directionLookup[offset.x][offset.y];
     },
     setStartTimeAndInitializeMemory : function(){
       var creepCt = _.transform(Game.creeps, function(acc,prop){

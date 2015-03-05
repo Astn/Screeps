@@ -7,6 +7,7 @@
  */
 var STATE = require('state');
 var ROLE = require('role');
+var utility = require('utility');
 module.exports = {
     bestSiteOrSpawn: function (someCreep) {
         var place = someCreep.pos.findClosest(Game.CONSTRUCTION_SITES, { filter: function (item) { return item.progress > 0 } });
@@ -207,6 +208,7 @@ module.exports = {
                         if (spawn) {
                             var direction = utility.directionToNearestSpawn(creep);
                             if(direction){
+                              creep.say(direction);
                               creep.move(direction);
                             }
                             else{
