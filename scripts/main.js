@@ -19,7 +19,7 @@ var spawnResult = spawner.spawn();
 
 for (var roomName in Game.rooms) {
     utility.initializeRoomMemory(roomName);
-    Memory[roomName].formation = [];
+  //  Memory[roomName].formation = [];
 
     var room = Game.getRoom(roomName);
     if (!room)
@@ -66,7 +66,7 @@ for (var roomName in Game.rooms) {
           console.log("Over CPU, aborting");
       }
   });
-  
+
   if(overCpu){
     break;
   }
