@@ -35,6 +35,7 @@ module.exports = {
         && map.nextPos.y === 50){
         return;
       }
+      var current = {x:map.nextPos.x,y:map.nextPos.y};
       var currentPos = Game.rooms[roomName].getPositionAt(map.nextPos.x,map.nextPos.y);
       // increment posiition
       if (map.nextPos.x === 49){
@@ -48,8 +49,11 @@ module.exports = {
       map.nextPos.x ++;
 
 
-      if(!currentPos)
+      if(!currentPos){
+        console.log('no position for x:'+parseInt(current.x)+' y:'+parseInt(current.y))
         return;
+      }
+
       var posInfo = {
         spawns: {},
         sources: {}
@@ -67,7 +71,9 @@ module.exports = {
             ignoreCreeps: true,
             ignoreDestructibleStructures: true,
             heuristicWeight: 1 });
-        posInfo.spawns[spawn.name] = pathTo.length;
+        if(pathTo.length > 0){
+          posInfo.spawns[spawn.name] = pathTo.length;
+        }
       }
       // get distance to each source
       var sources = Game.rooms[roomName].find(Game.SOURCES);
