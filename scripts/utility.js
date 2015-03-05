@@ -63,7 +63,12 @@ module.exports = {
             ignoreCreeps: true,
             ignoreDestructibleStructures: true,
             heuristicWeight: 1 });
-        posInfo.sources[sources[sourceIdx].id] = pathTo.length;
+        if(pathTo.length > 0)
+        {
+          posInfo.sources[sources[sourceIdx].id] = pathTo.length;
+        }else{
+          posInfo.sources[sources[sourceIdx].id] = Infinity;
+        }
       }
 
       map.pos[map.nextPos.y][map.nextPos.x] = posInfo
