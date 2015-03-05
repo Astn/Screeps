@@ -121,7 +121,7 @@ module.exports = {
                         creep.memory.state = STATE.HARVESTING;
                     }
 
-                 
+
                 }
                 else {
                     creep.memory.state = STATE.NONE;
@@ -190,7 +190,7 @@ module.exports = {
                 else {
                     var ext = creep.pos.findClosest(Game.MY_STRUCTURES, {
                         filter: function (n) {
-                            return n.structureType === Game.STRUCTURE_EXTENSION && n.energy < n.energyCapacity; 
+                            return n.structureType === Game.STRUCTURE_EXTENSION && n.energy < n.energyCapacity;
                         }
                     });
                     if (ext) {
@@ -205,7 +205,14 @@ module.exports = {
                         //creep.say('nope');
                         spawn = creep.pos.findClosest(Game.MY_SPAWNS);
                         if (spawn) {
-                            creep.moveTo(spawn);                        
+                            var direction = utility.directionToNearestSpawn(creep);
+                            if(direction){
+                              creep.move(direction);
+                            }
+                            else{
+                              creep.moveTo(spawn);
+                            }
+
                             if (creep.pos.inRangeTo(spawn.pos, 1)) {
                                 creep.memory.state = STATE.TRANSFERING;
                                 this.think(creep);
@@ -213,7 +220,7 @@ module.exports = {
                             }
                         }
                     }
-                    
+
                 }
                 break;
             }
@@ -260,7 +267,7 @@ module.exports = {
                         if (creep.energy === 0) {
                             creep.memory.state = STATE.NONE;
                             this.think(creep);
-                            
+
                         }
                         break;
                     }
@@ -278,8 +285,8 @@ module.exports = {
                 console.log('creep is in an unhandled state ' + creep.name + ':' + creep.memory.state);
                 creep.memory.state = STATE.NONE;
             }
-             
-              
+
+
         }
     }
 }

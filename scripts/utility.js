@@ -96,6 +96,38 @@ module.exports = {
       return true;
 
     },
+    directionToNearestSpawn: function(creep){
+      /*Directions
+          Game.TOP	1
+          Game.TOP_RIGHT	2
+          Game.RIGHT	3
+          Game.BOTTOM_RIGHT	4
+          Game.BOTTOM	5
+          Game.BOTTOM_LEFT	6
+          Game.LEFT	7
+          Game.TOP_LEFT	8
+      */
+      var directionLookup = [
+        [Game.TOP_LEFT,Game.TOP,Game.TOP_RIGHT],
+        [Game.LEFT, 0, Game.RIGHT],
+        [Game.BOTTOM_LEFT, Game.BOTTOM, Game.BOTTOM_RIGHT]
+      ]
+      var pos = Memory.myRooms[creep.room.name].map.pos;
+      var bestDist = 100;
+      var bestXY = {x:creep.pos.x,y:creep.pos.y};
+      for (var y = creep.pos.y-1; y < creep.pos.y+2; y++){
+        for (var x = creep.pos.x-1; x < creep.pos.x+2; x++){
+          for(var spName in pos[y][x].spawns){
+            if(pos[y][x][spName] < bestDist){
+              bestXY = {x:x,y:y};
+              bestDist = pos[y][x][spName];
+            }
+          }
+        }  
+      }
+
+      return directionLookup[creep.pos.x - bestXY.x][creep.pos.y - bestXY.y];
+    },
     setStartTimeAndInitializeMemory : function(){
       var creepCt = _.transform(Game.creeps, function(acc,prop){
         return acc + 1;
