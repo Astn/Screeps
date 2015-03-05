@@ -13,9 +13,9 @@ module.exports = {
     },
     initializeRoomMemory : function(roomName){
 
-      if(!Memory.myRooms){
+      //if(!Memory.myRooms){
         Memory.myRooms = {};
-      }
+      //}
       if(!Memory.myRooms[roomName]){
         Memory.myRooms[roomName] = {};
       }
