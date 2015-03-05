@@ -20,10 +20,10 @@ module.exports = {
       }
       if(!Memory.myRooms[roomName].map){
         var pos = new Array(50);
-        for (var x = 0; x <50; x++){
-          pos[x] = new Array(50);
+        for (var y = 0; x <50; x++){
+          pos[y] = new Array(50);
           for (var y = 0; y <50; y++){
-            pos[x][y] = {};
+            pos[y][x] = {};
           }
         }
         Memory.myRooms[roomName].map = {nextPos: {x:0,y:0}, done:false, pos:pos};
@@ -41,8 +41,12 @@ module.exports = {
         sources: {}
       };
 
+
       // get distance to each spawn
-      for (var spawn in _.filter(Game.spawns, function(sp){return sp.room.name === roomName})){
+      for (var spawnName in Game.spawns){
+          var spawn = Game.spawns[spawnName];
+          if(spawn.room.name !== roomName)
+            continue;
         var pathTo = Game.rooms[roomName].findPath(currentPos,
                 spawn.pos,
           {
@@ -52,26 +56,28 @@ module.exports = {
         posInfo.spawns[spawn.name] = pathTo.length;
       }
       // get distance to each source
-      for (var source in Game.rooms[roomName].find(Game.SOURCES)){
-        var pathTo = Game.rooms[roomName].findPathTo(currentPos,source.pos,
+      var sources = Game.rooms[roomName].find(Game.SOURCES);
+      for (var sourceIdx in sources){
+        var pathTo = Game.rooms[roomName].findPath(currentPos, sources[sourceIdx].pos,
           {
             ignoreCreeps: true,
             ignoreDestructibleStructures: true,
             heuristicWeight: 1 });
-        posInfo.sources[source.name] = pathTo.length;
+        posInfo.sources[sources[sourceIdx].id] = pathTo.length;
       }
 
-      map.pos[map.nextPos.x][map.nextPos.y] = posInfo
+      map.pos[map.nextPos.y][map.nextPos.x] = posInfo
 
       // increment posiition
       if (map.nextPos.x === 49){
-        map.nextPos.y = 0;
-        map.nextPos.x ++;
+        map.nextPos.x = 0;
+        map.nextPos.y ++;
       }
       if (map.nextPos.x === 50
         && map.nextPos.y === 50){
         map.done = true;;
       }
+      map.nextPos.x ++;
     },
     setStartTimeAndInitializeMemory : function(){
       var creepCt = _.transform(Game.creeps, function(acc,prop){
