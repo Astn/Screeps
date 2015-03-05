@@ -42,13 +42,14 @@ module.exports = {
       };
 
       // get distance to each spawn
-      for (var spName in _.filter(Game.spawns, function(sp){return sp.room.name === roomName})){
-        var pathTo = Game.rooms[roomName].findPathTo(currentPos,Game.spawns[spName].pos,
+      for (var spawn in _.filter(Game.spawns, function(sp){return sp.room.name === roomName})){
+        var pathTo = Game.rooms[roomName].findPath(currentPos,
+                spawn.pos,
           {
             ignoreCreeps: true,
             ignoreDestructibleStructures: true,
             heuristicWeight: 1 });
-        posInfo.spawns[spName] = pathTo.length;
+        posInfo.spawns[spawn.name] = pathTo.length;
       }
       // get distance to each source
       for (var source in Game.rooms[roomName].find(Game.SOURCES)){
