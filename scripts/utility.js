@@ -12,8 +12,13 @@ module.exports = {
       });
     },
     initializeRoomMemory : function(roomName){
-
-      if(!Memory.rooms[roomName].map){
+      if(!Memory.myRooms){
+        Memory.myRooms = {};
+      }
+      if(!Memory.myRooms[roomName]){
+        Memory.myRooms[roomName] = {};
+      }
+      if(!Memory.myRooms[roomName].map){
         var pos = new Array(50);
         for (var x = 0; x <50; x++){
           pos[x] = new Array(50);
@@ -21,13 +26,13 @@ module.exports = {
             pos[x][y] = {};
           }
         }
-        Memory.rooms[roomName].map = {nextPos: {x:0,y:0}, done:false, pos:pos};
+        Memory.myRooms[roomName].map = {nextPos: {x:0,y:0}, done:false, pos:pos};
       }
     },
     updateMap : function(roomName){
-      var map = Memory.rooms[roomName].map;
+      var map = Memory.myRooms[roomName].map;
       if (map.nextPos.x === 50
-        && map.nextPos.y === 50}){
+        && map.nextPos.y === 50){
         return;
       }
       var currentPos = Game.rooms[roomName].getPositionAt(map.nextPos.x,map.nextPos.y);
@@ -37,11 +42,11 @@ module.exports = {
       };
 
       // get distance to each spawn
-      for (var spName in _.filter(Game.spawns, function(sp){return sp.room.name === roomName}){
+      for (var spName in _.filter(Game.spawns, function(sp){return sp.room.name === roomName})){
         var pathTo = Game.rooms[roomName].findPathTo(currentPos,Game.spawns[spName].pos,
           {
             ignoreCreeps: true,
-            ignoreDestructibleStructures: true
+            ignoreDestructibleStructures: true,
             heuristicWeight: 1 });
         posInfo.spawns[spName] = pathTo.length;
       }
@@ -50,7 +55,7 @@ module.exports = {
         var pathTo = Game.rooms[roomName].findPathTo(currentPos,source.pos,
           {
             ignoreCreeps: true,
-            ignoreDestructibleStructures: true
+            ignoreDestructibleStructures: true,
             heuristicWeight: 1 });
         posInfo.sources[source.name] = pathTo.length;
       }
@@ -63,7 +68,7 @@ module.exports = {
         map.nextPos.x ++;
       }
       if (map.nextPos.x === 50
-        && map.nextPos.y === 50}){
+        && map.nextPos.y === 50){
         map.done = true;;
       }
     },
