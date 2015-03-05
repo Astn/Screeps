@@ -12,9 +12,10 @@ module.exports = {
       });
     },
     initializeRoomMemory : function(roomName){
-      //if(!Memory.myRooms){
+
+      if(!Memory.myRooms){
         Memory.myRooms = {};
-      //}
+      }
       if(!Memory.myRooms[roomName]){
         Memory.myRooms[roomName] = {};
       }
@@ -31,27 +32,29 @@ module.exports = {
     },
     updateMap : function(roomName){
       var map = Memory.myRooms[roomName].map;
-      if (map.nextPos.x === 50
-        && map.nextPos.y === 50){
-        return;
+      if (map.done === true){
+        return false;
       }
       var current = {x:map.nextPos.x,y:map.nextPos.y};
       var currentPos = Game.rooms[roomName].getPositionAt(map.nextPos.x,map.nextPos.y);
+
+     if(!currentPos){
+        console.log('no position for x:'+parseInt(map.nextPos.x)+' y:'+parseInt(map.nextPos.y))
+        return true;
+      }
+
       // increment posiition
-      if (map.nextPos.x === 49){
+      if (map.nextPos.x === 49 && map.nextPos.y !== 49){
         map.nextPos.x = 0;
         map.nextPos.y ++;
       }
-      if (map.nextPos.x === 50
+      else if (map.nextPos.x === 50
         && map.nextPos.y === 50){
-        map.done = true;;
+        map.done = true;
+        console.log('incr 2');
       }
-      map.nextPos.x ++;
-
-
-      if(!currentPos){
-        console.log('no position for x:'+parseInt(current.x)+' y:'+parseInt(current.y))
-        return;
+      else{
+          map.nextPos.x ++;
       }
 
       var posInfo = {
@@ -90,7 +93,7 @@ module.exports = {
       }
 
       map.pos[currentPos.y][currentPos.x] = posInfo
-
+      return true;
 
     },
     setStartTimeAndInitializeMemory : function(){
@@ -103,10 +106,10 @@ module.exports = {
             Memory.startTime = Game.time;
             Memory.creeps = {};
             Memory.mine = {};
-
+            this.initializeRoomMemory(spawn.room.name);
             console.log('starting...');
         }
-        this.initializeRoomMemory(spawn.room.name);
+
       }
     },
 

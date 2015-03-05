@@ -56,18 +56,23 @@ for (var roomName in Game.rooms) {
 }
 
 var overCpu = false;
-var updateMapCtr = 0;
-while (overCpu === false && updateMapCtr < 50){
-  for (var roomName in Game.rooms) {
-    // use extra cycles to update map
-    utility.updateMap(roomName);
 
-    Game.getUsedCpu(function(cpu) {
-        if(cpu > Game.cpuLimit *.80) {
-            overCpu = true;
-            console.log("Over CPU, aborting");
-        }
-    });
-    updateMapCtr++;
+for (var roomName in Game.rooms) {
+  var updateMapCtr = 0;
+  while (overCpu === false && updateMapCtr < 50){
+
+      // use extra cycles to update map
+      updateMapCtr++;
+      Game.getUsedCpu(function(cpu) {
+          if(cpu > Game.cpuLimit *.80) {
+              overCpu = true;
+              console.log("Over CPU, aborting");
+          }
+      });
+
+
+      if (utility.updateMap(roomName) === false){
+        break;
+      }
   }
 }
