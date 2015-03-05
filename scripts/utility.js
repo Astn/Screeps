@@ -38,11 +38,6 @@ module.exports = {
       var current = {x:map.nextPos.x,y:map.nextPos.y};
       var currentPos = Game.rooms[roomName].getPositionAt(map.nextPos.x,map.nextPos.y);
 
-     if(!currentPos){
-        console.log('no position for x:'+parseInt(map.nextPos.x)+' y:'+parseInt(map.nextPos.y))
-        return true;
-      }
-
       // increment posiition
       if (map.nextPos.x === 49 && map.nextPos.y !== 49){
         map.nextPos.x = 0;
@@ -51,10 +46,26 @@ module.exports = {
       else if (map.nextPos.x === 50
         && map.nextPos.y === 50){
         map.done = true;
-        console.log('incr 2');
       }
       else{
           map.nextPos.x ++;
+      }
+
+      if(!currentPos){
+        console.log('no position for x:'+parseInt(map.nextPos.x)+' y:'+parseInt(map.nextPos.y))
+        return true;
+      }
+
+      var isWall = false;
+      var look = Game.rooms[roomName].lookAt(currentPos);
+      look.forEach(function(lookObject) {
+          if(lookObject.type == 'terrain' && lookObject.terrain === 'wall') {
+              console.log(lookObject.terrain);
+              isWall = true;
+          }
+      });
+      if(isWall){
+        return true;
       }
 
       var posInfo = {
@@ -123,7 +134,7 @@ module.exports = {
               bestDist = pos[y][x][spName];
             }
           }
-        }  
+        }
       }
 
       return directionLookup[creep.pos.x - bestXY.x][creep.pos.y - bestXY.y];
