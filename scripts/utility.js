@@ -138,9 +138,9 @@ module.exports = {
           }
         }
       }
-      var offset = {x:creep.pos.x - bestXY.x +1, y:creep.pos.y - bestXY.y +1};
+      var offset = {x: bestXY.x - creep.pos.x+1, y: bestXY.y-creep.pos.y  +1};
 
-      return directionLookup[offset.x][offset.y];
+      return directionLookup[offset.y][offset.x];
     },
     setStartTimeAndInitializeMemory : function(){
       var creepCt = _.transform(Game.creeps, function(acc,prop){
