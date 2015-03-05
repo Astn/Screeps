@@ -12,8 +12,59 @@ module.exports = {
       });
     },
     initializeRoomMemory : function(roomName){
-      if(!Memory[roomName]){
-        Memory[roomName] = [];
+
+      if(!Memory.rooms[roomName].map){
+        var pos = new Array(50);
+        for (var x = 0; x <50; x++){
+          pos[x] = new Array(50);
+          for (var y = 0; y <50; y++){
+            pos[x][y] = {};
+          }
+        }
+        Memory.rooms[roomName].map = {nextPos: {x:0,y:0}, done:false, pos:pos};
+      }
+    },
+    updateMap : function(roomName){
+      var map = Memory.rooms[roomName].map;
+      if (map.nextPos.x === 50
+        && map.nextPos.y === 50}){
+        return;
+      }
+      var currentPos = Game.rooms[roomName].getPositionAt(map.nextPos.x,map.nextPos.y);
+      var posInfo = {
+        spawns: {},
+        sources: {}
+      };
+
+      // get distance to each spawn
+      for (var spName in _.filter(Game.spawns, function(sp){return sp.room.name === roomName}){
+        var pathTo = Game.rooms[roomName].findPathTo(currentPos,Game.spawns[spName].pos,
+          {
+            ignoreCreeps: true,
+            ignoreDestructibleStructures: true
+            heuristicWeight: 1 });
+        posInfo.spawns[spName] = pathTo.length;
+      }
+      // get distance to each source
+      for (var source in Game.rooms[roomName].find(Game.SOURCES)){
+        var pathTo = Game.rooms[roomName].findPathTo(currentPos,source.pos,
+          {
+            ignoreCreeps: true,
+            ignoreDestructibleStructures: true
+            heuristicWeight: 1 });
+        posInfo.sources[source.name] = pathTo.length;
+      }
+
+      map.pos[map.nextPos.x][map.nextPos.y] = posInfo
+
+      // increment posiition
+      if (map.nextPos.x === 49){
+        map.nextPos.y = 0;
+        map.nextPos.x ++;
+      }
+      if (map.nextPos.x === 50
+        && map.nextPos.y === 50}){
+        map.done = true;;
       }
     },
     setStartTimeAndInitializeMemory : function(){
@@ -26,16 +77,19 @@ module.exports = {
             Memory.startTime = Game.time;
             Memory.creeps = {};
             Memory.mine = {};
-            Memory.map = {};
+
             console.log('starting...');
         }
+        this.initializeRoomMemory(spawn.room.name);
       }
     },
+
     linearDistance : function (pos1, pos2) {
         var x = pos1.x - pos2.x;
         var y = pos1.y - pos2.y;
         return Math.sqrt(x * x + y * y);
     },
+
     creepCanAttack: function (n) {
         var count = _.filter(n.body, function (part) {
             return part.type === Game.ATTACK || part.type === Game.RANGED_ATTACK;
