@@ -20,9 +20,9 @@ module.exports = {
       }
       if(!Memory.myRooms[roomName].map){
         var pos = new Array(50);
-        for (var y = 0; x <50; x++){
+        for (var y = 0; y <50; y++){
           pos[y] = new Array(50);
-          for (var y = 0; y <50; y++){
+          for (var x = 0; x <50; x++){
             pos[y][x] = {};
           }
         }
