@@ -12,9 +12,9 @@ module.exports = {
       });
     },
     initializeRoomMemory : function(roomName){
-      if(!Memory.myRooms){
+      //if(!Memory.myRooms){
         Memory.myRooms = {};
-      }
+      //}
       if(!Memory.myRooms[roomName]){
         Memory.myRooms[roomName] = {};
       }
@@ -36,6 +36,20 @@ module.exports = {
         return;
       }
       var currentPos = Game.rooms[roomName].getPositionAt(map.nextPos.x,map.nextPos.y);
+      // increment posiition
+      if (map.nextPos.x === 49){
+        map.nextPos.x = 0;
+        map.nextPos.y ++;
+      }
+      if (map.nextPos.x === 50
+        && map.nextPos.y === 50){
+        map.done = true;;
+      }
+      map.nextPos.x ++;
+
+
+      if(!currentPos)
+        return;
       var posInfo = {
         spawns: {},
         sources: {}
@@ -66,23 +80,12 @@ module.exports = {
         if(pathTo.length > 0)
         {
           posInfo.sources[sources[sourceIdx].id] = pathTo.length;
-        }else{
-          posInfo.sources[sources[sourceIdx].id] = Infinity;
         }
       }
 
-      map.pos[map.nextPos.y][map.nextPos.x] = posInfo
+      map.pos[currentPos.y][currentPos.x] = posInfo
 
-      // increment posiition
-      if (map.nextPos.x === 49){
-        map.nextPos.x = 0;
-        map.nextPos.y ++;
-      }
-      if (map.nextPos.x === 50
-        && map.nextPos.y === 50){
-        map.done = true;;
-      }
-      map.nextPos.x ++;
+
     },
     setStartTimeAndInitializeMemory : function(){
       var creepCt = _.transform(Game.creeps, function(acc,prop){

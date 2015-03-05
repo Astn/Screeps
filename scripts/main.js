@@ -56,22 +56,18 @@ for (var roomName in Game.rooms) {
 }
 
 var overCpu = false;
-var ctr  =0;
-//while (true){
+
+while (overCpu === false){
   for (var roomName in Game.rooms) {
     // use extra cycles to update map
     utility.updateMap(roomName);
 
     Game.getUsedCpu(function(cpu) {
-        if(cpu > Game.cpuLimit *.95) {
+        if(cpu > Game.cpuLimit *.80) {
             overCpu = true;
             console.log("Over CPU, aborting");
         }
     });
 
-    if(overCpu || ctr > 100){
-      break;
-    }
-    ctr++;
   }
-//}
+}
