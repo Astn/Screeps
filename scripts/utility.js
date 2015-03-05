@@ -5,7 +5,7 @@ module.exports = {
       return _.filter(creeps, function (n) { return n.memory.move; });
     },
     moveCreepsWithStoredMove : function(creeps){
-      var creepsWithMoves = utility.crepsWithMoves(creeps);
+      var creepsWithMoves = this.crepsWithMoves(creeps);
       _.forEach(creepsWithMoves, function (creep){
         creep.move(creep.memory.move);
         creep.memory.move = null;

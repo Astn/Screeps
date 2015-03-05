@@ -52,6 +52,6 @@ for (var roomName in Game.rooms) {
     machine.chewAll(myCreeps);
 
     // override moves based on memory set
-    utility.moveCreepsUsingStoredMove(myCreeps);
+    utility.moveCreepsWithStoredMove(myCreeps);
 
 }
