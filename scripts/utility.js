@@ -128,10 +128,11 @@ module.exports = {
       var bestXY = {x:creep.pos.x,y:creep.pos.y};
       for (var y = creep.pos.y-1; y < creep.pos.y+2; y++){
         for (var x = creep.pos.x-1; x < creep.pos.x+2; x++){
+          if(pos[y][x].spawns)
           for(var spName in pos[y][x].spawns){
-            if(pos[y][x][spName] < bestDist){
+            if(pos[y][x].spawns[spName] < bestDist){
               bestXY = {x:x,y:y};
-              bestDist = pos[y][x][spName];
+              bestDist = pos[y][x].spawns[spName];
             }
           }
         }
