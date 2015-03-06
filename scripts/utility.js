@@ -166,6 +166,23 @@ module.exports = {
 
       return directionLookup[offset.y][offset.x];
     },
+    positionDistanceToNearestSpawn: function(obj){
+      var pos;
+      if(obj.pos){
+        pos = obj.pos;
+      }
+      else{
+        pos = obj;
+      }
+      var spawns = Memory.myRooms[creep.room.name].map.spawns;
+      var bestDist = 100;
+      for(var spId in spawns){
+        if(spawns[spId][x + (50*y)] < bestDist){
+          bestDist = spawns[spId][x + (50*y)];
+        }
+      }
+      return bestDist;
+    },
     setStartTimeAndInitializeMemory : function(){
       var creepCt = _.transform(Game.creeps, function(acc,prop){
         return acc + 1;
@@ -265,22 +282,20 @@ module.exports = {
         }
         return spawn;
     },
-    chooseHostile: function (creep) {
+    chooseHostile: function (creep, range) {
+        if(!range){
+          range = 1;
+        }
+        else if(range > 20){
+          return null;
+        }
         var hostile = null;
         var hostileCreeps = creep.pos.findInRange(Game.HOSTILE_CREEPS, 1);
         if (hostileCreeps.length) {
             hostile = hostileCreeps[0];
         }
         else {
-            hostileCreeps = creep.pos.findInRange(Game.HOSTILE_CREEPS, 3);
-            if (hostileCreeps.length) {
-                hostile = hostileCreeps[0];
-            } else {
-                hostileCreeps = creep.pos.findInRange(Game.HOSTILE_CREEPS, 30);
-                if (hostileCreeps.length) {
-                    hostile = hostileCreeps[0];
-                }
-            }
+            hostileCreeps = this.chooseHostile(creep,range+3);
         }
         return hostile;
     },
