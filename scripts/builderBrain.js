@@ -112,17 +112,18 @@ module.exports = {
                     break;
                 }
                 source = Game.getObjectById(creep.memory.target);
-                if (source) {
 
-                    var moveResult = creep.moveTo(source);
-                    if (moveResult === Game.ERR_NO_PATH) {
-                        creep.memory.state = STATE.NONE;
-                    }
+                if (source) {
                     if (creep.pos.inRangeTo(source.pos, 1)) {
                         creep.memory.state = STATE.HARVESTING;
+                        this.think(creep);
                     }
-
-
+                    else{
+                      var moveResult = creep.moveTo(source);
+                      if (moveResult === Game.ERR_NO_PATH) {
+                          creep.memory.state = STATE.NONE;
+                      }
+                    }
                 }
                 else {
                     creep.memory.state = STATE.NONE;

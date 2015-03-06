@@ -43,6 +43,7 @@ module.exports = {
 
                         if (creep.pos.inRangeTo(source.pos, 1)) {
                             creep.memory.state = STATE.HARVESTING;
+                            this.think(creep);
                         } else {
 
                             var moveResult = creep.moveTo(source);
