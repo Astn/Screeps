@@ -20,23 +20,29 @@ module.exports = {
         Memory.myRooms[roomName] = {};
       }
       if(!Memory.myRooms[roomName].map){
-        var pos = new Array(50);
+        /*var pos = new Array(50);
         for (var y = 0; y <50; y++){
           pos[y] = new Array(50);
           for (var x = 0; x <50; x++){
             pos[y][x] = {};
           }
-        }
-        Memory.myRooms[roomName].map = {nextPos: {x:0,y:0}, done:false, pos:pos};
+        }*/
+        Memory.myRooms[roomName].map = {
+          nextPos: {x:0,y:0},
+          done:false,
+          spawns: {},
+          sources: {}
+          };
       }
     },
     updateMap : function(roomName){
+      var room = Game.rooms[roomName];
       var map = Memory.myRooms[roomName].map;
       if (map.done === true){
         return false;
       }
       var current = {x:map.nextPos.x,y:map.nextPos.y};
-      var currentPos = Game.rooms[roomName].getPositionAt(map.nextPos.x,map.nextPos.y);
+      var currentPos = room.getPositionAt(map.nextPos.x,map.nextPos.y);
 
       // increment posiition
       if (map.nextPos.x === 49 && map.nextPos.y !== 49){
@@ -58,7 +64,7 @@ module.exports = {
       }
 
       var isWall = false;
-      var look = Game.rooms[roomName].lookAt(currentPos);
+      var look = room.lookAt(currentPos);
       look.forEach(function(lookObject) {
           if(lookObject.type == 'terrain' && lookObject.terrain === 'wall') {
               console.log(lookObject.terrain);
@@ -69,42 +75,40 @@ module.exports = {
         return true;
       }
 
-      var posInfo = {
-        spawns: {},
-        sources: {}
-      };
-
-
-      // get distance to each spawn
+      // get distance to each spawn from this position on the map
       for (var spawnName in Game.spawns){
           var spawn = Game.spawns[spawnName];
           if(spawn.room.name !== roomName)
             continue;
-        var pathTo = Game.rooms[roomName].findPath(currentPos,
-                spawn.pos,
-          {
-            ignoreCreeps: true,
-            ignoreDestructibleStructures: true,
-            heuristicWeight: 1 });
-        if(pathTo.length > 0){
-          posInfo.spawns[spawn.name] = pathTo.length;
-        }
+          var pathTo = room.findPath(currentPos,
+                spawn.pos,   {
+                              ignoreCreeps: true,
+                              ignoreDestructibleStructures: true,
+                              heuristicWeight: 1 });
+          if(!map.spawns[spawn.id]){
+            map.spawns[spawn.id] = new Array(50*50);
+          }
+          if(pathTo.length > 0){
+            map.spawns[spawn.id][current.x + (50*current.y)] = pathTo.length;
+          }
       }
       // get distance to each source
-      var sources = Game.rooms[roomName].find(Game.SOURCES);
+      var sources = room.find(Game.SOURCES);
       for (var sourceIdx in sources){
-        var pathTo = Game.rooms[roomName].findPath(currentPos, sources[sourceIdx].pos,
+        var pathTo = room.findPath(currentPos, sources[sourceIdx].pos,
           {
             ignoreCreeps: true,
             ignoreDestructibleStructures: true,
             heuristicWeight: 1 });
-        if(pathTo.length > 0)
-        {
-          posInfo.sources[sources[sourceIdx].id] = pathTo.length;
-        }
+          if(!map.sources[sources[sourceIdx].id]]){
+            map.sources[sources[sourceIdx].id]] = new Array(50*50);
+          }
+          if(pathTo.length > 0)
+          {
+            map.sources[sources[sourceIdx].id]][current.x + (50*current.y)] = pathTo.length;
+          }
       }
 
-      map.pos[currentPos.y][currentPos.x] = posInfo
       return true;
 
     },
@@ -124,16 +128,17 @@ module.exports = {
         [Game.LEFT, 0, Game.RIGHT],
         [Game.BOTTOM_LEFT, Game.BOTTOM, Game.BOTTOM_RIGHT]
       ]
-      var pos = Memory.myRooms[creep.room.name].map.pos;
+      var pos = Memory.myRooms[creep.room.name].map.spawns;
       var bestDist = 100;
       var bestXY = {x:creep.pos.x,y:creep.pos.y};
       for (var y = creep.pos.y-1; y < creep.pos.y+2; y++){
         for (var x = creep.pos.x-1; x < creep.pos.x+2; x++){
-          if(pos[y][x].spawns)
-          for(var spName in pos[y][x].spawns){
-            if(pos[y][x].spawns[spName] < bestDist){
+          if(pos)
+          for(var spName in pos){
+
+            if(pos[spName][x + (50*y)]] < bestDist){
               bestXY = {x:x,y:y};
-              bestDist = pos[y][x].spawns[spName];
+              bestDist = pos[spName][x + (50*y)]];
             }
           }
         }
