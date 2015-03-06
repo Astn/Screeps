@@ -287,7 +287,7 @@ module.exports = {
           range = 1;
         }
         else if(range > 15){
-          return creep.pos.findClosest(Game.HOSTILE_CREEPS);
+          return creep.pos.findClosest(Game.HOSTILE_CREEPS, {filter: function(c){return c.owner.username != 'Source Keeper';}});
         }
         var hostile = null;
         var hostileCreeps = creep.pos.findInRange(Game.HOSTILE_CREEPS, range);

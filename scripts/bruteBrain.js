@@ -16,12 +16,12 @@ module.exports = {
         var close = utility.creepIsCloseRanged(creep);
         var useOtherHostile = false;
         if (otherHostile && ranged) {
-            useOtherHostile = creep.pos.inRangeTo(otherHostile, 4);
-            if(useOtherHostile)
+            //useOtherHostile = creep.pos.inRangeTo(otherHostile, 4);
+            //i/f(useOtherHostile)
                 hostile = otherHostile;
         } else if (otherHostile && close) {
-            useOtherHostile = creep.pos.inRangeTo(otherHostile, 2);
-            if (useOtherHostile)
+            //useOtherHostile = creep.pos.inRangeTo(otherHostile, 2);
+            //if (useOtherHostile)
                 hostile = otherHostile;
         }
         var maxRoamingDistance = 5;
@@ -31,7 +31,7 @@ module.exports = {
         switch (creep.memory.state) {
             case STATE.NONE:
                 {
-                    if(!useOtherHostile)
+                    
                         hostile = creep.pos.findClosest(Game.HOSTILE_CREEPS, {filter: function(c){return c.owner.username != 'Source Keeper';}});
 
                     if (hostile) {
@@ -39,6 +39,9 @@ module.exports = {
                         console.log(hostile.owner.username);
                         creep.memory.state = STATE.ATTACKING;
                         return this.think(creep, hostile);
+                    }
+                    else{
+                      creep.say('duh..');
                     }
 
                     var closestSpawn = creep.pos.findClosest(Game.MY_SPAWNS);
@@ -65,8 +68,7 @@ module.exports = {
             case STATE.ATTACKING:
                 {
                     var spawn = utility.chooseSpawn(creep);
-                    if (!hostile)
-                        hostile = utility.chooseHostile(creep);
+                    hostile = utility.chooseHostile(creep);
                     if (!hostile || !hostile.pos) {
                         creep.say('none');
                         creep.memory.state = STATE.NONE;
@@ -84,7 +86,7 @@ module.exports = {
                       creep.moveTo(hostile);
                       return;
                     }
-                    else{
+                    else if(attackResult){
                       creep.say(attackResult);
                     }
 
