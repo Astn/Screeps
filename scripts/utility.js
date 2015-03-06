@@ -100,12 +100,12 @@ module.exports = {
             ignoreCreeps: true,
             ignoreDestructibleStructures: true,
             heuristicWeight: 1 });
-          if(!map.sources[sources[sourceIdx].id]]){
-            map.sources[sources[sourceIdx].id]] = new Array(50*50);
+          if(!map.sources[sources[sourceIdx].id]){
+            map.sources[sources[sourceIdx].id] = new Array(50*50);
           }
           if(pathTo.length > 0)
           {
-            map.sources[sources[sourceIdx].id]][current.x + (50*current.y)] = pathTo.length;
+            map.sources[sources[sourceIdx].id][current.x + (50*current.y)] = pathTo.length;
           }
       }
 
@@ -136,9 +136,9 @@ module.exports = {
           if(pos)
           for(var spName in pos){
 
-            if(pos[spName][x + (50*y)]] < bestDist){
+            if(pos[spName][x + (50*y)] < bestDist){
               bestXY = {x:x,y:y};
-              bestDist = pos[spName][x + (50*y)]];
+              bestDist = pos[spName][x + (50*y)];
             }
           }
         }
