@@ -1,6 +1,170 @@
-﻿var ROLE = require('role');
+var ROLE = require('role');
 var _ = require('lodash');
 module.exports = {
+    crepsWithMoves : function(creeps){
+      return _.filter(creeps, function (n) { return n.memory.move; });
+    },
+    moveCreepsWithStoredMove : function(creeps){
+      var creepsWithMoves = this.crepsWithMoves(creeps);
+      _.forEach(creepsWithMoves, function (creep){
+        creep.move(creep.memory.move);
+        creep.memory.move = null;
+      });
+    },
+    initializeRoomMemory : function(roomName){
+
+      //if(!Memory.myRooms){
+        Memory.myRooms = {};
+      //}
+      if(!Memory.myRooms[roomName]){
+        Memory.myRooms[roomName] = {};
+      }
+      if(!Memory.myRooms[roomName].map){
+        var pos = new Array(50);
+        for (var y = 0; y <50; y++){
+          pos[y] = new Array(50);
+          for (var x = 0; x <50; x++){
+            pos[y][x] = {};
+          }
+        }
+        Memory.myRooms[roomName].map = {nextPos: {x:0,y:0}, done:false, pos:pos};
+      }
+    },
+    updateMap : function(roomName){
+      var map = Memory.myRooms[roomName].map;
+      if (map.done === true){
+        return false;
+      }
+      var current = {x:map.nextPos.x,y:map.nextPos.y};
+      var currentPos = Game.rooms[roomName].getPositionAt(map.nextPos.x,map.nextPos.y);
+
+      // increment posiition
+      if (map.nextPos.x === 49 && map.nextPos.y !== 49){
+        map.nextPos.x = 0;
+        map.nextPos.y ++;
+      }
+      else if (map.nextPos.x === 49
+        && map.nextPos.y === 49){
+        map.done = true;
+        return false;
+      }
+      else{
+          map.nextPos.x ++;
+      }
+
+      if(!currentPos){
+        console.log('no position for x:'+parseInt(map.nextPos.x)+' y:'+parseInt(map.nextPos.y))
+        return true;
+      }
+
+      var isWall = false;
+      var look = Game.rooms[roomName].lookAt(currentPos);
+      look.forEach(function(lookObject) {
+          if(lookObject.type == 'terrain' && lookObject.terrain === 'wall') {
+              console.log(lookObject.terrain);
+              isWall = true;
+          }
+      });
+      if(isWall){
+        return true;
+      }
+
+      var posInfo = {
+        spawns: {},
+        sources: {}
+      };
+
+
+      // get distance to each spawn
+      for (var spawnName in Game.spawns){
+          var spawn = Game.spawns[spawnName];
+          if(spawn.room.name !== roomName)
+            continue;
+        var pathTo = Game.rooms[roomName].findPath(currentPos,
+                spawn.pos,
+          {
+            ignoreCreeps: true,
+            ignoreDestructibleStructures: true,
+            heuristicWeight: 1 });
+        if(pathTo.length > 0){
+          posInfo.spawns[spawn.name] = pathTo.length;
+        }
+      }
+      // get distance to each source
+      var sources = Game.rooms[roomName].find(Game.SOURCES);
+      for (var sourceIdx in sources){
+        var pathTo = Game.rooms[roomName].findPath(currentPos, sources[sourceIdx].pos,
+          {
+            ignoreCreeps: true,
+            ignoreDestructibleStructures: true,
+            heuristicWeight: 1 });
+        if(pathTo.length > 0)
+        {
+          posInfo.sources[sources[sourceIdx].id] = pathTo.length;
+        }
+      }
+
+      map.pos[currentPos.y][currentPos.x] = posInfo
+      return true;
+
+    },
+    directionToNearestSpawn: function(creep){
+      /*Directions
+          Game.TOP	1
+          Game.TOP_RIGHT	2
+          Game.RIGHT	3
+          Game.BOTTOM_RIGHT	4
+          Game.BOTTOM	5
+          Game.BOTTOM_LEFT	6
+          Game.LEFT	7
+          Game.TOP_LEFT	8
+      */
+      var directionLookup = [
+        [Game.TOP_LEFT,Game.TOP,Game.TOP_RIGHT],
+        [Game.LEFT, 0, Game.RIGHT],
+        [Game.BOTTOM_LEFT, Game.BOTTOM, Game.BOTTOM_RIGHT]
+      ]
+      var pos = Memory.myRooms[creep.room.name].map.pos;
+      var bestDist = 100;
+      var bestXY = {x:creep.pos.x,y:creep.pos.y};
+      for (var y = creep.pos.y-1; y < creep.pos.y+2; y++){
+        for (var x = creep.pos.x-1; x < creep.pos.x+2; x++){
+          if(pos[y][x].spawns)
+          for(var spName in pos[y][x].spawns){
+            if(pos[y][x].spawns[spName] < bestDist){
+              bestXY = {x:x,y:y};
+              bestDist = pos[y][x].spawns[spName];
+            }
+          }
+        }
+      }
+      var offset = {x: bestXY.x - creep.pos.x+1, y: bestXY.y-creep.pos.y  +1};
+
+      return directionLookup[offset.y][offset.x];
+    },
+    setStartTimeAndInitializeMemory : function(){
+      var creepCt = _.transform(Game.creeps, function(acc,prop){
+        return acc + 1;
+      }, 0);
+      for (var spawnName in Game.spawns){
+        var spawn = Game.spawns[spawnName];
+        if (creepCt === 0 && spawn.energy === 1000) {
+            Memory.startTime = Game.time;
+            Memory.creeps = {};
+            Memory.mine = {};
+            this.initializeRoomMemory(spawn.room.name);
+            console.log('starting...');
+        }
+
+      }
+    },
+
+    linearDistance : function (pos1, pos2) {
+        var x = pos1.x - pos2.x;
+        var y = pos1.y - pos2.y;
+        return Math.sqrt(x * x + y * y);
+    },
+
     creepCanAttack: function (n) {
         var count = _.filter(n.body, function (part) {
             return part.type === Game.ATTACK || part.type === Game.RANGED_ATTACK;
@@ -60,7 +224,7 @@ module.exports = {
             x: creep.pos.x + (creep.pos.x - inFrontOfCreep.x),
             y: creep.pos.y + (creep.pos.y - inFrontOfCreep.y)
         };
-        
+
         return behindCreep;
     },
     sumPosX: function (sum, n) { return sum + n.pos.x; },
@@ -105,7 +269,7 @@ module.exports = {
         var isACreepThere = _.some(atThatSpot, function (n) { return n.type === 'creep' });
         if (isACreepThere) {
             var justCreeps = _.filter(atThatSpot, function (n) { return n.type === 'creep' });
-                            
+
             var otherCreep = _.first(justCreeps).creep;
             if (otherCreep.my) {
                 var isCloseAttacker = _.some(otherCreep.body, function (part) { return part.type === Game.ATTACK; });

@@ -26,7 +26,7 @@ module.exports =
     },
     spawn: function () {
         var result = [];
-        
+
         var getName = function (role) {
             switch (role) {
                 case ROLE.BRUTE:
@@ -40,10 +40,10 @@ module.exports =
             duration = Game.time - Memory.startTime;
         }
         for (var s in Game.spawns) {
-            
+
             var spawn = Game.spawns[s];
             if (spawn.spawning === null && spawn.energy > 200) {
-                
+
                 // find the settings that are for a population more then, but closest to what we have.
                 var weHave = spawn.room.find(Game.MY_CREEPS).length;
                 var weHaveMiners = spawn.room.find(Game.MY_CREEPS, { filter: utility.creepIsMiner }).length > 0;
@@ -58,17 +58,17 @@ module.exports =
                 var closestSettings = null;
                 var settingTime = 0;
                 this._settings.forEach(function (setting) {
-                    
-                    
+
+
                     if (closestSettingsPop && closestSettingsPop.population < weHave) {
-                        
+
                         closestSettingsPop = setting;
                         closestSettings = setting.profile;
                         toughScale = setting.toughness;
                         settingTime = setting.time;
                         closestDiff = closestSettingsPop.population - weHave;
                     } else if (!closestSettingsPop) {
-                        
+
                         closestSettingsPop = setting;
                         closestSettings = setting.profile;
                         toughScale = setting.toughness;
@@ -76,7 +76,7 @@ module.exports =
                         closestDiff = closestSettingsPop.population - weHave;
                     }
                 });
-                
+
                 if (duration > 0 && settingTime > 0) {
                     if (settingTime > duration) {
                         console.log("too soon.. " + parseInt(settingTime) + " > " + parseInt(duration));
@@ -85,17 +85,17 @@ module.exports =
                 }
                 // TODO: before the sort will work we need to collect the number of creeps we have in each state
                 // so check creep.memory.role and accumulate it to update how many we have.
-                
+
                 if (closestSettings) {
-                    
+
                     closestSettings.forEach(function (x) {
-                        
+
                         x.HAVE = spawn.room.find(Game.MY_CREEPS, {
                             filter: function (f) {
                                 return f.memory.role === x.ROLE;
                             }
                         }).length;
-                        
+
                         x.TOTAL = spawn.room.find(Game.MY_CREEPS).length;
                         x.RATIO = x.HAVE / x.TOTAL;
                         x.TARGET = x.WANT / (closestSettings.reduce(function (a, b) {
@@ -104,21 +104,21 @@ module.exports =
                     });
                 }
                 // alternativly we could store state in our spawns and collect that.
-                
+
                 var onesWeWant = _.filter(closestSettings, function (n) { return n.WANT - n.HAVE > 0 });
                 var orderByRatio = _.sortBy(onesWeWant, function (n) { return n.HAVE / n.WANT });
                 var thenByPriority = _.sortBy(orderByRatio, function (n) { return n.PRIORITY });
 
                 var current = thenByPriority[0];
-                
+
 
 
 
                 if (current && current.BODY) {
                     for (var i = 0; i < current.BODY.length; i++) {
                         var extAvail = _.filter(Game.structures, function (n) { return n.structureType === Game.STRUCTURE_EXTENSION && n.energy === n.energyCapacity }).length;
-                            
-                           
+
+
                         var parts = current.BODY[i].parts.slice(0);
                         if (_.some(parts, function (f) { return f === Game.ATTACK})) {
                             var toughness = [];
@@ -141,7 +141,7 @@ module.exports =
                             parts = toughness.concat(parts);
                         }
 
-                        
+
                         //else if (_.some(parts, function (f) { return f === Game.HEAL })) {
                         //    var toughness = [];
                         //    for (var j = 0; j < toughScale / 6; j++) {
@@ -149,16 +149,16 @@ module.exports =
                         //    }
                         //    parts = toughness.concat(parts);
                         //}
-                        
+
                         var id = 1;
                         var name = getName(current.ROLE) + ' ' + parseInt(spawn.room.find(Game.CREEPS).length);
                         var buildCode = spawn.createCreep(parts, name, { state: current.STATE, role: current.ROLE });
                         var tries = 2;
                         while (buildCode === -3 && --tries > 0) {
-                            
+
                             spawn.createCreep(parts, current.ROLE + ' ' + parseInt(++id), { state: current.STATE, role: current.ROLE });
                         }
-                        
+
                         if (buildCode >= 0) {
                             result.push({
                                 body: body,
