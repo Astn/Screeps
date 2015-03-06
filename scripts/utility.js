@@ -173,7 +173,6 @@ module.exports = {
       offset.x++;
       offset.y++;
       console.log('for x:'+ parseInt(creep.pos.x) + ' y:' + parseInt(creep.pos.y) +' best x:' + parseInt(bestXY.x) + ' y:'+ parseInt(bestXY.y) + ' offset x:'+ parseInt(offset.x) + ' y:' + parseInt(offset.y));
-    
       return directionLookup[ offset.x + (3*offset.y)];
     },
     positionDistanceToNearestSpawn: function(room, obj){
