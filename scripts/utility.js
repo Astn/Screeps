@@ -166,7 +166,7 @@ module.exports = {
 
       return directionLookup[offset.y][offset.x];
     },
-    positionDistanceToNearestSpawn: function(obj){
+    positionDistanceToNearestSpawn: function(room, obj){
       var pos;
       if(obj.pos){
         pos = obj.pos;
@@ -174,11 +174,11 @@ module.exports = {
       else{
         pos = obj;
       }
-      var spawns = Memory.myRooms[creep.room.name].map.spawns;
+      var spawns = Memory.myRooms[room.name].map.spawns;
       var bestDist = 100;
       for(var spId in spawns){
-        if(spawns[spId][x + (50*y)] < bestDist){
-          bestDist = spawns[spId][x + (50*y)];
+        if(spawns[spId][pos.x + (50*pos.y)] < bestDist){
+          bestDist = spawns[spId][pos.x + (50*pos.y)];
         }
       }
       return bestDist;
@@ -286,12 +286,12 @@ module.exports = {
         if(!range){
           range = 1;
         }
-        else if(range > 20){
-          return null;
+        else if(range > 15){
+          return creep.pos.findClosest(Game.HOSTILE_CREEPS);
         }
         var hostile = null;
-        var hostileCreeps = creep.pos.findInRange(Game.HOSTILE_CREEPS, 1);
-        if (hostileCreeps.length) {
+        var hostileCreeps = creep.pos.findInRange(Game.HOSTILE_CREEPS, range);
+        if (hostileCreeps.length > 0) {
             hostile = hostileCreeps[0];
         }
         else {
