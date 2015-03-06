@@ -143,28 +143,46 @@ module.exports = {
           Game.TOP_LEFT	8
       */
       var directionLookup = [
-        [Game.TOP_LEFT,Game.TOP,Game.TOP_RIGHT],
-        [Game.LEFT, 0, Game.RIGHT],
-        [Game.BOTTOM_LEFT, Game.BOTTOM, Game.BOTTOM_RIGHT]
+        Game.TOP_LEFT,
+        Game.TOP,
+        Game.TOP_RIGHT,
+        Game.LEFT,
+        0,
+        Game.RIGHT,
+        Game.BOTTOM_LEFT,
+        Game.BOTTOM,
+        Game.BOTTOM_RIGHT
       ]
+      var canNext = true;
+
       var pos = Memory.myRooms[creep.room.name].map.spawns;
       var bestDist = 100;
       var bestXY = {x:creep.pos.x,y:creep.pos.y};
-      for (var y = creep.pos.y-1; y < creep.pos.y+2; y++){
-        for (var x = creep.pos.x-1; x < creep.pos.x+2; x++){
+      for (var y = creep.pos.y-1; y <= creep.pos.y+1; y++){
+        for (var x = creep.pos.x-1; x <= creep.pos.x+1; x++){
           if(pos)
           for(var spName in pos){
-
-            if(pos[spName][x + (50*y)] < bestDist){
+            if(pos[spName][x + (50*y)] < pos[spName][creep.pos.x+(50*creep.pos.y)]){
               bestXY = {x:x,y:y};
               bestDist = pos[spName][x + (50*y)];
             }
           }
         }
       }
-      var offset = {x: bestXY.x - creep.pos.x+1, y: bestXY.y-creep.pos.y  +1};
+      var offset = {x: bestXY.x-creep.pos.x  , y: bestXY.y - creep.pos.y};
+      offset.x++;
+      offset.y++;
+      console.log('for x:'+ parseInt(creep.pos.x) + ' y:' + parseInt(creep.pos.y) +' best x:' + parseInt(bestXY.x) + ' y:'+ parseInt(bestXY.y) + ' offset x:'+ parseInt(offset.x) + ' y:' + parseInt(offset.y));
+      //for x:42 y:3 best x:41 y:4 offset x:0 y:2
+      //for x:41 y:3 best x:41 y:3 offset x:1 y:1
+      //for x:41 y:3 best x:41 y:3 offset x:1 y:1
+      //for x:44 y:2 best x:43 y:3 offset x:-1 y:1
+      0,0 1,0 2,0
+      0,1 1,1 2,1
+      0,2 1,2 2,2
 
-      return directionLookup[offset.y][offset.x];
+
+      return directionLookup[ offset.x + (3*offset.y)];
     },
     positionDistanceToNearestSpawn: function(room, obj){
       var pos;
