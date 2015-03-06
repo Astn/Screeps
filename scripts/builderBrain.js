@@ -150,15 +150,17 @@ module.exports = {
                     if (creep.pos.inRangeTo(drop, 1) && creep.energy < creep.energyCapacity) {
                         creep.memory.target = drop.id;
                         creep.pickup(drop);
-                        creep.move(Math.round(Math.random() * 8));
+                        drop = creep.pos.findClosest(Game.DROPPED_ENERGY);
+                        if (creep.pos.inRangeTo(drop, 1) && creep.energy < creep.energyCapacity) {
+                            creep.memory.target = drop.id;
+                            creep.pickup(drop);
+                        }
                     }
                     else if (creep.pos.inRangeTo(drop, 3) && creep.energy < creep.energyCapacity) {
                         creep.memory.target = drop.id;
                         creep.moveTo(drop);
                     }
                     else {
-                        //this.bucketBrigade(creep);
-
                         creep.memory.state = STATE.MOVE_TO_TRANSFER;
                     }
                 }
