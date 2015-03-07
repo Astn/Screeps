@@ -73,7 +73,7 @@
           drawTerrainMap(terrain);
           drawHeightMap(maps[map], 1);
         }, delay, name);
-        delay += 120000;
+        delay += 6000;
       }
       setTimeout(drawAllMaps, delay);
     }
@@ -115,14 +115,14 @@
         {
           for (var y = mapSpace.y-1; y <= mapSpace.y+1 && bestDist == last; y++){
             for (var x = mapSpace.x-1; x <= mapSpace.x+1 && bestDist == last; x++){
-              if(currentMap[x + (50*y)] < currentMap[mapSpace.x+(50*mapSpace.y)]){
+              if(currentMap[x + (50*y)] && currentMap[x + (50*y)][1] && currentMap[x + (50*y)][1] < bestDist){
                 bestXY = {x:x,y:y};
                 bestDist = currentMap[x + (50*y)][1];
               }
             }
           }
           if(bestDist<last){
-            console.log('line: '+parseInt(bestXY.x*10 + 5)+','+parseInt( bestXY.y*10 + 5));
+          //  console.log('line: '+parseInt(bestXY.x*10 + 5)+','+parseInt( bestXY.y*10 + 5));
             context.lineTo(bestXY.x*10 + 5, bestXY.y*10 + 5);
             mapSpace.x = bestXY.x;
             mapSpace.y = bestXY.y;
@@ -150,6 +150,7 @@
       a_canvas.addEventListener('mousemove', function(evt) {
         var mousePos = getMousePos(a_canvas, evt);
         //var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
+        //console.log('mouse move');
         writeMessage(a_canvas, mousePos);
       }, false);
 
