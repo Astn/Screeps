@@ -43,6 +43,7 @@ module.exports = {
           if(look[f].terrain)
           {
               map.terrain[pos.x + (50*pos.y)] = look[f].terrain;
+              break;
           }
       }
 
@@ -90,7 +91,7 @@ module.exports = {
                                                             var cost = this.movementCost(terrain);
                                                             return accumulator + cost;
                                                           }, 0, this);
-            console.log('dist: '+parseInt(pathTo.length)+ ' weight:'+parseInt(totalWeight));
+          //  console.log('dist: '+parseInt(pathTo.length)+ ' weight:'+parseInt(totalWeight));
             memoryHash[dest.id][fromPos.x + (50*fromPos.y)] = [pathTo.length,totalWeight];
           }
       }
@@ -129,7 +130,7 @@ module.exports = {
       }
 
       var terrain = this.terrainType(currentPos);
-      console.log(terrain);
+      //console.log(terrain);
       if(terrain === 'wall') {
 
           return true;
