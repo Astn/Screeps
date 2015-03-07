@@ -37,8 +37,9 @@
       }
     }
   }
-
+  var currentMap;
   var drawHeightMap = function(heightMap, index){
+      currentMap = heightMap;
       var mux = 7;
       if(index === 1)
         mux = 3;
@@ -51,7 +52,7 @@
           var b = Math.min(255,Math.max(0, height - 256));
           g-=b;
           //console.log('rgb('+parseInt(r)+','+ parseInt(g) +','+parseInt(b)+')');
-          a_context.fillStyle = 'rgba('+parseInt(r)+','+ parseInt(g) +','+parseInt(b)+',.2)';
+          a_context.fillStyle = 'rgba('+parseInt(r)+','+ parseInt(g) +','+parseInt(b)+',.3)';
           var x = i%50;
           var y = (i - x) / 50;
           a_context.fillRect(x*10, y*10, 10, 10);
@@ -72,12 +73,85 @@
           drawTerrainMap(terrain);
           drawHeightMap(maps[map], 1);
         }, delay, name);
-        delay += 6000;
+        delay += 120000;
       }
       setTimeout(drawAllMaps, delay);
     }
 
 
     drawAllMaps();
+
+
+
+    function writeMessage(canvas, message) {
+      if(!currentMap)
+        return;
+      drawTerrainMap(terrain);
+      drawHeightMap(currentMap, 1);
+        var context = canvas.getContext('2d');
+        var nearestX = message.x;
+        if (message.x%5 < 2.5){
+          nearestX -= message.x%5;
+        }
+        else{
+          nearestX += (5 - message.x%5);
+        }
+        var nearestY = message.y;
+        if (message.y%5 < 2.5){
+          nearestY -= message.y%5;
+        }
+        else{
+          nearestY += (5 - message.y%5);
+        }
+
+        context.beginPath();
+        context.moveTo(nearestX,nearestY);
+
+        var mapSpace = {x:Math.round(nearestX/10),y:Math.round(nearestY/10)};
+        var bestXY = {x:mapSpace.x,y:mapSpace.y};
+        var last = 10000;
+        var bestDist = 10000;
+        while(true)
+        {
+          for (var y = mapSpace.y-1; y <= mapSpace.y+1 && bestDist == last; y++){
+            for (var x = mapSpace.x-1; x <= mapSpace.x+1 && bestDist == last; x++){
+              if(currentMap[x + (50*y)] < currentMap[mapSpace.x+(50*mapSpace.y)]){
+                bestXY = {x:x,y:y};
+                bestDist = currentMap[x + (50*y)][1];
+              }
+            }
+          }
+          if(bestDist<last){
+            console.log('line: '+parseInt(bestXY.x*10 + 5)+','+parseInt( bestXY.y*10 + 5));
+            context.lineTo(bestXY.x*10 + 5, bestXY.y*10 + 5);
+            mapSpace.x = bestXY.x;
+            mapSpace.y = bestXY.y;
+            last=bestDist;
+          }
+          else
+          {
+            break;
+          }
+        }
+        context.lineWidth = 5;
+        context.strokeStyle = 'white';
+        context.stroke();
+
+      }
+      function getMousePos(canvas, evt) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+          x: evt.clientX - rect.left,
+          y: evt.clientY - rect.top
+        };
+      }
+
+
+      a_canvas.addEventListener('mousemove', function(evt) {
+        var mousePos = getMousePos(a_canvas, evt);
+        //var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
+        writeMessage(a_canvas, mousePos);
+      }, false);
+
 </script>
 </html>
