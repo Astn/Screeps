@@ -28,7 +28,75 @@ module.exports = {
           };
       }
     },
+    terrainType: function(pos){
+
+      var map = Memory.myRooms[pos.roomName].map;
+      if(!map.terrain){
+        map.terrain = new Array(50*50);
+      }
+      if(map.terrain[pos.x + (50*pos.y)]!=null){
+        return map.terrain[pos.x + (50*pos.y)];
+      }
+      var look = Game.rooms[pos.roomName].lookAt(pos);
+
+      for(var f in look){
+          if(look[f].terrain)
+          {
+              map.terrain[pos.x + (50*pos.y)] = look[f].terrain;
+          }
+      }
+
+      return map.terrain[pos.x + (50*pos.y)];
+    },
+    movementCost: function(terrainType){
+      if(terrainType == 'plain'){
+        return 2;
+      }
+      if(terrainType == 'swamp'){
+        return 10;
+      }
+      if(terrainType == 'road'){
+        return 1;
+      }
+      if(terrainType == 'rampart'){
+        return 2;
+      }
+      if(terrainType== 'wall'){
+        return 1000;
+      }
+    },
+
+    mapDestinationsIn: function(fromPos, destArray, memoryHash, filter){
+      for (var objId in destArray){
+          var dest = destArray[objId];
+          if(filter && filter(dest)){
+            continue;
+          }
+
+          if(!memoryHash[dest.id]){
+            memoryHash[dest.id] = new Array(50*50);
+          }
+          var room = dest.room;
+          var pathTo = room.findPath(fromPos,dest.pos,
+                              {
+                              ignoreCreeps: true,
+                              ignoreDestructibleStructures: true,
+                              heuristicWeight: 1 });
+
+          if(pathTo.length > 0){
+            var totalWeight = _.reduce(pathTo, function(accumulator, step, key, collection){
+                                                            var stepPos = room.getPositionAt(step.x, step.y);
+                                                            var terrain = this.terrainType(stepPos);
+                                                            var cost = this.movementCost(terrain);
+                                                            return accumulator + cost;
+                                                          }, 0, this);
+            console.log('dist: '+parseInt(pathTo.length)+ ' weight:'+parseInt(totalWeight));
+            memoryHash[dest.id][fromPos.x + (50*fromPos.y)] = [pathTo.length,totalWeight];
+          }
+      }
+    },
     updateMap : function(roomName){
+
       var room = Game.rooms[roomName];
       if(!Memory.myRooms || !Memory.myRooms[roomName]){
         this.initializeRoomMemory(roomName);
@@ -60,73 +128,17 @@ module.exports = {
         return true;
       }
 
-      var isWall = false;
-      var look = room.lookAt(currentPos);
-      look.forEach(function(lookObject) {
-          if(lookObject.type == 'terrain' && lookObject.terrain === 'wall') {
-              console.log(lookObject.terrain);
-              isWall = true;
-          }
-      });
-      if(isWall){
-        return true;
+      var terrain = this.terrainType(currentPos);
+      console.log(terrain);
+      if(terrain === 'wall') {
+
+          return true;
       }
 
-      // get distance to each spawn from this position on the map
-      for (var spawnName in Game.spawns){
-          var spawn = Game.spawns[spawnName];
-          if(spawn.room.name !== roomName)
-            continue;
-          if(!map.spawns[spawn.id]){
-            map.spawns[spawn.id] = new Array(50*50);
-          }
-          // dont do it if we already go it
-          if(map.spawns[spawn.id][current.x + (50*current.y)] != null)
-          {
-            console.log('alreadyGotSpawn');
-            continue;
-          }
-          var pathTo = room.findPath(currentPos,spawn.pos,
-                              {
-                              ignoreCreeps: true,
-                              ignoreDestructibleStructures: true,
-                              heuristicWeight: 1 });
 
+      this.mapDestinationsIn(currentPos, Game.spawns, map.spawns, function(spawn){return spawn.room.name!== roomName});
+      this.mapDestinationsIn(currentPos, room.find(Game.SOURCES), map.sources);
 
-          if(pathTo.length > 0){
-            var plen = pathTo.length;
-            pathTo.forEach(function(entry){
-              map.spawns[spawn.id][entry.x + (50*entry.y)] = plen;
-              plen--;
-            });
-          }
-      }
-      // get distance to each source
-      var sources = room.find(Game.SOURCES);
-      for (var sourceIdx in sources){
-        if(!map.sources[sources[sourceIdx].id]){
-          map.sources[sources[sourceIdx].id] = new Array(50*50);
-        }
-        if(map.sources[sources[sourceIdx].id][current.x + (50*current.y)] != null)
-        {
-          console.log('alreadyGotSource');
-          continue;
-        }
-        var pp = room.findPath(currentPos, sources[sourceIdx].pos,
-          {
-            ignoreCreeps: true,
-            ignoreDestructibleStructures: true,
-            heuristicWeight: 1 });
-
-          if(pp.length > 0)
-          {
-            for(var i = 0 ; i < pp.length; i++)
-            {
-              var entry = pp[i];
-              map.sources[sources[sourceIdx].id][entry.x + (50*entry.y)]  = pp.length - i;
-            }
-          }
-      }
 
       return true;
 

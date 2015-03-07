@@ -31,7 +31,7 @@ module.exports = {
         switch (creep.memory.state) {
             case STATE.NONE:
                 {
-                    
+
                         hostile = creep.pos.findClosest(Game.HOSTILE_CREEPS, {filter: function(c){return c.owner.username != 'Source Keeper';}});
 
                     if (hostile) {
