@@ -4,9 +4,12 @@
 </body>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.4.0/lodash.min.js"></script>
+<script src='game.js'></script>
 <script src="memory.js"></script>
-
+<script src="scripts/utility.js"></script>
 <script>
+  //var utility = require('scripts/utility');
+
   var a_canvas = document.getElementById("a");
   var a_context = a_canvas.getContext("2d");
   a_context.fillStyle = "#555" ;
@@ -107,26 +110,22 @@
         context.beginPath();
         context.moveTo(nearestX,nearestY);
 
-        var mapSpace = {x:Math.round(nearestX/10),y:Math.round(nearestY/10)};
-        var bestXY = {x:mapSpace.x,y:mapSpace.y};
-        var last = 10000;
-        var bestDist = 10000;
+        var bestXY = {x:Math.round(nearestX/10),y:Math.round(nearestY/10)};
         while(true)
         {
-          for (var y = mapSpace.y-1; y <= mapSpace.y+1 && bestDist == last; y++){
+          var nextXY = utility.nextPosOnMap(bestXY,currentMap);
+          /*for (var y = mapSpace.y-1; y <= mapSpace.y+1 && bestDist == last; y++){
             for (var x = mapSpace.x-1; x <= mapSpace.x+1 && bestDist == last; x++){
               if(currentMap[x + (50*y)] && currentMap[x + (50*y)][1] && currentMap[x + (50*y)][1] < bestDist){
                 bestXY = {x:x,y:y};
                 bestDist = currentMap[x + (50*y)][1];
               }
             }
-          }
-          if(bestDist<last){
-          //  console.log('line: '+parseInt(bestXY.x*10 + 5)+','+parseInt( bestXY.y*10 + 5));
-            context.lineTo(bestXY.x*10 + 5, bestXY.y*10 + 5);
-            mapSpace.x = bestXY.x;
-            mapSpace.y = bestXY.y;
-            last=bestDist;
+          }*/
+          if(nextXY.x !== bestXY.x || nextXY.y !== bestXY.y){
+            context.lineTo(nextXY.x*10 + 5, nextXY.y*10 + 5);
+            bestXY.x = nextXY.x;
+            bestXY.y = nextXY.y;
           }
           else
           {

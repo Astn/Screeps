@@ -1,6 +1,8 @@
-var ROLE = require('role');
-var _ = require('lodash');
-module.exports = {
+//var ROLE = require('role');
+//var _ = require('lodash');
+var utility =
+//module.exports =
+{
     crepsWithMoves : function(creeps){
       return _.filter(creeps, function (n) { return n.memory.move; });
     },
@@ -143,6 +145,20 @@ module.exports = {
 
       return true;
 
+    },
+    nextPosOnMap: function(pos,map){
+      var bestXY = {x:pos.x,y:pos.y};
+      var last = 10000;
+      var bestDist = 10000;
+      for (var y = pos.y-1; y <= pos.y+1; y++){
+        for (var x = pos.x-1; x <= pos.x+1; x++){
+          if(map[x + (50*y)] && map[x + (50*y)][1] && map[x + (50*y)][1] < bestDist){
+            bestXY = {x:x,y:y};
+            bestDist = map[x + (50*y)][1];
+          }
+        }
+      }
+      return bestXY;
     },
     directionToNearestSpawn: function(creep){
       /*Directions
