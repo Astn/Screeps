@@ -107,7 +107,7 @@ module.exports =
 
                     }
                 };
-                if(weHave <= basic.population){
+                if(weHave < basic.population){
                   pickOne(basic);
                 }
                 else
