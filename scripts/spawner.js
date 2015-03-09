@@ -60,10 +60,11 @@ module.exports =
                 if(!source)
                   return;
                 var pathToNearest = spawn.room.findPath(spawn.pos,source.pos, {ignoreCreeps:true} );
+                var wantPackers = Math.max(1, (pathToNearest.length - 2) / 2);
                 var basic = {
                   time:0,
                   toughness: 6,
-                  population: pathToNearest.length - 1, // 1 for current position
+                  population: wantPackers +1, // 1 for current position
                   profile :[
                   {
                       PRIORITY: 1,
@@ -77,7 +78,7 @@ module.exports =
                     ROLE: ROLE.PACKER,
                     STATE: STATE.SPAWNING,
                     BODY: BODY.PACKER,
-                    WANT: pathToNearest.length - 2,// 1 for the miner, 1 for our current position
+                    WANT: wantPackers,// 1 for the miner, 1 for our current position
                     HAVE: 0,
                 }]};
                 console.log('set packersWant: '+parseInt(basic.profile[1].WANT) + ' population to:'+ parseInt( basic.population));

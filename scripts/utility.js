@@ -360,11 +360,36 @@ module.exports =
               return ext;
       }
       else {
-          var spawn = creep.pos.findClosest(Game.MY_SPAWNS);
+          var spawn = pos.findClosest(Game.MY_SPAWNS);
           if (spawn && pos.inRangeTo(spawn.pos, 1)) {
               return spawn;
           }
       }
+    },
+    walkHead:function(creep, accumulator){
+
+      if(creep && creep.memory.head){
+        var nextCreep = Game.getObjectById(creep.memory.head);
+        if(accumulator && accumulator.length>0)
+          return this.walkHead(nextCreep, _.intersection(accumulator, [creep.memory.head]));
+        return this.walkHead(nextCreep, [creep.memory.head]);
+      }
+
+      if(accumulator && accumulator.length>0)
+        return accumulator;
+      return [];
+    },
+    walkTail:function(creep, accumulator){
+      if(creep && creep.memory.tail){
+        var nextCreep = Game.getObjectById(creep.memory.tail);
+        if(accumulator && accumulator.length>0)
+          return this.walkHead(nextCreep, _.intersection(accumulator, [creep.memory.tail]));
+        return this.walkHead(nextCreep, [creep.memory.tail]);
+      }
+
+      if(accumulator && accumulator.length>0)
+        return accumulator;
+      return [];
     },
     simpleTail: function(myTailId){
 
@@ -470,7 +495,7 @@ module.exports =
             // is there a structure next to us
             var nextNow = this.chooseTransferTargetTouching(subCreep.pos);
             // or next to where we are going?
-            if(!nextNow && touching(subCreep.pos, myHead.pos))
+            if(!nextNow && this.touching(subCreep.pos, myHead.pos))
               nextNow = this.chooseTransferTargetTouching(myHead.pos);
 
             if(nextNow && nextNow.engery < nextNow.energyCapacity){
@@ -482,19 +507,65 @@ module.exports =
         }
         // if no tail, move to structure and transfer
         else if(subCreep.energy > 0){
-            var spawn = subCreep.pos.findClosest(Game.MY_SPAWNS);
-            subCreep.moveTo(spawn);
-            // is there a structure next to us, including spawns
-            var nextNow = this.chooseTransferTargetTouching(subCreep.pos);
-            // or next to where we are going?
-            if(!nextNow && touching(subCreep.pos, spawn.pos))
-              nextNow = this.chooseTransferTargetTouching(spawn.pos);
+            // if there is another creep, same type
+            // part of a different body, that is closer to
+            // us then the spawner, then go to that.
+            // otherwise go to the spawner and transferEnergy
 
-            if(nextNow && nextNow.engery < nextNow.energyCapacity){
-              subCreep.transferEnergy(nextNow);
+            var idsInMyBody = _.intersection(this.walkHead(subCreep), this.walkTail(subCreep));
+
+            var closestCreepOtherBody = subCreep.pos.findClosest(Game.MY_CREEPS, {
+              filter: function(other){
+                  var found = false;
+                  for(var i in idsInMyBody){
+                      if(idsInMyBody[i] === other.id)
+                        found = true;
+                  }
+                return other.memory.role == subCreep.memory.role && !found;
+              }
+            });
+            
+            var distanceToOtherCreep = 100;
+            if(closestCreepOtherBody){
+              var pathToOtherCreep = subCreep.pos.findPathTo(closestCreepOtherBody);
+              if(pathToOtherCreep.length>0)
+              {
+                distanceToOtherCreep = pathToOtherCreep.length;
+              }
+            }
+
+            var distanceToSpawn = 100;
+            var spawn = subCreep.pos.findClosest(Game.MY_SPAWNS);
+            if(spawn){
+              var pathToSpawn = subCreep.pos.findPathTo(spawn);
+              if(pathToSpawn.length > 0){
+                distanceToSpawn = pathToSpawn.length;
+              }
+            }
+            var destination;
+            if(distanceToSpawn <= distanceToOtherCreep){
+              destination = spawn;
             }
             else{
-              subCreep.transferEnergy(spawn);
+              destination = closestCreepOtherBody;
+            }
+
+
+            var spawn = subCreep.pos.findClosest(Game.MY_SPAWNS);
+            if(destination){
+              subCreep.moveTo(destination);
+              // is there a structure next to us, including spawns
+              var nextNow = this.chooseTransferTargetTouching(subCreep.pos);
+              // or next to where we are going?
+              if(!nextNow && this.touching(subCreep.pos, destination.pos))
+                nextNow = this.chooseTransferTargetTouching(destination.pos);
+
+              if(nextNow && nextNow.engery < nextNow.energyCapacity){
+                subCreep.transferEnergy(nextNow);
+              }
+              else{
+                subCreep.transferEnergy(destination);
+              }
             }
         }
 
