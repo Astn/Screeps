@@ -7,6 +7,8 @@
  */
 var ROLE = require('role');
 var utility = require('utility');
+var STATE = require('state');
+var BODY = require('body');
 var _ = require('lodash');
 module.exports =
 {
@@ -48,19 +50,45 @@ module.exports =
                 var weHave = spawn.room.find(Game.MY_CREEPS).length;
                 var weHaveMiners = spawn.room.find(Game.MY_CREEPS, { filter: utility.creepIsMiner }).length > 0;
                 var weHavePackers = spawn.room.find(Game.MY_CREEPS, { filter: utility.creepIsPacker }).length > 0;
-                if (weHavePackers && weHaveMiners && spawn.energy < 500 + (weHave * 25)) {
+                if (weHavePackers && weHaveMiners && spawn.energy < 50) {
                     continue;
                 }
+
+                // specify our first profile to have a miner and
+                // enough packers to get to the spawner
+                var source = spawn.pos.findClosest(Game.SOURCES);
+
+                var pathToNearest = spawn.room.findPath(spawn.pos,source.pos, {ignoreCreeps:true} );
+                var basic = {
+                  time:0,
+                  toughness: 6,
+                  population: pathToNearest.length - 1, // 1 for current position
+                  profile :[
+                  {
+                      PRIORITY: 1,
+                      ROLE: ROLE.MINER,
+                      STATE: STATE.SPAWNING,
+                      BODY: BODY.MINER,
+                      WANT: 1,
+                      HAVE: 0
+                  },{
+                    PRIORITY: 2,
+                    ROLE: ROLE.PACKER,
+                    STATE: STATE.SPAWNING,
+                    BODY: BODY.PACKER,
+                    WANT: pathToNearest.length - 2,// 1 for the miner, 1 for our current position
+                    HAVE: 0,
+                }]};
+                console.log('set packersWant: '+parseInt(basic.profile[1].WANT) + ' population to:'+ parseInt( basic.population));
+
 
                 var closestDiff = 0;
                 var closestSettingsPop = null;
                 var toughScale = 0;
                 var closestSettings = null;
                 var settingTime = 0;
-                this._settings.forEach(function (setting) {
-
-
-                    if (closestSettingsPop && closestSettingsPop.population < weHave) {
+                var pickOne = function (setting) {
+                    if (closestSettingsPop && closestSettingsPop.population <= weHave) {
 
                         closestSettingsPop = setting;
                         closestSettings = setting.profile;
@@ -69,13 +97,23 @@ module.exports =
                         closestDiff = closestSettingsPop.population - weHave;
                     } else if (!closestSettingsPop) {
 
+
                         closestSettingsPop = setting;
                         closestSettings = setting.profile;
                         toughScale = setting.toughness;
                         settingTime = setting.time;
                         closestDiff = closestSettingsPop.population - weHave;
+
+
                     }
-                });
+                };
+                if(weHave <= basic.population){
+                  pickOne(basic);
+                }
+                else
+                {
+                  this._settings.forEach(pickOne);
+                }
 
                 if (duration > 0 && settingTime > 0) {
                     if (settingTime > duration) {
@@ -87,6 +125,10 @@ module.exports =
                 // so check creep.memory.role and accumulate it to update how many we have.
 
                 if (closestSettings) {
+
+
+
+
 
                     closestSettings.forEach(function (x) {
 
@@ -111,7 +153,7 @@ module.exports =
 
                 var current = thenByPriority[0];
 
-
+                console.log(onesWeWant);
 
 
                 if (current && current.BODY) {

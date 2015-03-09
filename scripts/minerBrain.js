@@ -6,10 +6,14 @@
  * var mod = require('minerBrain'); // -> 'a thing'
  */
 var STATE = require('state');
-
+var utility = require('utility');
 module.exports = {
     think: function (creep) {
         var source;
+        if(creep.memory.head === undefined){
+            utility.wag(creep.memory.tail);
+        }
+
         switch (creep.memory.state) {
             case STATE.NONE:
                 {

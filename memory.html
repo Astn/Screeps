@@ -114,14 +114,7 @@
         while(true)
         {
           var nextXY = utility.nextPosOnMap(bestXY,currentMap);
-          /*for (var y = mapSpace.y-1; y <= mapSpace.y+1 && bestDist == last; y++){
-            for (var x = mapSpace.x-1; x <= mapSpace.x+1 && bestDist == last; x++){
-              if(currentMap[x + (50*y)] && currentMap[x + (50*y)][1] && currentMap[x + (50*y)][1] < bestDist){
-                bestXY = {x:x,y:y};
-                bestDist = currentMap[x + (50*y)][1];
-              }
-            }
-          }*/
+
           if(nextXY.x !== bestXY.x || nextXY.y !== bestXY.y){
             context.lineTo(nextXY.x*10 + 5, nextXY.y*10 + 5);
             bestXY.x = nextXY.x;

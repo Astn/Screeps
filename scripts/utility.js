@@ -1,7 +1,8 @@
-//var ROLE = require('role');
-//var _ = require('lodash');
-var utility =
-//module.exports =
+var ROLE = require('role');
+var _ = require('lodash');
+//var utility =
+module.exports =
+
 {
     crepsWithMoves : function(creeps){
       return _.filter(creeps, function (n) { return n.memory.move; });
@@ -237,7 +238,19 @@ var utility =
 
       }
     },
-
+    samePos: function(pos1,pos2){
+      return pos1.x === pos2.x && pos1.y === pos2.y;
+    },
+    touching:function(pos1,pos2){
+      return this.samePos( {x:pos1.x-1,y:pos1.y}, pos2) // left
+          || this.samePos( {x:pos1.x+1,y:pos1.y}, pos2) // right
+          || this.samePos( {x:pos1.x,y:pos1.y-1}, pos2) // up
+          || this.samePos( {x:pos1.x,y:pos1.y+1}, pos2) // down
+          || this.samePos( {x:pos1.x-1,y:pos1.y-1}, pos2) // upleft
+          || this.samePos( {x:pos1.x+1,y:pos1.y-1}, pos2) // upright
+          || this.samePos( {x:pos1.x-1,y:pos1.y+1}, pos2) // downleft
+          || this.samePos( {x:pos1.x+1,y:pos1.y+1}, pos2); // downright
+    },
     linearDistance : function (pos1, pos2) {
         var x = pos1.x - pos2.x;
         var y = pos1.y - pos2.y;
@@ -321,12 +334,12 @@ var utility =
         return spawn;
     },
     chooseHostile: function (creep, range) {
-        if(!range){
-          range = 1;
-        }
-        else if(range > 15){
+        //if(!range){
+        //  range = 1;
+        //}
+        //else if(range > 15){
           return creep.pos.findClosest(Game.HOSTILE_CREEPS, {filter: function(c){return c.owner.username != 'Source Keeper';}});
-        }
+        //}
         var hostile = null;
         var hostileCreeps = creep.pos.findInRange(Game.HOSTILE_CREEPS, range);
         if (hostileCreeps.length > 0) {
@@ -336,6 +349,53 @@ var utility =
             hostileCreeps = this.chooseHostile(creep,range+3);
         }
         return hostile;
+    },
+    simpleTail: function(myTailId){
+
+      if(myTailId === null || myTailId === undefined)
+        return;
+
+        var myTail = Game.getObjectById(myTailId);
+        if(!myTail)
+          return;
+
+        var myHead = Game.getObjectById(myTail.memory.head);
+        if(!myHead){
+            myTail.memory.head = undefined;
+            return;
+        }
+        if(!this.touching(myTail.pos,myHead.pos)){
+          myTail.say('moving');
+          myTail.moveTo(myHead.pos);
+        }
+
+
+        var best = myTail.pos.findInRange(Game.DROPPED_ENERGY, 1);
+        if(best.length > 0){
+            myTail.pickup(best[0]);
+        }
+
+        var spawn = myTail.pos.findInRange(Game.MY_SPAWNS, 1);
+        if (myTail.energy && spawn.length > 0) {
+          myTail.transferEnergy(spawn[0]);
+          // break off rest of tail if its there
+          if(myTail.memory.tail){
+              var newHead = Game.getObjectById(myTail.memory.tail);
+              if(newHead)
+                  newHead.memory.head = undefined;
+          }
+          // block off the tail so no one attaches to to it
+          myTail.memory.tail = null;
+        }
+        else if(myTail.energy && myTail.memory.tail){
+            myTail.transferEnergy(Game.getObjectById(myTail.memory.tail));
+        }
+        else if(myTail.energy){
+            myTail.dropEnergy();
+            myTail.say('dropping');
+        }
+
+        this.simpleTail(myTail.memory.tail);
     },
     tradePlaces: function (creep, pathStep) {
         if (Math.random() * 5 > 2)

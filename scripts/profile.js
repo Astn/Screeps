@@ -14,7 +14,7 @@ module.exports = [
     {
         "time":0,
         "toughness": 6,
-        "population": 2,
+        "population": 1,
         "profile": [
             {
                 PRIORITY: 3,
@@ -29,7 +29,7 @@ module.exports = [
                 ROLE: ROLE.ARCHER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.ARCHER,
-                WANT: 1,
+                WANT: 0,
                 HAVE: 0
             },
             {
@@ -45,7 +45,7 @@ module.exports = [
                 ROLE: ROLE.PACKER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.PACKER,
-                WANT: 1,
+                WANT: 0,
                 HAVE: 0,
             },
             {
@@ -60,7 +60,7 @@ module.exports = [
     {
         "time": 0,
         "toughness": 2,
-        "population": 6,
+        "population": 2,
         "profile": [
             {
                 PRIORITY: 3,
@@ -82,7 +82,7 @@ module.exports = [
                 ROLE: ROLE.MINER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.MINER,
-                WANT: 2,
+                WANT: 1,
                 HAVE: 0
             },
             {
@@ -90,7 +90,7 @@ module.exports = [
                 ROLE: ROLE.PACKER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.PACKER,
-                WANT: 1,
+                WANT: 0,
                 HAVE: 0,
             },
             {
@@ -98,7 +98,7 @@ module.exports = [
                 ROLE: ROLE.WORKER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.BUILDERWORKER,
-                WANT: 2,
+                WANT: 0,
                 HAVE: 0,
             },
             {
@@ -106,7 +106,7 @@ module.exports = [
                 ROLE: ROLE.MEDIC,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.MEDIC,
-                WANT: 1,
+                WANT: 0,
                 HAVE: 0
             }
         ]
@@ -240,7 +240,7 @@ module.exports = [
                 WANT: 6,
                 HAVE: 0
             },
-            { 
+            {
                 PRIORITY: 2,
                 ROLE: ROLE.MINER,
                 STATE: STATE.SPAWNING,

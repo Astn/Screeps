@@ -17,46 +17,56 @@ module.exports = {
             place = someCreep.pos.findClosest(Game.MY_SPAWNS);
         return place;
     },
-    bucketBrigade: function (creep) {
-        var place = creep.pos.findClosest(Game.CONSTRUCTION_SITES, { filter: function (item) { return item.progress > 0 } });
-        if (!place)
-            place = creep.pos.findClosest(Game.CONSTRUCTION_SITES);
-        if (!place)
-            place = creep.pos.findClosest(Game.MY_SPAWNS);
-        var bestAsICanTell = place;
-        if (bestAsICanTell) {
-            var myPath = creep.pos.findPathTo(bestAsICanTell);
-            // find nearest carrier who is less then full, and is closer to spawner
-            var buddyCloserToASiteOrSpawn = creep.pos.findClosest(Game.MY_CREEPS, {
-                filter: function (c) {
-                    return c.getActiveBodyparts(Game.CARRY) > 0 && (c.memory.role === creep.memory.role || c.memory.role === ROLE.WORKER);
-                }
-            });
-            if (buddyCloserToASiteOrSpawn) {
-                var hisBestSiteOrSpawn = buddyCloserToASiteOrSpawn.pos.findPathTo(bestAsICanTell);
-                if (hisBestSiteOrSpawn.length >= this.lengthLimit) {
-                }
-                // if we are close enough to pass energy
-
-                if (creep.pos.isNearTo(buddyCloserToASiteOrSpawn)) {
-                    creep.transferEnergy(buddyCloserToASiteOrSpawn);
-                    if (buddyCloserToASiteOrSpawn.memory) {
-                        buddyCloserToASiteOrSpawn.memory.state = STATE.HARVESTING;
-                    }
-                }
-                else {
-                    // move closer
-                    creep.moveTo(buddyCloserToASiteOrSpawn);
-                }
-                return true;
-            }
-        }
-        return false;
-    },
     think: function (creep) {
+
         var site;
         var spawn;
         var source;
+
+
+        // die gracefully
+        if(creep.memory.tail && creep.ticksToLive < 2){
+          var newHead = Game.getObjectById(creep.memory.tail);
+          if(newHead){
+              newHead.memory.head = undefined;
+            }
+          // block off the tail so no one attaches to to it
+          creep.memory.tail = null;
+        }
+
+        if(creep.memory.head === undefined){
+          creep.say('pie');
+          // try to find a head
+          // first look for a miner without a tail
+          var head = creep.pos.findClosest(Game.MY_CREEPS, { filter: function(cc){return cc.id !== creep.id && cc.memory.role === ROLE.MINER && cc.memory.tail === undefined}});
+          // first creep of same type without a tail and we bind up.
+          if(!head)
+              head = creep.pos.findClosest(Game.MY_CREEPS, { filter: function(cc){return cc.id !== creep.id && cc.memory.role === creep.memory.role && cc.memory.tail === undefined;}});
+
+          if(head){
+            head.memory.tail = creep.id;
+            creep.memory.head = head.id;
+            creep.say('slave');
+            // we are now a body part of the head. State will stay at none forever.
+            return;
+          }else{
+              creep.say('master');
+          }
+
+          // wag the tail
+
+            console.log(creep.memory.tail);
+            utility.simpleTail(creep.memory.tail);
+
+        }
+        else {
+          // this creep had a link to another as its head
+          // so it can take no actions on its own.
+
+
+          return;
+        }
+
         if (creep.pos.findInRange(Game.HOSTILE_CREEPS, 4).length > 0) {
             var closestSpawn = creep.pos.findClosest(Game.MY_SPAWNS);
             if (closestSpawn) {
@@ -65,8 +75,11 @@ module.exports = {
                 return
             }
         }
+
         switch (creep.memory.state) {
             case STATE.NONE: {
+
+
 
                 creep.memory.target = null;
                 if (!Memory.drops)
@@ -133,10 +146,10 @@ module.exports = {
             case STATE.HARVESTING: {
                 source = creep.pos.findClosest(Game.DROPPED_ENERGY, { filter: function (n) { return n.energy > creep.energy; } });
                 if (!source) {
-                    source = creep.pos.findClosest(Game.DROPPED_ENERGY, { filter: function (n) { return n.energy > creep.energy *.5; } });
+                    source = creep.pos.findClosest(Game.DROPPED_ENERGY, { filter: function (n) { return n.energy > creep.energy * 0.5; } });
                 }
                 if (!source) {
-                    source = creep.pos.findClosest(Game.DROPPED_ENERGY, { filter: function (n) { return n.energy > creep.energy * .25; } });
+                    source = creep.pos.findClosest(Game.DROPPED_ENERGY, { filter: function (n) { return n.energy > creep.energy * 0.25; } });
                 }
                 if (!source) {
                     source = creep.pos.findClosest(Game.DROPPED_ENERGY);
@@ -169,15 +182,6 @@ module.exports = {
             }
             case STATE.MOVE_TO_TRANSFER: {
 
-
-
-                //if (this.bucketBrigade(creep)) {
-                //    if (creep.energy === 0) {
-                //        creep.memory.state = STATE.NONE;
-                //        this.think(creep);
-                //        break;
-                //    }
-                //}
 
 
                 site = creep.pos.findClosest(Game.CONSTRUCTION_SITES, { filter: function (item) { return item.progress > 0 } });
@@ -266,15 +270,15 @@ module.exports = {
                     }
                 }
                 else {
-                    var ext = creep.pos.findClosest(Game.MY_STRUCTURES, { filter: function (n) { return n.structureType === Game.STRUCTURE_EXTENSION && n.energy < n.energyCapacity; } });
-                    if (ext) {
-                        creep.transferEnergy(ext);
+                    var ext2 = creep.pos.findClosest(Game.MY_STRUCTURES, { filter: function (n) { return n.structureType === Game.STRUCTURE_EXTENSION && n.energy < n.energyCapacity; } });
+                    if (ext2) {
+                        creep.transferEnergy(ext2);
                         if (creep.energy === 0) {
                             creep.memory.state = STATE.NONE;
                             this.think(creep);
 
                         }
-                        break;
+                        return;
                     }
                     spawn = creep.pos.findClosest(Game.MY_SPAWNS);
                     if (spawn) {
