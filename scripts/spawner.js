@@ -7,8 +7,6 @@
  */
 var ROLE = require('role');
 var utility = require('utility');
-var STATE = require('state');
-var BODY = require('body');
 var _ = require('lodash');
 module.exports =
 {
@@ -29,16 +27,8 @@ module.exports =
     spawn: function () {
         var result = [];
 
-        var getName = function (role) {
-            switch (role) {
-                case ROLE.BRUTE:
-                    return 'Bruce';
-                default:
-                    return role;
-            }
-        };
         var duration = 0;
-        if (Memory.startTime ) {
+        if (Memory.startTime) {
             duration = Game.time - Memory.startTime;
         }
         for (var s in Game.spawns) {
@@ -57,64 +47,32 @@ module.exports =
                 // specify our first profile to have a miner and
                 // enough packers to get to the spawner
                 var source = spawn.pos.findClosest(Game.SOURCES);
-                if(!source)
-                  return;
-                var pathToNearest = spawn.room.findPath(spawn.pos,source.pos, {ignoreCreeps:true} );
-                var wantPackers = Math.max(1, (pathToNearest.length - 2) / 2);
-                var basic = {
-                  time:0,
-                  toughness: 6,
-                  population: wantPackers +1, // 1 for current position
-                  profile :[
-                  {
-                      PRIORITY: 1,
-                      ROLE: ROLE.MINER,
-                      STATE: STATE.SPAWNING,
-                      BODY: BODY.MINER,
-                      WANT: 1,
-                      HAVE: 0
-                  },{
-                    PRIORITY: 2,
-                    ROLE: ROLE.PACKER,
-                    STATE: STATE.SPAWNING,
-                    BODY: BODY.PACKER,
-                    WANT: wantPackers,// 1 for the miner, 1 for our current position
-                    HAVE: 0,
-                }]};
-                console.log('set packersWant: '+parseInt(basic.profile[1].WANT) + ' population to:'+ parseInt( basic.population));
+                if (!source)
+                    return;
+                var pathToNearest = spawn.room.findPath(spawn.pos, source.pos, { ignoreCreeps: true });
+                var basic = createBasicProfile(pathToNearest.length);
 
-
+                
                 var closestDiff = 0;
                 var closestSettingsPop = null;
                 var toughScale = 0;
                 var closestSettings = null;
                 var settingTime = 0;
                 var pickOne = function (setting) {
-                    if (closestSettingsPop && closestSettingsPop.population <= weHave) {
+                    if (!closestSettingsPop || closestSettingsPop && closestSettingsPop.population <= weHave) {
 
                         closestSettingsPop = setting;
                         closestSettings = setting.profile;
                         toughScale = setting.toughness;
                         settingTime = setting.time;
                         closestDiff = closestSettingsPop.population - weHave;
-                    } else if (!closestSettingsPop) {
-
-
-                        closestSettingsPop = setting;
-                        closestSettings = setting.profile;
-                        toughScale = setting.toughness;
-                        settingTime = setting.time;
-                        closestDiff = closestSettingsPop.population - weHave;
-
-
                     }
                 };
-                if(weHave < basic.population){
-                  pickOne(basic);
+                if (weHave < basic.population) {
+                    pickOne(basic);
                 }
-                else
-                {
-                  this._settings.forEach(pickOne);
+                else {
+                    this._settings.forEach(pickOne);
                 }
 
                 if (duration > 0 && settingTime > 0) {
@@ -127,10 +85,6 @@ module.exports =
                 // so check creep.memory.role and accumulate it to update how many we have.
 
                 if (closestSettings) {
-
-
-
-
 
                     closestSettings.forEach(function (x) {
 
@@ -149,9 +103,9 @@ module.exports =
                 }
                 // alternativly we could store state in our spawns and collect that.
 
-                var onesWeWant = _.filter(closestSettings, function (n) { return n.WANT - n.HAVE > 0 });
-                var orderByRatio = _.sortBy(onesWeWant, function (n) { return n.HAVE / n.WANT });
-                var thenByPriority = _.sortBy(orderByRatio, function (n) { return n.PRIORITY });
+                var onesWeWant = _.filter(closestSettings, function (n) { return n.WANT - n.HAVE > 0; });
+                var orderByRatio = _.sortBy(onesWeWant, function (n) { return n.HAVE / n.WANT; });
+                var thenByPriority = _.sortBy(orderByRatio, function (n) { return n.PRIORITY; });
 
                 var current = thenByPriority[0];
 
@@ -160,42 +114,27 @@ module.exports =
 
                 if (current && current.BODY) {
                     for (var i = 0; i < current.BODY.length; i++) {
-                        var extAvail = _.filter(Game.structures, function (n) { return n.structureType === Game.STRUCTURE_EXTENSION && n.energy === n.energyCapacity }).length;
+                        var extAvail = _.filter(Game.structures, function (n) { return n.structureType === Game.STRUCTURE_EXTENSION && n.energy === n.energyCapacity; }).length;
 
 
                         var parts = current.BODY[i].parts.slice(0);
-                        if (_.some(parts, function (f) { return f === Game.ATTACK})) {
+                        var toughScaleMod = 1;
+                        if (_.some(parts, function (f) { return f === Game.RANGED_ATTACK; })) {
+                            toughScaleMod = 4;
+                        }
+                        if (_.some(parts, function (f) { return f === Game.ATTACK || f === Game.RANGED_ATTACK; })) {
                             var toughness = [];
-                            for (var j = 0; j < toughScale; j++) {
+                            for (var j = 0; j < toughScale / toughScaleMod; j++) {
                                 toughness.push(Game.TOUGH);
                             }
                             for (var k = 0; k < extAvail; k++) {
                                 parts.push(Game.ATTACK);
                             }
-                                parts = toughness.concat(parts);
-                        }
-                        else if (_.some(parts, function (f) { return f === Game.RANGED_ATTACK })) {
-                            var toughness = [];
-                            for (var j = 0; j < toughScale / 4; j++) {
-                                toughness.push(Game.TOUGH);
-                            }
-                            for (var k = 0; k < extAvail; k++) {
-                                parts.push(Game.RANGED_ATTACK);
-                            }
                             parts = toughness.concat(parts);
                         }
 
-
-                        //else if (_.some(parts, function (f) { return f === Game.HEAL })) {
-                        //    var toughness = [];
-                        //    for (var j = 0; j < toughScale / 6; j++) {
-                        //        toughness.push(Game.TOUGH);
-                        //    }
-                        //    parts = toughness.concat(parts);
-                        //}
-
                         var id = 1;
-                        var name = getName(current.ROLE) + ' ' + parseInt(spawn.room.find(Game.CREEPS).length);
+                        var name = current.ROLE + ' ' + parseInt(spawn.room.find(Game.CREEPS).length);
                         var buildCode = spawn.createCreep(parts, name, { state: current.STATE, role: current.ROLE });
                         var tries = 2;
                         while (buildCode === -3 && --tries > 0) {
@@ -205,7 +144,7 @@ module.exports =
 
                         if (buildCode >= 0) {
                             result.push({
-                                body: body,
+                                body: current.BODY,
                                 code: buildCode,
                                 have: current.HAVE,
                                 role: current.ROLE
@@ -218,4 +157,4 @@ module.exports =
         }
         return result;
     }
-}
+};

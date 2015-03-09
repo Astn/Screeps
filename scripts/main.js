@@ -6,6 +6,11 @@ var BODY = require('body');
 var ROLE = require('role');
 var STATE = require('state');
 var PROFILE = require('profile');
+
+for(var f in spawner){
+  console.log(f);
+}
+return;
 spawner.profile(PROFILE);
 
 
