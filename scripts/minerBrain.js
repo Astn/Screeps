@@ -11,7 +11,8 @@ module.exports = {
     think: function (creep) {
         var source;
         if(creep.memory.head === undefined){
-            utility.simpleTail(creep.memory.tail);
+            //utility.simpleTail(creep.memory.tail);
+            utility.stretchTail(creep.memory.tail);
         }
 
         switch (creep.memory.state) {

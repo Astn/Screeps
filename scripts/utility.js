@@ -350,6 +350,22 @@ module.exports =
         }
         return hostile;
     },
+    chooseTransferTargetTouching: function(pos){
+      var ext = pos.findClosest(Game.MY_STRUCTURES, {
+          filter: function (n) {
+              return n.structureType === Game.STRUCTURE_EXTENSION && n.energy < n.energyCapacity;
+          }
+      });
+      if (ext && pos.inRangeTo(ext.pos, 1)) {
+              return ext;
+      }
+      else {
+          var spawn = creep.pos.findClosest(Game.MY_SPAWNS);
+          if (spawn && pos.inRangeTo(spawn.pos, 1)) {
+              return spawn;
+          }
+      }
+    },
     simpleTail: function(myTailId){
 
       if(myTailId === null || myTailId === undefined)
@@ -396,6 +412,108 @@ module.exports =
         }
 
         this.simpleTail(myTail.memory.tail);
+    },
+    stretchTail: function(subCreepId){
+
+      if(subCreepId === null || subCreepId === undefined)
+        return;
+
+        // is this a valid object?
+        var subCreep = Game.getObjectById(subCreepId);
+        if(!subCreep)
+          return;
+
+        // if we dont have a valid head clean up our link
+        // and get out of here
+        var myHead = Game.getObjectById(subCreep.memory.head);
+        if(!myHead){
+            subCreep.memory.head = undefined;
+            return;
+        }
+        // check that if we have a tail reference it is still valid
+        // null is a valid value for a terminated tail
+        var myTail;
+        if (subCreep.memory.tail !== undefined){
+          myTail = Game.getObjectById(subCreep.memory.tail);
+          if(!myTail){
+            subCreep.memory.tail = undefined
+          }
+        }
+
+        // pickup enery next to us, or what could be next to us after we move
+        var best = subCreep.pos.findInRange(Game.DROPPED_ENERGY, 1);
+        if(best.length > 0){
+            subCreep.pickup(best[0]);
+        }
+        else{
+          best = subCreep.pos.findInRange(Game.DROPPED_ENERGY, 2);
+          if(best.length > 0){
+              subCreep.pickup(best[0]);
+          }
+        }
+
+        // idea is:
+        // if no energy, move to head
+        // if energy and tail, move to tail,transfer
+        //    if close to structure, transfer
+        // if no tail, move to structure and transfer
+
+        // if no energy, move to head
+        if(subCreep.energy == 0 && !this.touching(subCreep.pos,myHead.pos)){
+            subCreep.say('moving');
+            subCreep.moveTo(myHead);
+        }
+        // if energy and tail, move to tail,transfer
+        //    if close to structure, transfer on the way
+        else if(subCreep.energy > 0 && myTail){
+            subCreep.moveTo(myTail);
+            // is there a structure next to us
+            var nextNow = this.chooseTransferTargetTouching(subCreep.pos);
+            // or next to where we are going?
+            if(!nextNow && touching(subCreep.pos, myHead.pos))
+              nextNow = this.chooseTransferTargetTouching(myHead.pos);
+
+            if(nextNow && nextNow.engery < nextNow.energyCapacity){
+              subCreep.transferEnergy(nextNow);
+            }
+            else{
+              subCreep.transferEnergy(myTail);
+            }
+        }
+        // if no tail, move to structure and transfer
+        else if(subCreep.energy > 0){
+            var spawn = subCreep.pos.findClosest(Game.MY_SPAWNS);
+            subCreep.moveTo(spawn);
+            // is there a structure next to us, including spawns
+            var nextNow = this.chooseTransferTargetTouching(subCreep.pos);
+            // or next to where we are going?
+            if(!nextNow && touching(subCreep.pos, spawn.pos))
+              nextNow = this.chooseTransferTargetTouching(spawn.pos);
+
+            if(nextNow && nextNow.engery < nextNow.energyCapacity){
+              subCreep.transferEnergy(nextNow);
+            }
+            else{
+              subCreep.transferEnergy(spawn);
+            }
+        }
+
+        // if we have the energy, and are next to a spawn now
+        // then break off the rest of the tail
+        var spawn = subCreep.pos.findInRange(Game.MY_SPAWNS, 1);
+        if (subCreep.energy && spawn.length > 0) {
+          subCreep.transferEnergy(spawn[0]);
+          // break off rest of tail if its there
+          if(subCreep.memory.tail){
+              var newHead = Game.getObjectById(subCreep.memory.tail);
+              if(newHead)
+                  newHead.memory.head = undefined;
+          }
+          // block off the tail so no one attaches to to it
+          subCreep.memory.tail = null;
+        }
+
+        this.stretchTail(subCreep.memory.tail);
     },
     tradePlaces: function (creep, pathStep) {
         if (Math.random() * 5 > 2)

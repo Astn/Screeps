@@ -56,8 +56,8 @@ module.exports = {
           // wag the tail
 
             console.log(creep.memory.tail);
-            utility.simpleTail(creep.memory.tail);
-
+            //utility.simpleTail(creep.memory.tail);
+            utility.stretchTail(creep.memory.tail);
         }
         else {
           // this creep had a link to another as its head
