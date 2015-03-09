@@ -57,7 +57,8 @@ module.exports =
                 // specify our first profile to have a miner and
                 // enough packers to get to the spawner
                 var source = spawn.pos.findClosest(Game.SOURCES);
-
+                if(!source)
+                  return;
                 var pathToNearest = spawn.room.findPath(spawn.pos,source.pos, {ignoreCreeps:true} );
                 var basic = {
                   time:0,
