@@ -1,0 +1,150 @@
+<html>
+<body>
+  <canvas id="a" width="500" height="500"></canvas>
+</body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.4.0/lodash.min.js"></script>
+<script src='game.js'></script>
+<script src="memory.js"></script>
+<script src="scripts/utility.js"></script>
+<script>
+  //var utility = require('scripts/utility');
+
+  var a_canvas = document.getElementById("a");
+  var a_context = a_canvas.getContext("2d");
+  a_context.fillStyle = "#555" ;
+  a_context.fillRect(0, 0, 500, 500);
+
+  var spawns = memory.myRooms.sim.map.spawns;
+  var sources = memory.myRooms.sim.map.sources;
+  var terrain = memory.myRooms.sim.map.terrain;
+
+  var drawTerrainMap = function(map){
+    for(var i = 0; i < map.length; i ++){
+      if(map[i] != null){
+        var color = {r:0,g:0,b:0};
+        if(map[i]==='plain'){
+          color = {r:80,g:80,b:80};
+        }
+        if(map[i]==='swamp'){
+          color = {r:40,g:120,b:40}
+        }
+        if(map[i]==='wall'){
+          color = {r:40,g:40,b:40};
+        }
+        //console.log('rgb('+parseInt(r)+','+ parseInt(g) +','+parseInt(b)+')');
+        a_context.fillStyle = 'rgb('+parseInt(color.r)+','+ parseInt(color.g) +','+parseInt(color.b)+')';
+        var x = i%50;
+        var y = (i - x) / 50;
+        a_context.fillRect(x*10, y*10, 10, 10);
+      }
+    }
+  }
+  var currentMap;
+  var drawHeightMap = function(heightMap, index){
+      currentMap = heightMap;
+      var mux = 7;
+      if(index === 1)
+        mux = 3;
+      for(var i = 0; i < heightMap.length; i ++){
+        if(heightMap[i] != null){
+          var height = heightMap[i][index] % 1000;
+          height*=mux;
+          var g = Math.min(255,height);
+          var r = Math.min(255,Math.max(0, height - 125));
+          var b = Math.min(255,Math.max(0, height - 256));
+          g-=b;
+          //console.log('rgb('+parseInt(r)+','+ parseInt(g) +','+parseInt(b)+')');
+          a_context.fillStyle = 'rgba('+parseInt(r)+','+ parseInt(g) +','+parseInt(b)+',.3)';
+          var x = i%50;
+          var y = (i - x) / 50;
+          a_context.fillRect(x*10, y*10, 10, 10);
+        }
+      }
+    }
+    var maps = _.merge({},spawns);
+    maps = _.merge(maps,sources);
+
+    function drawAllMaps(){
+      var delay = 1000;
+      for(var name in maps){
+        /*setTimeout(function(map){
+          drawHeightMap(maps[map], 0);
+        }, delay, name);
+        delay += 6000;*/
+        setTimeout(function(map){
+          drawTerrainMap(terrain);
+          drawHeightMap(maps[map], 1);
+        }, delay, name);
+        delay += 6000;
+      }
+      setTimeout(drawAllMaps, delay);
+    }
+
+
+    drawAllMaps();
+
+
+
+    function writeMessage(canvas, message) {
+      if(!currentMap)
+        return;
+      drawTerrainMap(terrain);
+      drawHeightMap(currentMap, 1);
+        var context = canvas.getContext('2d');
+        var nearestX = message.x;
+        if (message.x%5 < 2.5){
+          nearestX -= message.x%5;
+        }
+        else{
+          nearestX += (5 - message.x%5);
+        }
+        var nearestY = message.y;
+        if (message.y%5 < 2.5){
+          nearestY -= message.y%5;
+        }
+        else{
+          nearestY += (5 - message.y%5);
+        }
+
+        context.beginPath();
+        context.moveTo(nearestX,nearestY);
+
+        var bestXY = {x:Math.round(nearestX/10),y:Math.round(nearestY/10)};
+        while(true)
+        {
+          var nextXY = utility.nextPosOnMap(bestXY,currentMap);
+
+          if(nextXY.x !== bestXY.x || nextXY.y !== bestXY.y){
+            context.lineTo(nextXY.x*10 + 5, nextXY.y*10 + 5);
+            bestXY.x = nextXY.x;
+            bestXY.y = nextXY.y;
+          }
+          else
+          {
+            break;
+          }
+        }
+        context.lineWidth = 5;
+        context.strokeStyle = 'white';
+        context.stroke();
+
+      }
+      function getMousePos(canvas, evt) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+          x: evt.clientX - rect.left,
+          y: evt.clientY - rect.top
+        };
+      }
+
+
+      a_canvas.addEventListener('mousemove', function(evt) {
+        var mousePos = getMousePos(a_canvas, evt);
+        //var message = 'Mouse position: ' + mousePos.x + ',' + mousePos.y;
+        //console.log('mouse move');
+        writeMessage(a_canvas, mousePos);
+      }, false);
+
+</script>
+</html>

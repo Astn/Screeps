@@ -100,7 +100,7 @@ module.exports = {
 
                         if (frontLineCreeps && frontLineCreeps.length > 0) {
                             //if (!hostile) {
-                            //    frontLineCreeps.push(spawn);
+                               frontLineCreeps.push(spawn);
                             //}
 
                             var sumX = _.reduce(frontLineCreeps, utility.sumPosX, 0);

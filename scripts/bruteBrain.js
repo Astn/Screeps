@@ -16,12 +16,12 @@ module.exports = {
         var close = utility.creepIsCloseRanged(creep);
         var useOtherHostile = false;
         if (otherHostile && ranged) {
-            useOtherHostile = creep.pos.inRangeTo(otherHostile, 4);
-            if(useOtherHostile)
+            //useOtherHostile = creep.pos.inRangeTo(otherHostile, 4);
+            //i/f(useOtherHostile)
                 hostile = otherHostile;
         } else if (otherHostile && close) {
-            useOtherHostile = creep.pos.inRangeTo(otherHostile, 2);
-            if (useOtherHostile)
+            //useOtherHostile = creep.pos.inRangeTo(otherHostile, 2);
+            //if (useOtherHostile)
                 hostile = otherHostile;
         }
         var maxRoamingDistance = 5;
@@ -31,15 +31,19 @@ module.exports = {
         switch (creep.memory.state) {
             case STATE.NONE:
                 {
-                    if(!useOtherHostile)
-                        hostile = creep.pos.findClosest(Game.HOSTILE_CREEPS);
-                    
+
+                        hostile = creep.pos.findClosest(Game.HOSTILE_CREEPS, {filter: function(c){return c.owner.username != 'Source Keeper';}});
+
                     if (hostile) {
+                        creep.say(hostile.owner.username);
+                        console.log(hostile.owner.username);
                         creep.memory.state = STATE.ATTACKING;
-                        return hostile;
-                        break;
+                        return this.think(creep, hostile);
                     }
-                    
+                    else{
+                      creep.say('duh..');
+                    }
+
                     var closestSpawn = creep.pos.findClosest(Game.MY_SPAWNS);
                     if (closestSpawn) {
                         var tooCloseToSpawn = creep.pos.inRangeTo(closestSpawn, 2);
@@ -55,66 +59,57 @@ module.exports = {
                             creep.move(pathToSpawn[0].direction);
                             break;
                         }
-                        // try to back fill positions around our ATTACK creeps.
-                        if (ranged) {
-                            var myTarget = _.find(Memory[creep.room.name].formation, function (f) { return f.role === creep.memory.role });
-                            
-                            if (myTarget) {
-                                creep.say('x:'+parseInt(myTarget.x) + ' y:'+myTarget.y);
-                                creep.moveTo(myTarget.x, myTarget.y);
-                            }
-                        }
+
                     }
-                    
+
                     break;
                 }
 
             case STATE.ATTACKING:
                 {
                     var spawn = utility.chooseSpawn(creep);
-                    if (!useOtherHostile)
-                        hostile = utility.chooseHostile(creep);
+                    hostile = utility.chooseHostile(creep);
                     if (!hostile || !hostile.pos) {
-                        //creep.say('none');
+                        creep.say('none');
                         creep.memory.state = STATE.NONE;
                         break;
                     }
 
-                    
-                    
-                    
-                    
-                    
+                    var attackResult;
                     if (ranged && creep.pos.inRangeTo(hostile.pos, 4)) {
-                        creep.rangedAttack(hostile);
+                        attackResult = creep.rangedAttack(hostile);
                     }
                     else if (creep.pos.inRangeTo(hostile.pos, 1)) {
-                            creep.attack(hostile);
+                        attackResult = creep.attack(hostile);
                     }
-                    var ignoreCreeps = Math.random() * 100 < 95;
+                    if(attackResult===Game.ERR_NOT_IN_RANGE){
+                      creep.moveTo(hostile);
+                      return;
+                    }
+                    else if(attackResult){
+                      creep.say(attackResult);
+                    }
+
+                    var ignoreCreeps = Math.random() * 100 < 80;
                     var nearestCreepPath = creep.pos.findPathTo(hostile, {
                         ignoreCreeps: ignoreCreeps,
                         ignoreDestructibleStructures: true
                     });
-                    if(nearestCreepPath.length)
+                    if(nearestCreepPath.length > 0){
                         utility.tradePlaces(creep, nearestCreepPath[0]);
-                    
+                        var distFromSpawn = utility.positionDistanceToNearestSpawn(creep.room, nearestCreepPath[0]);
+                        if(distFromSpawn <= maxRoamingDistance)
+                          creep.move(nearestCreepPath[0].direction);
+                    }
                     var pathToSpawn = creep.room.findPath(creep.pos, spawn.pos, {
                         ignoreCreeps: true
                     });
-                   // creep.say(parseInt(pathToSpawn.length));
-                    var moveBack = pathToSpawn.length > maxRoamingDistance;
-                    if (moveBack || (ranged && creep.pos.inRangeTo(hostile.pos, 1))) {
-                        
-                        creep.move(pathToSpawn[0].direction);
+
+                    if (ranged && creep.pos.inRangeTo(hostile.pos, 1)) {
+                        var toSpawn = utility.directionToNearestSpawn(creep);
+                        creep.move(toSpawn);
                     }
-                    else if (pathToSpawn.length === maxRoamingDistance)
-                    {}
-                    else {
-                        //creep.say('only ' + parseInt(pathToSpawn.length));
-                        if (nearestCreepPath.length)
-                        creep.move(nearestCreepPath[0].direction);
-                    }
+
                     return hostile;
                     break;
                 }

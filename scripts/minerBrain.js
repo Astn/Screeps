@@ -6,10 +6,15 @@
  * var mod = require('minerBrain'); // -> 'a thing'
  */
 var STATE = require('state');
-
+var utility = require('utility');
 module.exports = {
     think: function (creep) {
         var source;
+        if(creep.memory.head === undefined){
+            //utility.simpleTail(creep.memory.tail);
+            utility.stretchTail(creep.memory.tail);
+        }
+
         switch (creep.memory.state) {
             case STATE.NONE:
                 {
@@ -21,8 +26,7 @@ module.exports = {
                 {
                     var activeSources = creep.room.find(Game.SOURCES_ACTIVE);
                     var shortestPath = 1000;
-                    var nearest = {};
-                    nearest = null;
+                    var nearest = null;
                     for (var as in activeSources) {
                         var asPath = creep.room.findPath(creep.pos, activeSources[as].pos, {
                             ignoreCreeps: false
@@ -39,76 +43,45 @@ module.exports = {
                     }
                     creep.memory.target = nearest.id;
                     source = nearest;
-                    if (!source || creep.pos.inRangeTo(source.pos, 1)) {
-
-                        creep.memory.target = null;
-                    }
 
                     if (source) {
 
                         if (creep.pos.inRangeTo(source.pos, 1)) {
-
                             creep.memory.state = STATE.HARVESTING;
+                            this.think(creep);
                         } else {
 
                             var moveResult = creep.moveTo(source);
                             if (moveResult === Game.ERR_NO_PATH) {
-
                                 creep.memory.state = STATE.NONE;
                             }
                         }
+                    }
+                    else{
+                      creep.memory.state = STATE.NONE;
                     }
                     break;
                 }
             case STATE.HARVESTING:
                 {
-                    var activeSources = creep.room.find(Game.SOURCES_ACTIVE);
-                    var shortestPath = 1000;
-                    var nearest = {};
-                    nearest = null;
-                    for (var as in activeSources) {
-                        var asPath = creep.room.findPath(creep.pos, activeSources[as].pos, {
-                            ignoreCreeps: false
-                        });
-                        if (asPath.length < shortestPath) {
-                            shortestPath = asPath.length;
-                            nearest = activeSources[as];
-                        }
-                    }
-                    source = nearest;
+                    source = Game.getObjectById(creep.memory.target);
                     if (source) {
-                        var prevEnergy = creep.energy;
                         var code = creep.harvest(source);
-                        var afterEnergy = creep.energy;
                         if (code === Game.OK) {
                             creep.memory.digIn = true;
+                            creep.memory.target = source.id;
+                        }
+                        else
+                        {
+                          creep.say(code);
                         }
                         if (creep.energy > 0 && creep.energy === creep.energyCapacity) {
                             creep.dropEnergy();
-                        } else if (code !== Game.OK && creep.memory.digIn !== true) {
-
-                            creep.memory.state = STATE.NONE;
                         }
+                    }else{
+                      creep.say('no source');
+                      creep.memory.state = STATE.NONE;
                     }
-                    break;
-                }
-            case STATE.MOVE_TO_TRANSFER:
-                {
-                    creep.memory.state = STATE.HARVESTING;
-                    break;
-                }
-            case STATE.TRANSFERING:
-                {
-                    var spawn = creep.pos.findClosest(Game.MY_SPAWNS);
-                    if (spawn) {
-                        creep.transferEnergy(spawn, creep.energy);
-                        creep.memory.state = STATE.NONE;
-                    }
-                    break;
-                }
-            case STATE.MOVE_TO_BUILD:
-                {
-                    creep.memory.state = STATE.MOVE_TO_HARVEST;
                     break;
                 }
             default:
