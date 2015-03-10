@@ -36,10 +36,10 @@ module.exports = [
         },
         {
             PRIORITY: 3,
-            ROLE: ROLE.WORKER,
+            ROLE: ROLE.MINER,
             STATE: STATE.SPAWNING,
-            BODY: BODY.BUILDERWORKER,
-            WANT: 1,
+            BODY: BODY.MINER,
+            WANT: 2,
             HAVE: 0,
         },
         {

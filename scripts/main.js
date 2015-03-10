@@ -589,7 +589,7 @@ var utility = {
                 }
             }
             var destination;
-            if (distanceToSpawn <= distanceToOtherCreep) {
+            if (true) { //distanceToSpawn <= distanceToOtherCreep) {
                 destination = spawn;
             }
             else {
@@ -804,20 +804,20 @@ var bruteBrain = {
 
                     var closestSpawn = creep.pos.findClosest(Game.MY_SPAWNS);
                     if (closestSpawn) {
-                        var tooCloseToSpawn = creep.pos.inRangeTo(closestSpawn, 2);
+                        var tooCloseToSpawn = creep.pos.inRangeTo(closestSpawn, 4);
                         if (tooCloseToSpawn) {
-                            runAway = closestSpawn.pos.getDirectionTo(creep);
-                            var door = creep.pos.findClosest(Game.EXIT_TOP);
-                            creep.move(runAway);
+                            var doors = _.union(creep.room.find(Game.EXIT_TOP),creep.room.find(Game.EXIT_BOTTOM),creep.room.find(Game.EXIT_LEFT),creep.room.find(Game.EXIT_RIGHT));
+                            var door = creep.pos.findClosest(doors);
+                            if(door){
+                                creep.moveTo(door);
+                            }
                         }
                         var pathToSpawn = creep.room.findPath(creep.pos, closestSpawn.pos, {
                             ignoreCreeps: true
                         });
                         if (pathToSpawn.length > maxRoamingDistance) {
                             creep.move(pathToSpawn[0].direction);
-                            break;
                         }
-
                     }
 
                     break;
@@ -834,36 +834,33 @@ var bruteBrain = {
                     }
 
                     var attackResult;
-                    if (ranged && creep.pos.inRangeTo(hostile.pos, 4)) {
+                    if (ranged) {
                         attackResult = creep.rangedAttack(hostile);
                     }
-                    else if (creep.pos.inRangeTo(hostile.pos, 1)) {
+                    else {
                         attackResult = creep.attack(hostile);
                     }
                     if (attackResult === Game.ERR_NOT_IN_RANGE) {
-                        creep.moveTo(hostile);
+                        /*var ignoreCreeps = Math.random() * 100 < 80;
+                        var nearestCreepPath = creep.pos.findPathTo(hostile, {
+                            ignoreCreeps: ignoreCreeps,
+                            ignoreDestructibleStructures: true
+                        });
+                        if (nearestCreepPath.length > 0) {
+                            utility.tradePlaces(creep, nearestCreepPath[0]);
+                            var distFromSpawn = utility.positionDistanceToNearestSpawn(creep.room, nearestCreepPath[0]);
+                            if (distFromSpawn <= maxRoamingDistance)
+                                creep.move(nearestCreepPath[0].direction);
+                        }
+                        */
+                        var distFromSpawn = utility.positionDistanceToNearestSpawn(creep.room, creep);
+                        if (distFromSpawn <= maxRoamingDistance){
+                            creep.moveTo(hostile);
+                        }
                         return;
                     }
-                    else if (attackResult) {
-                        creep.say(attackResult);
-                    }
 
-                    var ignoreCreeps = Math.random() * 100 < 80;
-                    var nearestCreepPath = creep.pos.findPathTo(hostile, {
-                        ignoreCreeps: ignoreCreeps,
-                        ignoreDestructibleStructures: true
-                    });
-                    if (nearestCreepPath.length > 0) {
-                        utility.tradePlaces(creep, nearestCreepPath[0]);
-                        var distFromSpawn = utility.positionDistanceToNearestSpawn(creep.room, nearestCreepPath[0]);
-                        if (distFromSpawn <= maxRoamingDistance)
-                            creep.move(nearestCreepPath[0].direction);
-                    }
-                    var pathToSpawn = creep.room.findPath(creep.pos, spawn.pos, {
-                        ignoreCreeps: true
-                    });
-
-                    if (ranged && creep.pos.inRangeTo(hostile.pos, 1)) {
+                    if (ranged && creep.pos.inRangeTo(hostile.pos, 2)) {
                         var toSpawn = utility.directionToNearestSpawn(creep);
                         creep.move(toSpawn);
                     }
