@@ -11,120 +11,23 @@ var ROLE = require('role');
 var STATE = require('state');
 
 module.exports = [
-    {
-        "time":0,
-        "toughness": 2,
-        "population": 2,
-        "profile": [
-            {
-                PRIORITY: 3,
-                ROLE: ROLE.BRUTE,
-                STATE: STATE.SPAWNING,
-                BODY: BODY.BRUTE,
-                WANT: 0,
-                HAVE: 0
-            },
-            {
-                PRIORITY: 3,
-                ROLE: ROLE.ARCHER,
-                STATE: STATE.SPAWNING,
-                BODY: BODY.ARCHER,
-                WANT: 1,
-                HAVE: 0
-            },
-            {
-                PRIORITY: 1,
-                ROLE: ROLE.MINER,
-                STATE: STATE.SPAWNING,
-                BODY: BODY.MINER,
-                WANT: 1,
-                HAVE: 0
-            },
-            {
-                PRIORITY: 2,
-                ROLE: ROLE.PACKER,
-                STATE: STATE.SPAWNING,
-                BODY: BODY.PACKER,
-                WANT: 1,
-                HAVE: 0,
-            },
-            {
-                ROLE: ROLE.MEDIC,
-                STATE: STATE.SPAWNING,
-                BODY: BODY.MEDIC,
-                WANT: 0,
-                HAVE: 0
-            }
-        ]
-    },
-    {
-        "time": 0,
-        "toughness": 2,
-        "population": 6,
-        "profile": [
-            {
-                PRIORITY: 3,
-                ROLE: ROLE.BRUTE,
-                STATE: STATE.SPAWNING,
-                BODY: BODY.BRUTE,
-                WANT: 0,
-                HAVE: 0
-            },
-            {
-                ROLE: ROLE.ARCHER,
-                STATE: STATE.SPAWNING,
-                BODY: BODY.ARCHER,
-                WANT: 1,
-                HAVE: 0
-            },
-            {
-                PRIORITY: 1,
-                ROLE: ROLE.MINER,
-                STATE: STATE.SPAWNING,
-                BODY: BODY.MINER,
-                WANT: 2,
-                HAVE: 0
-            },
-            {
-                PRIORITY: 2,
-                ROLE: ROLE.PACKER,
-                STATE: STATE.SPAWNING,
-                BODY: BODY.PACKER,
-                WANT: 1,
-                HAVE: 0,
-            },
-            {
-                PRIORITY: 2,
-                ROLE: ROLE.WORKER,
-                STATE: STATE.SPAWNING,
-                BODY: BODY.BUILDERWORKER,
-                WANT: 2,
-                HAVE: 0,
-            },
-            {
-                PRIORITY: 4,
-                ROLE: ROLE.MEDIC,
-                STATE: STATE.SPAWNING,
-                BODY: BODY.MEDIC,
-                WANT: 1,
-                HAVE: 0
-            }
-        ]
-    },
+
+
 {
-    "time": 800,
+    "time": 120,
     "toughness": 2,
-    "population": 7,
+    "population": 5,
     "profile": [
         {
             PRIORITY: 3,
             ROLE: ROLE.BRUTE,
             STATE: STATE.SPAWNING,
             BODY: BODY.BRUTE,
-            WANT: 0,
+            WANT: 1,
             HAVE: 0
         },
         {
+            PRIORITY: 1,
             ROLE: ROLE.ARCHER,
             STATE: STATE.SPAWNING,
             BODY: BODY.ARCHER,
@@ -132,31 +35,15 @@ module.exports = [
             HAVE: 0
         },
         {
-            PRIORITY: 1,
-            ROLE: ROLE.MINER,
+            PRIORITY: 3,
+            ROLE: ROLE.WORKER,
             STATE: STATE.SPAWNING,
-            BODY: BODY.MINER,
-            WANT: 2,
-            HAVE: 0
-        },
-        {
-            PRIORITY: 2,
-            ROLE: ROLE.PACKER,
-            STATE: STATE.SPAWNING,
-            BODY: BODY.PACKER,
+            BODY: BODY.BUILDERWORKER,
             WANT: 1,
             HAVE: 0,
         },
         {
             PRIORITY: 2,
-            ROLE: ROLE.WORKER,
-            STATE: STATE.SPAWNING,
-            BODY: BODY.BUILDERWORKER,
-            WANT: 2,
-            HAVE: 0,
-        },
-        {
-            PRIORITY: 4,
             ROLE: ROLE.MEDIC,
             STATE: STATE.SPAWNING,
             BODY: BODY.MEDIC,
@@ -240,7 +127,7 @@ module.exports = [
                 WANT: 6,
                 HAVE: 0
             },
-            { 
+            {
                 PRIORITY: 2,
                 ROLE: ROLE.MINER,
                 STATE: STATE.SPAWNING,
