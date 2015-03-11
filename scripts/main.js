@@ -386,7 +386,9 @@ var utility = {
         //  range = 1;
         //}
         //else if(range > 15){
-        return creep.pos.findClosest(Game.HOSTILE_CREEPS, { filter: function (c) { return c.owner.username !== 'Source Keeper'; } });
+        return creep.pos.findClosest(Game.HOSTILE_CREEPS, {
+            ignoreCreeps: true,
+            filter: function (c) { return c.owner.username !== 'Source Keeper'; } });
         //}
         /*var hostile = null;
         var hostileCreeps = creep.pos.findInRange(Game.HOSTILE_CREEPS, range);
@@ -544,7 +546,7 @@ var utility = {
             // if energy and tail, move to tail,transfer
             //    if close to structure, transfer on the way
         else if (subCreep.energy > 0 && myTail) {
-            subCreep.say('toTail');
+
             subCreep.moveTo(myTail);
             // is there a structure next to us
             var nextNow = this.chooseTransferTargetTouching(subCreep.pos);
@@ -800,18 +802,18 @@ var bruteBrain = {
             //if (useOtherHostile)
             hostile = otherHostile;
         }
-        var maxRoamingDistance = 5;
+        var maxRoamingDistance = 4;
         if (close) {
-            maxRoamingDistance = 6;
+            maxRoamingDistance = 4;
         }
         if(creep.room.survivalInfo){
-            maxRoamingDistance += (creep.room.survivalInfo.wave  / 2 )
+        //    maxRoamingDistance += (creep.room.survivalInfo.wave  / 3 )
         }
 
 
         var closestSpawn = creep.pos.findClosest(Game.MY_SPAWNS);
         if (closestSpawn) {
-            var tooCloseToSpawn = creep.pos.inRangeTo(closestSpawn, 3);
+            var tooCloseToSpawn = creep.pos.inRangeTo(closestSpawn, 2);
             if (tooCloseToSpawn) {
                 var doors = _.union(creep.room.find(Game.EXIT_TOP),creep.room.find(Game.EXIT_BOTTOM),creep.room.find(Game.EXIT_LEFT),creep.room.find(Game.EXIT_RIGHT));
                 var door = creep.pos.findClosest(doors);
@@ -828,16 +830,16 @@ var bruteBrain = {
             case STATE.NONE:
                 {
 
-                    hostile = creep.pos.findClosest(Game.HOSTILE_CREEPS, { filter: function (c) { return c.owner.username != 'Source Keeper'; } });
+                    hostile = utility.chooseHostile(creep);
 
                     if (hostile) {
-                        creep.say(hostile.owner.username);
-                        console.log(hostile.owner.username);
+                        //creep.say(hostile.owner.username);
+                        //console.log(hostile.owner.username);
                         creep.memory.state = STATE.ATTACKING;
                         return this.think(creep, hostile);
                     }
                     else {
-                        creep.say('duh..');
+                    //    creep.say('duh..');
                     }
                     break;
                 }
@@ -854,7 +856,7 @@ var bruteBrain = {
 
                     var distFromSpawn = utility.positionDistanceToNearestSpawn(creep.room, creep);
 
-                    console.log('distFromSpawn '+ parseInt(distFromSpawn));
+                    //console.log('distFromSpawn '+ parseInt(distFromSpawn));
                     if (distFromSpawn <= maxRoamingDistance){
                         creep.moveTo(hostile);
                     }
@@ -862,11 +864,12 @@ var bruteBrain = {
                         var toSpawn = utility.directionToNearestSpawn(creep);
                         creep.move(toSpawn)
                     }
+                    /*
                     if (ranged && creep.pos.inRangeTo(hostile.pos, 1)) {
                         var toSpawn = utility.directionToNearestSpawn(creep);
                         creep.move(toSpawn);
                     }
-
+                    */
                     var attackResult;
                     if (ranged) {
                         attackResult = creep.rangedAttack(hostile);
@@ -922,15 +925,51 @@ var medicBrain = {
                 creep.move(pathToSpawn[0].direction);
             }
         }
+
+        if (creep.memory.head === undefined) {
+            creep.say('pie');
+            // try to find a head
+            // first look for a BRUTE without a tail OR with a creep.memory.grow === true
+            var head = creep.pos.findClosest(Game.MY_CREEPS, {
+                filter: function (cc) {
+                        return cc.id !== creep.id && (cc.memory.role === ROLE.ARCHER || cc.memory.role === ROLE.BRUTE ) && (cc.memory.tail === undefined);
+                    }
+                });
+
+            // first creep of Same Role without a tail and we bind up.
+            //if (!head)
+            //    head = creep.pos.findClosest(Game.MY_CREEPS, { filter: function (cc) { return cc.id !== creep.id && cc.memory.role === creep.memory.role && cc.memory.tail === undefined; } });
+
+            if (head) {
+                head.memory.tail = creep.id;
+                creep.memory.head = head.id;
+                creep.say('slave');
+                // we are now a body part of the head. State will stay at none forever.
+                return;
+            } else {
+                creep.say('master');
+            }
+
+            // wag the tail
+            // dont need to wag medics.
+        }
+        else{
+            var myHead = Game.getObjectById(creep.memory.head);
+            if(myHead.memory.role === ROLE.MEDIC){
+                creep.memory.head = undefined;
+                myHead.memory.tail = undefined;
+            }
+        }
+
         switch (creep.memory.state) {
             case STATE.NONE:
                 {
-                    injured = creep.pos.findClosest(Game.MY_CREEPS, { filter: utility.creepIsDamaged });
+                    //injured = creep.pos.findClosest(Game.MY_CREEPS, { filter: utility.creepIsDamaged });
 
-                    if (injured || creep.pos.findClosest(Game.HOSTILE_CREEPS)) {
+                    //if (injured || creep.pos.findClosest(Game.HOSTILE_CREEPS)) {
                         creep.memory.state = STATE.HEALING;
                         creep.memory.target = null;
-                    }
+                    //}
 
 
 
@@ -939,11 +978,34 @@ var medicBrain = {
                 }
             case STATE.HEALING:
                 {
-                    var spawn = utility.chooseSpawn(creep);
+                    if(creep.memory.head){
+                        var myHead = Game.getObjectById(creep.memory.head);
+                        if(myHead){
+                            creep.moveTo(myHead);
+
+                            if(myHead.hits < myHead.hitsMax){
+                                creep.heal(myHead);
+                            }
+                        }
+                    }
+
 
                     if (!injured) {
-                        var injuredCreeps = creep.room.find(Game.MY_CREEPS);
-                        injuredCreeps = _.filter(injuredCreeps, utility.creepIsDamaged);
+                        var foundCreeps = [];
+                        var injuredCreeps = creep.room.lookAtArea( creep.pos.y - 2, creep.pos.x -2, creep.pos.y+2, creep.pos.x +2);
+                        for(var aa in injuredCreeps){
+                            var ic1 = injuredCreeps[aa];
+                            for(var bb in ic1){
+                                var ic2 = ic1[bb];
+                                for(var cc in ic2){
+                                    if(ic2[cc].type === 'creep' && ic2[cc].creep.my === true){
+                                        foundCreeps.push(ic2[cc].creep);
+                                    }
+                                }
+                            }
+                        }
+
+                        injuredCreeps = _.filter(foundCreeps, utility.creepIsDamaged);
                         var shortestPath = 1000;
                         var mostInjured = {};
                         if (injuredCreeps.length) {
@@ -969,63 +1031,11 @@ var medicBrain = {
                             creep.heal(injured);
                             injured.memory.pain += 2;
                         } else if (inRange) {
-                            var pathToInjured = creep.room.findPath(creep.pos, injured.pos, {
-                                ignoreCreeps: true
-                            });
                             creep.rangedHeal(injured);
                             injured.memory.pain += 2;
-                            if (pathToInjured.length > 0) {
-                                creep.move(pathToInjured[0].direction);
-                            }
-                        } else {
-                            var pathToInjured = creep.room.findPath(creep.pos, injured.pos, {
-                                ignoreCreeps: true
-                            });
-                            if (pathToInjured.length > 0) {
-                                creep.move(pathToInjured[0].direction);
-                            }
 
                         }
 
-                    } else {
-                        // Move to the position that is the average of
-                        // the front attacking creeps
-                        var frontLineCreeps = creep.room.find(Game.MY_CREEPS, { filter: utility.creepCanAttack });
-
-                        if (frontLineCreeps && frontLineCreeps.length > 0) {
-                            //if (!hostile) {
-                            frontLineCreeps.push(spawn);
-                            //}
-
-                            var sumX = _.reduce(frontLineCreeps, utility.sumPosX, 0);
-                            var sumY = _.reduce(frontLineCreeps, utility.sumPosY, 0);
-                            var avgX = Math.round(sumX / frontLineCreeps.length);
-                            var avgY = Math.round(sumY / frontLineCreeps.length);
-
-                            var spotPos = creep.room.getPositionAt(avgX, avgY);
-                            var spotInfo = creep.room.lookAt(spotPos);
-
-                            spotInfo = _.filter(spotInfo, function (n) { return n.type === 'terrain' && n.terrain === 'plain' || n.terrain === 'swamp' });
-                            if (spotInfo.length > 0) {
-                                var asPath = creep.room.findPath(creep.pos, spotPos, {
-                                    ignoreCreeps: false
-                                });
-                                if (asPath && asPath.length > 0) {
-                                    creep.move(asPath[0].direction);
-                                }
-                            }
-                        }
-                        // make sure that we dont go beyond our limit
-                        //var closestSpawn = creep.pos.findClosest(Game.MY_SPAWNS);
-                        //if (closestSpawn) {
-                        //    var pathToSpawn = creep.room.findPath(creep.pos, closestSpawn.pos, {
-                        //        ignoreCreeps: true
-                        //    });
-                        //    if (pathToSpawn.length > 15) {
-                        //        creep.move(pathToSpawn[0].direction);
-                        //    }
-                        //}
-                        creep.memory.target = null;
                     }
 
                     break;
@@ -1627,6 +1637,22 @@ var spawner =
                     }
                 }
 
+                // check if anything about to die
+                var foundCreeps =spawn.room.find(Game.MY_CREEPS);
+                for(var tmp in foundCreeps){
+                    tmp = foundCreeps[tmp];
+                    if(tmp.ticksToLive < 300 && tmp.memory.replacing === undefined){
+                        tmp.memory.replacing = true;
+                        current = {
+                            ROLE: tmp.memory.role,
+                            STATE: STATE.SPAWNING,
+                            BODY: [{parts: tmp.body}]
+                        };
+                        shouldGrow = true;
+                        break;
+                    }
+                }
+
                 if (duration > 0 && settingTime > 0 && shouldGrow === false && spawn.energy < 5900) {
                     if (settingTime > duration) {
                         console.log("too soon.. " + parseInt(settingTime) + " > " + parseInt(duration));
@@ -1644,7 +1670,7 @@ var spawner =
                         var parts = current.BODY[i].parts.slice(0);
                         var toughScaleMod = 1;
                         if (_.some(parts, function (f) { return f === Game.RANGED_ATTACK; })) {
-                            toughScaleMod = 4;
+                            toughScaleMod = 1;
                         }
                         if (_.some(parts, function (f) { return f === Game.ATTACK || f === Game.RANGED_ATTACK; })) {
                             var toughness = [];
