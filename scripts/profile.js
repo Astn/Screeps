@@ -131,7 +131,7 @@ module.exports = [
     {
         "time": 700,
         "toughness": 22,
-        "population": 13,
+        "population": 15,
         "profile": [
             {
                 PRIORITY: 3,
@@ -162,13 +162,13 @@ module.exports = [
                 ROLE: ROLE.MEDIC,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.MEDIC,
-                WANT: 3,
+                WANT: 5,
                 HAVE: 0
             }
         ]
     },
     {
-        "time": 2300,
+        "time": 1800,
         "toughness": 22,
         "population": 33,
         "profile": [

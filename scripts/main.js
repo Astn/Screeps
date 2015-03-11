@@ -263,9 +263,9 @@ var utility = {
         var bestDist = 100;
         for (var spId in spawns) {
 
-            if (spawns[spId][pos.x + (50 * pos.y)] < bestDist) {
+            if (spawns[spId][pos.x + (50 * pos.y)][0] < bestDist) {
 
-                bestDist = spawns[spId][pos.x + (50 * pos.y)];
+                bestDist = spawns[spId][pos.x + (50 * pos.y)][0];
             }
         }
         return bestDist;
@@ -822,9 +822,6 @@ var bruteBrain = {
             var pathToSpawn = creep.room.findPath(creep.pos, closestSpawn.pos, {
                 ignoreCreeps: true
             });
-            if (pathToSpawn.length >= maxRoamingDistance) {
-                creep.move(pathToSpawn[0].direction);
-            }
         }
 
         switch (creep.memory.state) {
@@ -842,9 +839,6 @@ var bruteBrain = {
                     else {
                         creep.say('duh..');
                     }
-
-
-
                     break;
                 }
 
@@ -856,6 +850,21 @@ var bruteBrain = {
                         creep.say('none');
                         creep.memory.state = STATE.NONE;
                         break;
+                    }
+
+                    var distFromSpawn = utility.positionDistanceToNearestSpawn(creep.room, creep);
+
+                    console.log('distFromSpawn '+ parseInt(distFromSpawn));
+                    if (distFromSpawn <= maxRoamingDistance){
+                        creep.moveTo(hostile);
+                    }
+                    else if (distFromSpawn === maxRoamingDistance){
+                        var toSpawn = utility.directionToNearestSpawn(creep);
+                        creep.move(toSpawn)
+                    }
+                    if (ranged && creep.pos.inRangeTo(hostile.pos, 1)) {
+                        var toSpawn = utility.directionToNearestSpawn(creep);
+                        creep.move(toSpawn);
                     }
 
                     var attackResult;
@@ -880,18 +889,7 @@ var bruteBrain = {
                         */
 
                     }
-                    var distFromSpawn = utility.positionDistanceToNearestSpawn(creep.room, creep);
-                    if (distFromSpawn <= maxRoamingDistance){
-                        creep.moveTo(hostile);
-                    }
-                    else if (distFromSpawn === maxRoamingDistance){
-                        var toSpawn = utility.directionToNearestSpawn(creep);
-                        creep.move(toSpawn)
-                    }
-                    if (ranged && creep.pos.inRangeTo(hostile.pos, 1)) {
-                        var toSpawn = utility.directionToNearestSpawn(creep);
-                        creep.move(toSpawn);
-                    }
+
 
                     return hostile;
                     break;
