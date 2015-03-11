@@ -168,7 +168,46 @@ module.exports = [
         ]
     },
     {
-        "time": 1800,
+        "time": 1700,
+        "toughness": 14,
+        "population": 19,
+        "profile": [
+            {
+                PRIORITY: 3,
+                ROLE: ROLE.BRUTE,
+                STATE: STATE.SPAWNING,
+                BODY: BODY.BRUTE2,
+                WANT: 4,
+                HAVE: 0
+            },
+            {
+                PRIORITY: 3,
+                ROLE: ROLE.ARCHER,
+                STATE: STATE.SPAWNING,
+                BODY: BODY.ARCHER,
+                WANT: 4,
+                HAVE: 0
+            },
+            {
+                PRIORITY: 2,
+                ROLE: ROLE.MINER,
+                STATE: STATE.SPAWNING,
+                BODY: BODY.MINER,
+                WANT: 3,
+                HAVE: 0
+            },
+            {
+                PRIORITY: 3,
+                ROLE: ROLE.MEDIC,
+                STATE: STATE.SPAWNING,
+                BODY: BODY.MEDIC,
+                WANT: 8,
+                HAVE: 0
+            }
+        ]
+    },
+    {
+        "time": 2000,
         "toughness": 14,
         "population": 30,
         "profile": [

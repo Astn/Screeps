@@ -276,7 +276,11 @@ var utility = {
         }, 0);
         for (var spawnName in Game.spawns) {
             var spawn = Game.spawns[spawnName];
-            if (creepCt === 0 && spawn.energy === 1000) {
+            var wave = 0;
+            if(spawn.room.survivalInfo){
+                wave = spawn.room.survivalInfo.wave;
+            }
+            if (creepCt === 0 && spawn.energy === 1000 && wave < 2) {
                 Memory.startTime = Game.time;
                 Memory.creeps = {};
                 Memory.mine = {};
@@ -370,6 +374,7 @@ var utility = {
     sumPosX: function (sum, n) { return sum + n.pos.x; },
     sumPosY: function (sum, n) { return sum + n.pos.y; },
     creepHitsRatio: function (n) { return n.hits / n.hitsMax; },
+    creepHits: function (n) { return n.hits; },
     creepIsDamaged: function (n) { return (n.hits < n.hitsMax); },
     chooseSpawn: function (creep) {
         var spawn = {};
@@ -382,29 +387,41 @@ var utility = {
         return spawn;
     },
     chooseHostile: function (creep) {
-        //if(!range){
-        //  range = 1;
-        //}
-        //else if(range > 15){
-
+        var amICoseAttacker = _.some(creep.body, function (part) { return part.type === Game.ATTACK; });
+        var amIRangedAttacker = _.some(creep.body, function (part) { return part.type === Game.RANGED_ATTACK; });
 
         // need to pick the guy that is close enough with the lowest hits left
+        var foundCreeps = [];
+        var injuredCreeps
+        if(amICoseAttacker === true){
+             injuredCreeps = creep.room.lookAtArea( creep.pos.y - 1, creep.pos.x -1, creep.pos.y+1, creep.pos.x +1);
+         } else if (amIRangedAttacker){
+             injuredCreeps = creep.room.lookAtArea( creep.pos.y - 3, creep.pos.x -3, creep.pos.y+3, creep.pos.x +3);
+         }
 
+        for(var aa in injuredCreeps){
+            var ic1 = injuredCreeps[aa];
+            for(var bb in ic1){
+                var ic2 = ic1[bb];
+                for(var cc in ic2){
+                    if(ic2[cc].type === 'creep' && ic2[cc].creep.my === false){
+                        foundCreeps.push(ic2[cc].creep);
+                    }
+                }
+            }
+        }
+
+        if (foundCreeps.length > 0) {
+            _.sortBy(foundCreeps, utility.creepHits);
+            var mostInjured = foundCreeps[0];
+            console.log('found most injured with hits: ' + mostInjured);
+            return mostInjured;
+        }
 
         return creep.pos.findClosest(Game.HOSTILE_CREEPS, {
             ignoreCreeps: true,
             filter: function (c) { return c.owner.username !== 'Source Keeper'; } });
-        //}
-        /*var hostile = null;
-        var hostileCreeps = creep.pos.findInRange(Game.HOSTILE_CREEPS, range);
-        if (hostileCreeps.length > 0) {
-            hostile = hostileCreeps[0];
-        }
-        else {
-            hostileCreeps = this.chooseHostile(creep, range + 3);
-        }
-        return hostile;
-        */
+
     },
 
 
@@ -807,9 +824,9 @@ var bruteBrain = {
             //if (useOtherHostile)
             hostile = otherHostile;
         }
-        var maxRoamingDistance = 4;
+        var maxRoamingDistance = 6;
         if (close) {
-            maxRoamingDistance = 4;
+            maxRoamingDistance =  6;
         }
         if(creep.room.survivalInfo){
         //    maxRoamingDistance += (creep.room.survivalInfo.wave  / 3 )
@@ -860,14 +877,13 @@ var bruteBrain = {
                     }
 
                     var distFromSpawn = utility.positionDistanceToNearestSpawn(creep.room, creep);
-
+                    var hostileDistFromSpawn = utility.positionDistanceToNearestSpawn(creep.room, hostile);
                     //console.log('distFromSpawn '+ parseInt(distFromSpawn));
-                    if (distFromSpawn <= maxRoamingDistance){
+                    if (distFromSpawn <= maxRoamingDistance || hostileDistFromSpawn <= maxRoamingDistance){
                         creep.moveTo(hostile);
-                    }
-                    else if (distFromSpawn === maxRoamingDistance){
-                        var toSpawn = utility.directionToNearestSpawn(creep);
-                        creep.move(toSpawn)
+                    } else if(hostileDistFromSpawn -10 > maxRoamingDistance) {
+                    //    var toSpawn = utility.directionToNearestSpawn(creep);
+                    //    creep.move(toSpawn)
                     }
                     /*
                     if (ranged && creep.pos.inRangeTo(hostile.pos, 1)) {
@@ -1616,10 +1632,10 @@ var spawner =
                 // alternativly we could store state in our spawns and collect that.
 
                 var onesWeWant = _.filter(closestSettings, function (n) {
-                    console.log('want:'+parseInt(n.WANT)+'have:'+parseInt(n.HAVE));
+                    //console.log('want:'+parseInt(n.WANT)+'have:'+parseInt(n.HAVE));
                     return n.WANT - n.HAVE > 0; });
 
-                console.log('len: '+parseInt(onesWeWant.length)+ ' we want: ' + onesWeWant);
+            //    console.log('len: '+parseInt(onesWeWant.length)+ ' we want: ' + onesWeWant);
                 var orderByRatio = _.sortBy(onesWeWant, function (n) { return n.HAVE / n.WANT; });
                 var thenByPriority = _.sortBy(orderByRatio, function (n) { return n.PRIORITY; });
 
