@@ -12,7 +12,45 @@ var STATE = require('state');
 
 module.exports = [
 
-
+    {
+        "time": 80,
+        "toughness": 2,
+        "population": 5,
+        "profile": [
+            {
+                PRIORITY: 3,
+                ROLE: ROLE.BRUTE,
+                STATE: STATE.SPAWNING,
+                BODY: BODY.BRUTE,
+                WANT: 0,
+                HAVE: 0
+            },
+            {
+                PRIORITY: 1,
+                ROLE: ROLE.ARCHER,
+                STATE: STATE.SPAWNING,
+                BODY: BODY.ARCHER,
+                WANT: 0,
+                HAVE: 0
+            },
+            {
+                PRIORITY: 3,
+                ROLE: ROLE.MINER,
+                STATE: STATE.SPAWNING,
+                BODY: BODY.MINER,
+                WANT: 2,
+                HAVE: 0,
+            },
+            {
+                PRIORITY: 2,
+                ROLE: ROLE.MEDIC,
+                STATE: STATE.SPAWNING,
+                BODY: BODY.MEDIC,
+                WANT: 0,
+                HAVE: 0
+            }
+        ]
+    },
 {
     "time": 120,
     "toughness": 2,

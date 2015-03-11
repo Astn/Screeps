@@ -515,7 +515,14 @@ var utility = {
         // pickup enery next to us, or what could be next to us after we move
         var best = subCreep.pos.findInRange(Game.DROPPED_ENERGY, 1);
         if (best.length > 0) {
-            subCreep.pickup(best[0]);
+            // pickup the biggest one.
+            var biggest = best[0];
+            for(var b in best){
+                if(best[b].energy > biggest.energy){
+                    biggest = best[b];
+                }
+            }
+            subCreep.pickup(biggest);
         }
         else {
             best = subCreep.pos.findInRange(Game.DROPPED_ENERGY, 2);
@@ -680,7 +687,7 @@ var utility = {
                 HAVE: 0,
             }]
         };
-        console.log('set packersWant: ' + parseInt(basic.profile[1].WANT) + ' population to:' + parseInt(basic.population));
+        //console.log('set packersWant: ' + parseInt(basic.profile[1].WANT) + ' population to:' + parseInt(basic.population));
         return basic;
     }
 };
@@ -747,6 +754,17 @@ var minerBrain = {
                         if (code === Game.OK) {
                             creep.memory.digIn = true;
                             creep.memory.target = source.id;
+                            // if our harvest pile gets over 100, then get another packer in our tail.
+                            var items = creep.room.lookAt(creep.pos);
+                            var pile = _.filter(items, function(item){return item.type == 'energy'});
+                            if(pile.length > 0){
+                                var energyDrop = pile[0].energy;
+                                if(energyDrop.energy > 100){
+                                        creep.memory.grow = true;
+                                }else {
+                                    creep.memory.grow = false;
+                                }
+                            }
                         }
                         else {
                             creep.say(code);
@@ -1052,8 +1070,37 @@ var builderBrain = {
         if (creep.memory.head === undefined) {
             creep.say('pie');
             // try to find a head
-            // first look for a miner without a tail
-            var head = creep.pos.findClosest(Game.MY_CREEPS, { filter: function (cc) { return cc.id !== creep.id && cc.memory.role === ROLE.MINER && cc.memory.tail === undefined } });
+            // first look for a miner without a tail OR with a creep.memory.grow === true
+            var head = creep.pos.findClosest(Game.MY_CREEPS, {
+                        filter: function (cc) {
+                                return cc.id !== creep.id && cc.memory.role === ROLE.MINER && (cc.memory.grow === true);
+                            }
+                        });
+            if(head){
+                // find the tail that is blocked with null and attach anyway.
+                var specialHead;
+                var currentId = head.memory.tail;
+                while(true){
+                    var temp = Game.getObjectById(currentId);
+                    if(temp){
+                        specialHead = temp;
+                        currentId = specialHead.memory.tail;
+                    }
+                    else{
+                        break;
+                    }
+                }
+                // change the head to be the last creep in the tail of the miner tail we found because It wanted to grow.
+                head = specialHead;
+            }
+
+            if (!head) {
+                head = creep.pos.findClosest(Game.MY_CREEPS, {
+                filter: function (cc) {
+                        return cc.id !== creep.id && cc.memory.role === ROLE.MINER && (cc.memory.tail === undefined);
+                    }
+                });
+            }
             // first creep of same type without a tail and we bind up.
             if (!head)
                 head = creep.pos.findClosest(Game.MY_CREEPS, { filter: function (cc) { return cc.id !== creep.id && cc.memory.role === creep.memory.role && cc.memory.tail === undefined; } });
@@ -1497,12 +1544,7 @@ var spawner =
                     this._settings.forEach(pickOne);
                 }
 
-                if (duration > 0 && settingTime > 0) {
-                    if (settingTime > duration) {
-                        console.log("too soon.. " + parseInt(settingTime) + " > " + parseInt(duration));
-                        return; // its too early to use these.
-                    }
-                }
+
                 // TODO: before the sort will work we need to collect the number of creeps we have in each state
                 // so check creep.memory.role and accumulate it to update how many we have.
 
@@ -1531,6 +1573,29 @@ var spawner =
 
                 var current = thenByPriority[0];
 
+                // see if any of our miners want their tails to grow.
+                var shouldGrow = false;
+                for(var tmp in Memory.creeps){
+                    if(Memory.creeps[tmp].grow === true  ){
+                        if(Memory.creeps[tmp].lastGrow && Game.time - Memory.creeps[tmp].lastGrow < 20){
+                            continue;
+                        }
+
+                        Memory.creeps[tmp].grow = false;
+                        Memory.creeps[tmp].lastGrow = Game.time;
+                        shouldGrow = true;
+                        console.log('Grow it!!');
+                        current = basic.profile[1]; // should be a basic packer;
+                        break;
+                    }
+                }
+
+                if (duration > 0 && settingTime > 0 && shouldGrow === false) {
+                    if (settingTime > duration) {
+                        console.log("too soon.. " + parseInt(settingTime) + " > " + parseInt(duration));
+                        return; // its too early to use these.
+                    }
+                }
                 console.log(onesWeWant);
 
 
