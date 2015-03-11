@@ -1522,13 +1522,16 @@ var spawner =
                 var basic = utility.createBasicProfile(bestDistance);
 
 
+                // we need to know how many packers we have so the below PICKONE can be done right!!
+                var packerCount = spawn.room.find(Game.MY_CREEPS, { filter: utility.creepIsPacker }).length;
+
                 var closestDiff = 0;
                 var closestSettingsPop = null;
                 var toughScale = 0;
                 var closestSettings = null;
                 var settingTime = 0;
                 var pickOne = function (setting) {
-                    if (!closestSettingsPop || closestSettingsPop && (closestSettingsPop.population + basic.population) <= weHave) {
+                    if (!closestSettingsPop || (closestSettingsPop && closestSettingsPop.population <= weHave - packerCount)) {
 
                         closestSettingsPop = setting;
                         closestSettings = setting.profile;
@@ -1548,7 +1551,7 @@ var spawner =
                 // TODO: before the sort will work we need to collect the number of creeps we have in each state
                 // so check creep.memory.role and accumulate it to update how many we have.
 
-                if (closestSettings) {
+                if (closestSettings.length > 0) {
 
                     closestSettings.forEach(function (x) {
 
@@ -1565,9 +1568,16 @@ var spawner =
                         }, 0));
                     });
                 }
+                else{
+                    console.log('ack, no closest settings');
+                }
                 // alternativly we could store state in our spawns and collect that.
 
-                var onesWeWant = _.filter(closestSettings, function (n) { return n.WANT - n.HAVE > 0; });
+                var onesWeWant = _.filter(closestSettings, function (n) {
+                    console.log('want:'+parseInt(n.WANT)+'have:'+parseInt(n.HAVE));
+                    return n.WANT - n.HAVE > 0; });
+
+                console.log('len: '+parseInt(onesWeWant.length)+ ' we want: ' + onesWeWant);
                 var orderByRatio = _.sortBy(onesWeWant, function (n) { return n.HAVE / n.WANT; });
                 var thenByPriority = _.sortBy(orderByRatio, function (n) { return n.PRIORITY; });
 
@@ -1577,7 +1587,7 @@ var spawner =
                 var shouldGrow = false;
                 for(var tmp in Memory.creeps){
                     if(Memory.creeps[tmp].grow === true  ){
-                        if(Memory.creeps[tmp].lastGrow && Game.time - Memory.creeps[tmp].lastGrow < 20){
+                        if(Memory.creeps[tmp].lastGrow && Game.time - Memory.creeps[tmp].lastGrow < 30){
                             continue;
                         }
 
@@ -1596,7 +1606,7 @@ var spawner =
                         return; // its too early to use these.
                     }
                 }
-                console.log(onesWeWant);
+
 
 
                 if (current && current.BODY) {
