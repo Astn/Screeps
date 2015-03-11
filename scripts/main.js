@@ -369,7 +369,7 @@ var utility = {
     },
     sumPosX: function (sum, n) { return sum + n.pos.x; },
     sumPosY: function (sum, n) { return sum + n.pos.y; },
-    creepHitsRatio: function (n) { return -n.hits / n.hitsMax; },
+    creepHitsRatio: function (n) { return n.hits / n.hitsMax; },
     creepIsDamaged: function (n) { return (n.hits < n.hitsMax); },
     chooseSpawn: function (creep) {
         var spawn = {};
@@ -804,6 +804,29 @@ var bruteBrain = {
         if (close) {
             maxRoamingDistance = 6;
         }
+        if(creep.room.survivalInfo){
+            maxRoamingDistance += (creep.room.survivalInfo.wave  / 2 )
+        }
+
+
+        var closestSpawn = creep.pos.findClosest(Game.MY_SPAWNS);
+        if (closestSpawn) {
+            var tooCloseToSpawn = creep.pos.inRangeTo(closestSpawn, 3);
+            if (tooCloseToSpawn) {
+                var doors = _.union(creep.room.find(Game.EXIT_TOP),creep.room.find(Game.EXIT_BOTTOM),creep.room.find(Game.EXIT_LEFT),creep.room.find(Game.EXIT_RIGHT));
+                var door = creep.pos.findClosest(doors);
+                if(door){
+                    creep.moveTo(door);
+                }
+            }
+            var pathToSpawn = creep.room.findPath(creep.pos, closestSpawn.pos, {
+                ignoreCreeps: true
+            });
+            if (pathToSpawn.length >= maxRoamingDistance) {
+                creep.move(pathToSpawn[0].direction);
+            }
+        }
+
         switch (creep.memory.state) {
             case STATE.NONE:
                 {
@@ -820,23 +843,7 @@ var bruteBrain = {
                         creep.say('duh..');
                     }
 
-                    var closestSpawn = creep.pos.findClosest(Game.MY_SPAWNS);
-                    if (closestSpawn) {
-                        var tooCloseToSpawn = creep.pos.inRangeTo(closestSpawn, 4);
-                        if (tooCloseToSpawn) {
-                            var doors = _.union(creep.room.find(Game.EXIT_TOP),creep.room.find(Game.EXIT_BOTTOM),creep.room.find(Game.EXIT_LEFT),creep.room.find(Game.EXIT_RIGHT));
-                            var door = creep.pos.findClosest(doors);
-                            if(door){
-                                creep.moveTo(door);
-                            }
-                        }
-                        var pathToSpawn = creep.room.findPath(creep.pos, closestSpawn.pos, {
-                            ignoreCreeps: true
-                        });
-                        if (pathToSpawn.length > maxRoamingDistance) {
-                            creep.move(pathToSpawn[0].direction);
-                        }
-                    }
+
 
                     break;
                 }
@@ -871,14 +878,17 @@ var bruteBrain = {
                                 creep.move(nearestCreepPath[0].direction);
                         }
                         */
-                        var distFromSpawn = utility.positionDistanceToNearestSpawn(creep.room, creep);
-                        if (distFromSpawn <= maxRoamingDistance){
-                            creep.moveTo(hostile);
-                        }
-                        return;
-                    }
 
-                    if (ranged && creep.pos.inRangeTo(hostile.pos, 2)) {
+                    }
+                    var distFromSpawn = utility.positionDistanceToNearestSpawn(creep.room, creep);
+                    if (distFromSpawn <= maxRoamingDistance){
+                        creep.moveTo(hostile);
+                    }
+                    else if (distFromSpawn === maxRoamingDistance){
+                        var toSpawn = utility.directionToNearestSpawn(creep);
+                        creep.move(toSpawn)
+                    }
+                    if (ranged && creep.pos.inRangeTo(hostile.pos, 1)) {
                         var toSpawn = utility.directionToNearestSpawn(creep);
                         creep.move(toSpawn);
                     }
@@ -898,6 +908,22 @@ var medicBrain = {
     think: function (creep) {
 
         var injured;
+        var closestSpawn = creep.pos.findClosest(Game.MY_SPAWNS);
+        if (closestSpawn) {
+
+            var tooCloseToSpawn = creep.pos.inRangeTo(closestSpawn, 3);
+            if (tooCloseToSpawn) {
+                var door = creep.pos.findClosest(Game.EXIT_TOP);
+                creep.moveTo(door);
+            }
+            // make sure that we dont go beyond our limit
+            var pathToSpawn = creep.room.findPath(creep.pos, closestSpawn.pos, {
+                ignoreCreeps: true
+            });
+            if (pathToSpawn.length > 15) {
+                creep.move(pathToSpawn[0].direction);
+            }
+        }
         switch (creep.memory.state) {
             case STATE.NONE:
                 {
@@ -908,22 +934,7 @@ var medicBrain = {
                         creep.memory.target = null;
                     }
 
-                    var closestSpawn = creep.pos.findClosest(Game.MY_SPAWNS);
-                    if (closestSpawn) {
 
-                        var tooCloseToSpawn = creep.pos.inRangeTo(closestSpawn, 3);
-                        if (tooCloseToSpawn) {
-                            var door = creep.pos.findClosest(Game.EXIT_TOP);
-                            creep.moveTo(door);
-                        }
-                        // make sure that we dont go beyond our limit
-                        var pathToSpawn = creep.room.findPath(creep.pos, closestSpawn.pos, {
-                            ignoreCreeps: true
-                        });
-                        if (pathToSpawn.length > 15) {
-                            creep.move(pathToSpawn[0].direction);
-                        }
-                    }
 
 
                     break;
@@ -1055,6 +1066,7 @@ var builderBrain = {
         var site;
         var spawn;
         var source;
+
 
 
         // die gracefully
@@ -1389,6 +1401,23 @@ var machine = {
                 break;
         }
 
+        // if we dont have a valid head clean up our link
+        // and get out of here
+        if(creep.memory.head){
+            var myHead = Game.getObjectById(creep.memory.head);
+            if (!myHead) {
+                creep.memory.head = undefined;
+            }
+        }
+        // check that if we have a tail reference it is still valid
+        // null is a valid value for a terminated tail
+        if (creep.memory.tail) {
+            var myTail = Game.getObjectById(creep.memory.tail);
+            if (!myTail) {
+                creep.memory.tail = undefined;
+            }
+        }
+
         switch (creep.memory.role) {
             case ROLE.MINER:
                 {
@@ -1600,7 +1629,7 @@ var spawner =
                     }
                 }
 
-                if (duration > 0 && settingTime > 0 && shouldGrow === false) {
+                if (duration > 0 && settingTime > 0 && shouldGrow === false && spawn.energy < 5900) {
                     if (settingTime > duration) {
                         console.log("too soon.. " + parseInt(settingTime) + " > " + parseInt(duration));
                         return; // its too early to use these.

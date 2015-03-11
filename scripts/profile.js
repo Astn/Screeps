@@ -15,7 +15,7 @@ module.exports = [
     {
         "time": 40,
         "toughness": 2,
-        "population": 1,
+        "population": 2,
         "profile": [
             {
                 PRIORITY: 3,
