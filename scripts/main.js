@@ -386,6 +386,11 @@ var utility = {
         //  range = 1;
         //}
         //else if(range > 15){
+
+
+        // need to pick the guy that is close enough with the lowest hits left
+
+
         return creep.pos.findClosest(Game.HOSTILE_CREEPS, {
             ignoreCreeps: true,
             filter: function (c) { return c.owner.username !== 'Source Keeper'; } });
@@ -1638,17 +1643,20 @@ var spawner =
                 }
 
                 // check if anything about to die
+                var creepToReplace;
+                var isReplacing;
                 var foundCreeps =spawn.room.find(Game.MY_CREEPS);
                 for(var tmp in foundCreeps){
                     tmp = foundCreeps[tmp];
                     if(tmp.ticksToLive < 300 && tmp.memory.replacing === undefined){
-                        tmp.memory.replacing = true;
+                        isReplacing = true;
                         current = {
                             ROLE: tmp.memory.role,
                             STATE: STATE.SPAWNING,
                             BODY: [{parts: tmp.body}]
                         };
                         shouldGrow = true;
+                        creepToReplace = tmp;
                         break;
                     }
                 }
@@ -1690,6 +1698,10 @@ var spawner =
                         while (buildCode === -3 && --tries > 0) {
 
                             spawn.createCreep(parts, current.ROLE + ' ' + parseInt(++id), { state: current.STATE, role: current.ROLE });
+                        }
+
+                        if(isReplacing===true){
+                            creepToReplace.memory.replacing = true;
                         }
 
                         if (buildCode >= 0) {
