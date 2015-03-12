@@ -54,7 +54,7 @@ module.exports = [
     {
         "time": 120,
         "toughness": 2,
-        "population": 6,
+        "population": 7,
         "profile": [
             {
                 PRIORITY: 3,
@@ -77,7 +77,7 @@ module.exports = [
                 ROLE: ROLE.MINER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.MINER,
-                WANT: 2,
+                WANT: 3,
                 HAVE: 0,
             },
             {
@@ -93,7 +93,7 @@ module.exports = [
     {
         "time": 250,
         "toughness": 4,
-        "population": 10,
+        "population": 11,
         "profile": [
             {
                 PRIORITY: 2,
@@ -115,7 +115,7 @@ module.exports = [
                 ROLE: ROLE.MINER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.MINER,
-                WANT: 2,
+                WANT: 3,
                 HAVE: 0
             },
             {
