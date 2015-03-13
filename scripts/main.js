@@ -622,7 +622,7 @@ var utility = {
         // if no tail, move to structure and transfer
 
         // if no energy, move to head
-        if (subCreep.energy === 0 ) {
+        if (subCreep.energy < subCreep.energyCapacity ) {
             // if my head is a miner
             if (myHead.memory.role === ROLE.MINER){
 
@@ -865,7 +865,7 @@ var minerBrain = {
             if(sourceInfo.hasSourceKeeper === true){
                 // we have it saved in memory
                 var keeperLair = Game.getObjectById(sourceInfo.keeperLair.id);
-                console.log(Object.keys(keeperLair));
+                //console.log(Object.keys(keeperLair));
 
                 // make sure we are > 5 away from
                 // it and the source.
@@ -890,6 +890,8 @@ var minerBrain = {
                         creep.say('Run1!');
                         console.log('Run1 + '+parseInt(keeperLair.ticksToSpawn));
                         return;
+                    } else {
+                        console.log('bark');
                     }
                 }
 
@@ -943,7 +945,7 @@ var minerBrain = {
         else {
             creep.memory.state = STATE.NONE;
         }
-
+creep.say(creep.memory.state);
         switch (creep.memory.state) {
             case STATE.NONE:
                 {
@@ -953,6 +955,7 @@ var minerBrain = {
                 }
             case STATE.MOVE_TO_HARVEST:
                 {
+                    creep.say('move');
                     creep.memory.target = creep.memory.source;
                     source = Game.getObjectById(creep.memory.source);
 
@@ -965,25 +968,28 @@ var minerBrain = {
                             // if not closer than 6 from a sourceKeeper
                             var sourceKeeper = utility.chooseSourceKeeper(creep);
                             var distToSourceKeeper = 100;
-                            if(sourceKeeper){
-
-                                var pathToSourceKeeper = creep.pos.findPathTo(sourceKeeper);
-                                if(pathToSourceKeeper.length > 0 && pathToSourceKeeper.length>5){
-                                    var moveResult = creep.moveTo(source);
-                                    if (moveResult === Game.ERR_NO_PATH) {
-                                        creep.memory.state = STATE.NONE;
-                                    }
+                            if(!sourceKeeper || sourceKeeper && creep.pos.findPathTo(sourceKeeper).length>5){
+                                var moveResult = creep.moveTo(source);
+                                if (moveResult === Game.ERR_NO_PATH) {
+                                    creep.memory.state = STATE.NONE;
                                 }
+                            } else {
+                                creep.say('cant..');
                             }
                         }
                     }
                     else {
+                        creep.say('no source..');
                         creep.memory.state = STATE.NONE;
                     }
                     break;
                 }
             case STATE.HARVESTING:
                 {
+                    if (creep.pos.inRangeTo(source.pos, 1) === false) {
+                        creep.say('too far');
+                        creep.memory.state = STATE.NONE;
+                    }
                     source = Game.getObjectById(creep.memory.target);
                     if (source) {
                         var code = creep.harvest(source);
@@ -1009,8 +1015,8 @@ var minerBrain = {
                             var pile = _.filter(items, function(item){return item.type == 'energy'});
                             if(pile.length > 0){
                                 var energyDrop = pile[0].energy;
-                                if(energyDrop.energy > 100){
-                                        creep.memory.grow = true;
+                                if(energyDrop.energy > 100 && utility.walkTail(creep).length < creep.pos.findPathTo(utility.chooseSpawn(creep)).length * 0.50){
+                                    creep.memory.grow = true;
                                 }else {
                                     creep.memory.grow = false;
                                 }
@@ -2008,7 +2014,7 @@ var spawner =
                         var parts = current.BODY[i].parts.slice(0);
                         var toughScaleMod = 1;
                         if (_.some(parts, function (f) { return f === Game.RANGED_ATTACK; })) {
-                            toughScaleMod = 6;
+                            toughScaleMod = 4;
                         }
                         if (_.some(parts, function (f) { return f === Game.ATTACK || f === Game.RANGED_ATTACK; })) {
                             var toughness = [];
