@@ -456,7 +456,7 @@ var utility = {
         if(amICoseAttacker === true){
              injuredCreeps = creep.room.lookAtArea( creep.pos.y - 1, creep.pos.x -1, creep.pos.y+1, creep.pos.x +1);
          } else if (amIRangedAttacker){
-             injuredCreeps = creep.room.lookAtArea( creep.pos.y - 3, creep.pos.x -3, creep.pos.y+3, creep.pos.x +3);
+             injuredCreeps = creep.room.lookAtArea( creep.pos.y - 2, creep.pos.x -2, creep.pos.y+2, creep.pos.x +2);
          }
 
         for(var aa in injuredCreeps){
@@ -474,7 +474,7 @@ var utility = {
         if (foundCreeps.length > 0) {
             _.sortBy(foundCreeps, utility.creepHits);
             var mostInjured = foundCreeps[0];
-            console.log('found most injured with hits: ' + mostInjured);
+        //    console.log('found most injured with hits: ' + mostInjured);
             return mostInjured;
         }
 
@@ -511,15 +511,15 @@ var utility = {
         }
     },
     walkLink: function (creep, property, abortIf) {
-        if (creep && creep.memory[property]) {
+        var acc = []
+        while (creep && creep.memory[property]) {
             if (abortIf && abortIf(creep.memory[property])) {
-                return [];
+                break;;
             }
-
-            var nextCreep = Game.getObjectById(creep.memory[property]);
-            return [creep.memory[property]].concat(this.walkLink(nextCreep, property)) ;
+            acc.push(creep.memory[property]);
+            creep = Game.getObjectById(creep.memory[property]);
         }
-        return [];
+        return acc;
     },
     walkHead: function (creep, abortIf){
         return this.walkLink(creep,"head", abortIf);
@@ -539,7 +539,7 @@ var utility = {
 
         var myHead = Game.getObjectById(myTail.memory.head);
         if (!myHead) {
-            myTail.memory.head = undefined;
+            delete myTail.memory.head;
             return;
         }
         if (!this.touching(myTail.pos, myHead.pos)) {
@@ -559,7 +559,7 @@ var utility = {
             if (myTail.memory.tail) {
                 var newHead = Game.getObjectById(myTail.memory.tail);
                 if (newHead)
-                    newHead.memory.head = undefined;
+                    delete newHead.memory.head;
             }
             // block off the tail so no one attaches to to it
             myTail.memory.tail = null;
@@ -588,7 +588,7 @@ var utility = {
         // and get out of here
         var myHead = Game.getObjectById(subCreep.memory.head);
         if (!myHead) {
-            subCreep.memory.head = undefined;
+            delete subCreep.memory.head;
             return;
         }
         // check that if we have a tail reference it is still valid
@@ -597,7 +597,7 @@ var utility = {
         if (subCreep.memory.tail !== undefined) {
             myTail = Game.getObjectById(subCreep.memory.tail);
             if (!myTail) {
-                subCreep.memory.tail = undefined;
+                delete subCreep.memory.tail;
             }
         }
 
@@ -611,13 +611,8 @@ var utility = {
                     biggest = best[b];
                 }
             }
+            //subCreep.moveTo(biggest);
             subCreep.pickup(biggest);
-        }
-        else {
-            best = subCreep.pos.findInRange(Game.DROPPED_ENERGY, 2);
-            if (best.length > 0) {
-                subCreep.pickup(best[0]);
-            }
         }
 
         // idea is:
@@ -627,8 +622,29 @@ var utility = {
         // if no tail, move to structure and transfer
 
         // if no energy, move to head
-        if (subCreep.energy === 0 && !this.touching(subCreep.pos, myHead.pos)) {
-            subCreep.moveTo(myHead);
+        if (subCreep.energy === 0 ) {
+            // if my head is a miner
+            if (myHead.memory.role === ROLE.MINER){
+
+                // look at all the spaces around the miner
+                // if there any with energy, go to the
+                // spot with the most energy.
+                var best = myHead.pos.findInRange(Game.DROPPED_ENERGY, 1);
+                if (best.length > 0) {
+                    // pickup the biggest one.
+                    var biggest = best[0];
+                    for(var b in best){
+                        if(best[b].energy > biggest.energy){
+                            biggest = best[b];
+                        }
+                    }
+                    //subCreep.moveTo(biggest);
+                    subCreep.moveTo(biggest);
+                }
+
+            }else if (!this.touching(subCreep.pos, myHead.pos)){
+                subCreep.moveTo(myHead);
+            }
         }
             // if energy and tail, move to tail,transfer
             //    if close to structure, transfer on the way
@@ -718,7 +734,7 @@ var utility = {
             if (subCreep.memory.tail) {
                 var newHead = Game.getObjectById(subCreep.memory.tail);
                 if (newHead)
-                    newHead.memory.head = undefined;
+                    delete newHead.memory.head;
             }
             // block off the tail so no one attaches to to it
             subCreep.memory.tail = null;
@@ -796,15 +812,14 @@ var minerBrain = {
                 // from the array that are not valid.
                 var badIds = [];
                 for(var idcheck in sourceInfo.miners){
-                    var validCheck = Game.getObjectById(idcheck.id);
+                    var validCheck = Game.getObjectById(sourceInfo.miners[idcheck]);
                     if(!validCheck){
                         creep.say('!invalid');
-                        badIds.push(idcheck.id);
-                        Memory.myRooms[creep.room.name].econ.sources[esid].miners = _.pull(sourceInfo.miners, idcheck.id);
+                        badIds.push(sourceInfo.miners[idcheck]);
                     }
                 }
                 for(var badId in badIds){
-                    sourceInfo.miners= _.pull(sourceInfo.miners, idcheck.id);
+                    sourceInfo.miners= _.pull(sourceInfo.miners, badIds[badId]);
                 }
 
                 //console.log(Object.keys(econSources[esid]) +' -- '+ Object.keys(sourceInfo));
@@ -854,67 +869,76 @@ var minerBrain = {
 
                 // make sure we are > 5 away from
                 // it and the source.
-                if(keeperLair.ticksToSpawn < 30){
+                if(keeperLair && keeperLair.ticksToSpawn && keeperLair.ticksToSpawn < 30){
                     var distToKeeperLair = creep.pos.findPathTo(keeperLair).length;
                     var distToSource = creep.pos.findPathTo(source).length;
-                    if(distToSource < 5 || distToKeeperLair < 5){
+                    if(distToSource < 7 || distToKeeperLair < 7){
                         var nearSpawn =utility.chooseSpawn(creep);
                         creep.moveTo(nearSpawn);
                         // move my tail.
                         var myTail = utility.walkTail(creep);
                         for(var tcreepid in myTail){
-                            var tcreep= Game.getObjectById(tcreepid);
+                            var tcreep= Game.getObjectById(myTail[tcreepid]);
                             if(tcreep){
-                                tcreep.moveTo(nearSpawn);
+                                var tcToKeeperLair = tcreep.pos.findPathTo(keeperLair).length;
+                                var tcToSource = tcreep.pos.findPathTo(source).length;
+                                if(tcToSource < 7 || tcToKeeperLair < 7){
+                                    tcreep.moveTo(nearSpawn);
+                                }
                             }
+                        }
+                        creep.say('Run1!');
+                        console.log('Run1 + '+parseInt(keeperLair.ticksToSpawn));
+                        return;
+                    }
+                }
+
+                // if not closer than 6 from a sourceKeeper
+                var sourceKeeper = utility.chooseSourceKeeper(creep);
+                var distToSourceKeeper = 100;
+                if(sourceKeeper){
+                    var pathToSourceKeeper = creep.pos.findPathTo(sourceKeeper);
+
+                    if(pathToSourceKeeper.length > 0 &&
+                        pathToSourceKeeper.length < 7 &&
+                        (!creep.memory.squad || !Game.getObjectById(creep.memory.squad))){
+                        // need a squad to hold this source.
+                        creep.say('squad!' + parseInt( pathToSourceKeeper.length));
+                        // find nearest ranged attack creeps
+                        // and mark him to hold the sourceKeeperLair
+                        var squadLeader = utility.chooseRangedSquadLeader(creep);
+                        if(squadLeader){
+                            creep.memory.squad = squadLeader.id;
+                            creep.memory.grow = true;
+                            squadLeader.memory.mission = sourceKeeper.pos;
                         }
                     }
                 }
+
             }
 
-            // if not closer than 6 from a sourceKeeper
-            var sourceKeeper = utility.chooseSourceKeeper(creep);
-            var distToSourceKeeper = 100;
-            if(sourceKeeper){
-                var pathToSourceKeeper = creep.pos.findPathTo(sourceKeeper);
-                if (pathToSourceKeeper.length > 0) {
-                    distToSourceKeeper = pathToSourceKeeper.length;
-                }
-                if(distToSourceKeeper < 14 && (!creep.memory.squad || !Game.getObjectById(creep.memory.squad))){
-                    // need a squad to hold this source.
-                    creep.say('squad!' + parseInt( distToSourceKeeper));
-                    // find nearest ranged attack creeps
-                    // and mark him to hold the sourceKeeperLair
-                    var squadLeader = utility.chooseRangedSquadLeader(creep);
-                    if(squadLeader){
-                        creep.memory.squad = squadLeader.id;
-                        squadLeader.memory.mission = sourceKeeper.pos;
+            // check the length of my tail,
+            // if its less then x, then say grow.
+            if(!creep.memory.tail || utility.walkTail(creep).length < 4){
+                // and we are the primary!!
+                var isPrimary = false;
+                for(var sourceId in Memory.myRooms[creep.room.name].econ.sources){
+                    var info = Memory.myRooms[creep.room.name].econ.sources[sourceId];
+                    if(creep.id === info.miners[0]){
+                        isPrimary = true;
+                    }
+                    else if(!Game.getObjectById(info.miners[0]) &&
+                        info.miners.length>1 &&
+                        info.miners[1] === creep.id){
+                        isPrimary = true;
                     }
                 }
-
-                // check the length of my tail,
-                // if its less then x, then say grow.
-                if(!creep.memory.tail){
-                    creep.memory.grow = true;
-                } else if (utility.walkTail(creep).length < 1){
+                if(isPrimary){
                     creep.memory.grow = true;
                     creep.say('grow me: '+ utility.walkTail(creep).length);
                 }
-
-
-
-
-                if(distToSourceKeeper > 5){
-                    var moveResult = creep.moveTo(source);
-                    if (moveResult === Game.ERR_NO_PATH) {
-                        creep.memory.state = STATE.NONE;
-                    }
-                } else {
-
-
-                }
-
             }
+
         }
         else {
             creep.memory.state = STATE.NONE;
@@ -942,40 +966,13 @@ var minerBrain = {
                             var sourceKeeper = utility.chooseSourceKeeper(creep);
                             var distToSourceKeeper = 100;
                             if(sourceKeeper){
-                                if(!creep.memory.squad || !Game.getObjectById(creep.memory.squad)){
-                                    // need a squad to hold this source.
-                                    creep.say('squad!');
-                                    // find nearest ranged attack creeps
-                                    // and mark him to hold the sourceKeeperLair
-                                    var squadLeader = utility.chooseRangedSquadLeader(creep);
-                                    if(squadLeader){
-                                        creep.memory.squad = squadLeader.id;
-                                        squadLeader.memory.mission = sourceKeeper.pos;
-                                    }
-                                }
-
-                                // check the length of my tail,
-                                // if its less then x, then say grow.
-                                if(!creep.memory.tail){
-                                    creep.memory.grow = true;
-                                } else if (utility.walkTail(creep).length < 6){
-                                    creep.memory.grow = true;
-                                }
-
 
                                 var pathToSourceKeeper = creep.pos.findPathTo(sourceKeeper);
-                                if (pathToSourceKeeper.length > 0) {
-                                    distToSourceKeeper = pathToSourceKeeper.length;
-                                }
-
-                                if(distToSourceKeeper > 5){
+                                if(pathToSourceKeeper.length > 0 && pathToSourceKeeper.length>5){
                                     var moveResult = creep.moveTo(source);
                                     if (moveResult === Game.ERR_NO_PATH) {
                                         creep.memory.state = STATE.NONE;
                                     }
-                                } else {
-
-
                                 }
                             }
                         }
@@ -993,6 +990,20 @@ var minerBrain = {
                         if (code === Game.OK) {
                             creep.memory.digIn = true;
                             creep.memory.target = source.id;
+                            // if there happens to be a large pile of energy
+                            // from say a dead keeper, move to that pile
+                            var best = creep.pos.findInRange(Game.DROPPED_ENERGY, 1);
+                            if (best.length > 0) {
+                                // pickup the biggest one.
+                                var biggest = best[0];
+                                for(var b in best){
+                                    if(best[b].energy > biggest.energy){
+                                        biggest = best[b];
+                                    }
+                                }
+                                //subCreep.moveTo(biggest);
+                                creep.moveTo(biggest);
+                            }
                             // if our harvest pile gets over 100, then get another packer in our tail.
                             var items = creep.room.lookAt(creep.pos);
                             var pile = _.filter(items, function(item){return item.type == 'energy'});
@@ -1138,14 +1149,8 @@ var bruteBrain = {
                     //    creep.move(toSpawn)
                     }
 
-                    if ((ranged && creep.pos.inRangeTo(hostile.pos, 2)) || creep.hits < creep.hitsMax*0.60) {
-
-                        var healer = Game.getObjectById(creep.memory.tail);
-                        if(healer){
-                            creep.moveTo(spawn);
-                            healer.moveTo(spawn);
-                        }
-
+                    if (creep.hits < creep.hitsMax*0.30) {
+                        creep.moveTo(spawn);
                         creep.say('ouch!');
                     }
 
@@ -1186,7 +1191,7 @@ var bruteBrain = {
 
 var medicBrain = {
     think: function (creep) {
-
+        var alreadyMoved = false;
         var injured;
         var closestSpawn = creep.pos.findClosest(Game.MY_SPAWNS);
         if (closestSpawn) {
@@ -1211,18 +1216,32 @@ var medicBrain = {
             // first look for a BRUTE without a tail OR with a creep.memory.grow === true
             var head = creep.pos.findClosest(Game.MY_CREEPS, {
                 filter: function (cc) {
-                        return cc.id !== creep.id && (cc.memory.role === ROLE.ARCHER || cc.memory.role === ROLE.BRUTE ) && (cc.memory.tail === undefined);
+                        return cc.id !== creep.id && (cc.memory.role === ROLE.ARCHER || cc.memory.role === ROLE.BRUTE ) && cc.memory.mission && (cc.memory.tail === undefined || cc.memory.tail2 === undefined);
                     }
                 });
-
+            if(!head){
+                head = creep.pos.findClosest(Game.MY_CREEPS, {
+                    filter: function (cc) {
+                            return cc.id !== creep.id && (cc.memory.role === ROLE.ARCHER || cc.memory.role === ROLE.BRUTE ) && (cc.memory.tail === undefined);
+                        }
+                    });
+            }
             // first creep of Same Role without a tail and we bind up.
             //if (!head)
             //    head = creep.pos.findClosest(Game.MY_CREEPS, { filter: function (cc) { return cc.id !== creep.id && cc.memory.role === creep.memory.role && cc.memory.tail === undefined; } });
 
             if (head) {
-                head.memory.tail = creep.id;
+                if(!head.memory.tail){
+                    head.memory.tail = creep.id;
+                    creep.say('Isrv1');
+                }else{
+                    head.memory.tail2 = creep.id;
+                    creep.say('Isrv2')
+                }
+
                 creep.memory.head = head.id;
-                creep.say('slave');
+
+                head.memory.grow = false;
                 // we are now a body part of the head. State will stay at none forever.
                 return;
             } else {
@@ -1235,10 +1254,22 @@ var medicBrain = {
         else{
             var myHead = Game.getObjectById(creep.memory.head);
             if(myHead.memory.role === ROLE.MEDIC){
-                creep.memory.head = undefined;
-                myHead.memory.tail = undefined;
+                delete creep.memory.head;
+                delete myHead.memory.tail;
+            }
+
+            // use same logic as head to advoid death
+            if (myHead.hits < myHead.hitsMax*0.30) {
+                if(creep.pos.inRangeTo(myHead.pos, 1)){
+                    creep.say('ouch!');
+                    creep.moveTo(utility.chooseSpawn(creep));
+                    alreadyMoved = true;
+                }
             }
         }
+
+
+
 
         switch (creep.memory.state) {
             case STATE.NONE:
@@ -1260,7 +1291,9 @@ var medicBrain = {
                     if(creep.memory.head){
                         var myHead = Game.getObjectById(creep.memory.head);
                         if(myHead){
-                            creep.moveTo(myHead);
+                            if(alreadyMoved === false){
+                                creep.moveTo(myHead);
+                            }
 
                             if(myHead.hits < myHead.hitsMax){
                                 creep.heal(myHead);
@@ -1354,28 +1387,55 @@ var builderBrain = {
         var spawn;
         var source;
 
-
-
-        // die gracefully
-        if (creep.memory.tail && creep.ticksToLive < 2) {
-            var newHead = Game.getObjectById(creep.memory.tail);
-            if (newHead) {
-                newHead.memory.head = undefined;
-            }
-            // block off the tail so no one attaches to to it
-            creep.memory.tail = null;
+        if(creep.memory.head && !Game.getObjectById(creep.memory.head)){
+            delete creep.memory.head;
         }
 
         if (creep.memory.head === undefined) {
             creep.say('pie');
             // try to find a head
             // first look for a miner without a tail OR with a creep.memory.grow === true
+            // must be primary
             var head = creep.pos.findClosest(Game.MY_CREEPS, {
                         filter: function (cc) {
-                                return cc.id !== creep.id && cc.memory.role === ROLE.MINER && (cc.memory.grow === true);
+                                // only attach to a miner if
+                                // it is the first miner in the source list
+                                // or its the 2nd, and the first miner is dead
+                                var isPrimary = false;
+                                if(cc.memory.role === ROLE.MINER&& (cc.memory.tail === undefined || cc.memory.grow === true))
+                                {
+                                    for(var sourceId in Memory.myRooms[creep.room.name].econ.sources){
+
+                                        var info = Memory.myRooms[creep.room.name].econ.sources[sourceId];
+                                        if(info.miners.length > 0){
+
+
+                                            console.log('POO ' + cc.id + ' : ' + sourceId + ' miners:' + info.miners.length + ' first:'+info.miners[0]);
+                                            if(info.miners.length >0)
+                                            {
+                                                if(cc.id == info.miners[0]){
+                                                    isPrimary = true;
+                                                    console.log('Primary found!');
+                                                    return true;
+                                                }
+                                                else if(!Game.getObjectById(info.miners[0]) &&
+                                                    info.miners.length > 1 &&
+                                                    info.miners[1] === cc.id){
+                                                    isPrimary = true;
+                                                    console.log('Backup found!');
+                                                    return true;
+                                                }
+                                                else{
+                                                    console.log('POO ' + cc.id + ' : ' + info.miners[0]);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                return false;
                             }
                         });
-            if(head){
+            if(head && head.memory.tail){
                 // find the tail that is blocked with null and attach anyway.
                 var specialHead;
                 var currentId = head.memory.tail;
@@ -1393,13 +1453,6 @@ var builderBrain = {
                 head = specialHead;
             }
 
-            if (!head) {
-                head = creep.pos.findClosest(Game.MY_CREEPS, {
-                filter: function (cc) {
-                        return cc.id !== creep.id && cc.memory.role === ROLE.MINER && (cc.memory.tail === undefined);
-                    }
-                });
-            }
             // first creep of same type without a tail and we bind up.
             if (!head)
                 head = creep.pos.findClosest(Game.MY_CREEPS, { filter: function (cc) { return cc.id !== creep.id && cc.memory.role === creep.memory.role && cc.memory.tail === undefined; } });
@@ -1693,7 +1746,7 @@ var machine = {
         if(creep.memory.head){
             var myHead = Game.getObjectById(creep.memory.head);
             if (!myHead) {
-                creep.memory.head = undefined;
+                delete creep.memory.head;
             }
         }
         // check that if we have a tail reference it is still valid
@@ -1701,7 +1754,7 @@ var machine = {
         if (creep.memory.tail) {
             var myTail = Game.getObjectById(creep.memory.tail);
             if (!myTail) {
-                creep.memory.tail = undefined;
+                delete creep.memory.tail;
             }
         }
 
@@ -1750,21 +1803,15 @@ var machine = {
     chewAll: function (creeps) {
         var foundHostile = null;
         for (var i = 0; i < creeps.length; i++) {
-             /*
+
             // clean up dead heads and tails
-            if(creeps[i].memory.head){
-                var myHead = Game.getObjectById(creeps[i].memory.head);
-                if (!myHead) {
-                    creeps[i].memory.head = undefined;
-                }
+            if(creeps[i].memory.head && !Game.getObjectById(creeps[i].memory.head)){
+                delete creeps[i].memory.head;
             }
-            if (creeps[i].memory.tail) {
-                var myTail = Game.getObjectById(creeps[i].memory.tail);
-                if (!myTail) {
-                    creeps[i].memory.tail = undefined;
-                }
+            if (creeps[i].memory.tail && !Game.getObjectById(creeps[i].memory.tail)) {
+                delete creeps[i].memory.tail;
             }
-            */
+
             // if there is a loop, break it.
             var seedIds = [];
             creeps[i].id
@@ -1774,14 +1821,14 @@ var machine = {
                 // walked the head and got back to myself.. ugh.
                 creeps[i].say('hcircles');
                 var myhead = Game.getObjectById(creeps[i].memory.head);
-                myhead.memory.tail = undefined;
-                creeps[i].memory.head = undefined;
+                delete myhead.memory.tail;
+                delete creeps[i].memory.head;
             } else if (_.indexOf(tailStuff, creeps[i].id) > -1) {
                 // walked the head and got back to myself.. ugh.
                 creeps[i].say('hcircles');
                 var mytail = Game.getObjectById(creeps[i].memory.tail);
-                mytail.memory.head = undefined;
-                creeps[i].memory.tail = undefined;
+                delete mytail.memory.head;
+                delete creeps[i].memory.tail;
             }
             foundHostile = this.chew(creeps[i], foundHostile);
         }
@@ -1903,7 +1950,7 @@ var spawner =
                 var shouldGrow = false;
                 for(var tmp in Memory.creeps){
                     if(Memory.creeps[tmp].grow === true  ){
-                        if(Memory.creeps[tmp].lastGrow && Game.time - Memory.creeps[tmp].lastGrow < 30){
+                        if(Memory.creeps[tmp].lastGrow && Game.time - Memory.creeps[tmp].lastGrow < 90){
                             continue;
                         }
 
@@ -1911,7 +1958,16 @@ var spawner =
                         Memory.creeps[tmp].lastGrow = Game.time;
                         shouldGrow = true;
                         console.log('Grow it!!');
-                        current = basic.profile[1]; // should be a basic packer;
+                        if(Memory.creeps[tmp].role === ROLE.MINER){
+                            current = basic.profile[1]; // should be a basic packer;
+                        }
+                        if(Memory.creeps[tmp].role === ROLE.BRUTE){
+                            current = {
+                                ROLE: ROLE.MEDIC,
+                                STATE: STATE.SPAWNING,
+                                BODY: BODY.MEDIC,
+                            };
+                        }
                         break;
                     }
                 }
@@ -1952,7 +2008,7 @@ var spawner =
                         var parts = current.BODY[i].parts.slice(0);
                         var toughScaleMod = 1;
                         if (_.some(parts, function (f) { return f === Game.RANGED_ATTACK; })) {
-                            toughScaleMod = 1;
+                            toughScaleMod = 6;
                         }
                         if (_.some(parts, function (f) { return f === Game.ATTACK || f === Game.RANGED_ATTACK; })) {
                             var toughness = [];

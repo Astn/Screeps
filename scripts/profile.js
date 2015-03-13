@@ -93,14 +93,14 @@ module.exports = [
     {
         "time": 250,
         "toughness": 4,
-        "population": 11,
+        "population": 12,
         "profile": [
             {
                 PRIORITY: 2,
                 ROLE: ROLE.BRUTE,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.BRUTE,
-                WANT: 2,
+                WANT: 1,
                 HAVE: 0
             },
             {
@@ -115,7 +115,7 @@ module.exports = [
                 ROLE: ROLE.MINER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.MINER,
-                WANT: 3,
+                WANT: 4,
                 HAVE: 0
             },
             {
@@ -123,18 +123,18 @@ module.exports = [
                 ROLE: ROLE.MEDIC,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.MEDIC,
-                WANT: 4,
+                WANT: 5,
                 HAVE: 0
             }
         ]
     },
     {
-        "time": 1300,
+        "time": 900,
         "toughness": 14,
-        "population": 18,
+        "population": 26,
         "profile": [
             {
-                PRIORITY: 3,
+                PRIORITY: 4,
                 ROLE: ROLE.BRUTE,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.BRUTE2,
@@ -146,7 +146,7 @@ module.exports = [
                 ROLE: ROLE.ARCHER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.ARCHER,
-                WANT: 4,
+                WANT: 8,
                 HAVE: 0
             },
             {
@@ -154,7 +154,7 @@ module.exports = [
                 ROLE: ROLE.MINER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.MINER,
-                WANT: 2,
+                WANT: 4,
                 HAVE: 0
             },
             {
@@ -162,46 +162,7 @@ module.exports = [
                 ROLE: ROLE.MEDIC,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.MEDIC,
-                WANT: 8,
-                HAVE: 0
-            }
-        ]
-    },
-    {
-        "time": 1700,
-        "toughness": 14,
-        "population": 19,
-        "profile": [
-            {
-                PRIORITY: 3,
-                ROLE: ROLE.BRUTE,
-                STATE: STATE.SPAWNING,
-                BODY: BODY.BRUTE2,
-                WANT: 4,
-                HAVE: 0
-            },
-            {
-                PRIORITY: 3,
-                ROLE: ROLE.ARCHER,
-                STATE: STATE.SPAWNING,
-                BODY: BODY.ARCHER,
-                WANT: 4,
-                HAVE: 0
-            },
-            {
-                PRIORITY: 2,
-                ROLE: ROLE.MINER,
-                STATE: STATE.SPAWNING,
-                BODY: BODY.MINER,
-                WANT: 3,
-                HAVE: 0
-            },
-            {
-                PRIORITY: 3,
-                ROLE: ROLE.MEDIC,
-                STATE: STATE.SPAWNING,
-                BODY: BODY.MEDIC,
-                WANT: 8,
+                WANT: 10,
                 HAVE: 0
             }
         ]
@@ -209,10 +170,10 @@ module.exports = [
     {
         "time": 2000,
         "toughness": 14,
-        "population": 30,
+        "population": 41,
         "profile": [
             {
-                PRIORITY: 3,
+                PRIORITY: 4,
                 ROLE: ROLE.BRUTE,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.BRUTE2,
@@ -224,7 +185,7 @@ module.exports = [
                 ROLE: ROLE.ARCHER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.ARCHER,
-                WANT: 7,
+                WANT: 14,
                 HAVE: 0
             },
             {
@@ -232,7 +193,7 @@ module.exports = [
                 ROLE: ROLE.MINER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.MINER,
-                WANT: 2,
+                WANT: 4,
                 HAVE: 0
             },
             {
@@ -240,7 +201,7 @@ module.exports = [
                 ROLE: ROLE.MEDIC,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.MEDIC,
-                WANT: 14,
+                WANT: 16,
                 HAVE: 0
             }
         ]
