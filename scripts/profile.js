@@ -54,14 +54,14 @@ module.exports = [
     {
         "time": 120,
         "toughness": 2,
-        "population": 7,
+        "population": 9,
         "profile": [
             {
                 PRIORITY: 3,
                 ROLE: ROLE.BRUTE,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.BRUTE,
-                WANT: 1,
+                WANT: 0,
                 HAVE: 0
             },
             {
@@ -69,7 +69,7 @@ module.exports = [
                 ROLE: ROLE.ARCHER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.ARCHER,
-                WANT: 1,
+                WANT: 3,
                 HAVE: 0
             },
             {
@@ -85,13 +85,13 @@ module.exports = [
                 ROLE: ROLE.MEDIC,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.MEDIC,
-                WANT: 2,
+                WANT: 3,
                 HAVE: 0
             }
         ]
     },
     {
-        "time": 250,
+        "time": 500,
         "toughness": 4,
         "population": 12,
         "profile": [
@@ -100,14 +100,15 @@ module.exports = [
                 ROLE: ROLE.BRUTE,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.BRUTE,
-                WANT: 1,
+                WANT: 0,
                 HAVE: 0
             },
             {
+                PRIORITY: 2,
                 ROLE: ROLE.ARCHER,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.ARCHER,
-                WANT: 2,
+                WANT: 4,
                 HAVE: 0
             },
             {
@@ -123,7 +124,7 @@ module.exports = [
                 ROLE: ROLE.MEDIC,
                 STATE: STATE.SPAWNING,
                 BODY: BODY.MEDIC,
-                WANT: 5,
+                WANT: 4,
                 HAVE: 0
             }
         ]
