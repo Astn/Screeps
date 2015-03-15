@@ -930,7 +930,7 @@ var minerBrain = {
 
             // check the length of my tail,
             // if its less then x, then say grow.
-            if(!creep.memory.tail || utility.walkTail(creep).length < 4){
+            if(!creep.memory.tail || utility.walkTail(creep).length < 3){
                 // and we are the primary!!
                 var isPrimary = false;
                 for(var sourceId in Memory.myRooms[creep.room.name].econ.sources){
@@ -1160,10 +1160,11 @@ var bruteBrain = {
                     var hostileDistFromSpawn = utility.positionDistanceToNearestSpawn(creep.room, hostile);
                     //console.log('distFromSpawn '+ parseInt(distFromSpawn));
                     if (onMission===true ||
-                        distFromSpawn <= maxRoamingDistance ||
-                        hostileDistFromSpawn <= maxRoamingDistance ||
-                        hostile.pos.y < creep.pos.y ||
-                        creep.pos.y < 15){ // this is map specific right now, uck.
+                        //distFromSpawn <= maxRoamingDistance ||
+                        //hostileDistFromSpawn <= maxRoamingDistance ||
+                        //hostile.pos.y <= creep.pos.y ||
+                        creep.pos.y < 8 ||
+                        creep.pos.x > 43){ // this is map specific right now, uck.
                         if (close || (ranged && creep.pos.inRangeTo(hostile.pos, 3) === false && creep.hits === creep.hitsMax)) {
                             creep.moveTo(hostile);
                         }
@@ -1409,15 +1410,6 @@ var builderBrain = {
 
         if(creep.memory.head && !Game.getObjectById(creep.memory.head)){
             delete creep.memory.head;
-        }else if(creep.memory.head){
-            var realHead = Game.getObjectById( _.last(utility.walkHead(creep)));
-
-            if(!realHead || realHead.memory.role !== ROLE.MINER){
-                // uck!!
-                delete creep.memory.head;
-                creep.say('Kill head');
-                return;
-            }
         }
 
         if (creep.memory.head === undefined) {
@@ -2036,13 +2028,19 @@ var spawner =
                         var parts = current.BODY[i].parts.slice(0);
                         var toughScaleMod = 1;
                         if (_.some(parts, function (f) { return f === Game.RANGED_ATTACK; })) {
-                            var scoreMod = 0;
-                            if(spawn.room.survivalInfo){
-                                scoreMod = Math.round (spawn.room.survivalInfo / 800);
-                            }
-                            toughScaleMod = 4 - scoreMod;
+                            //var scoreMod = 0;
+                            //if(spawn.room.survivalInfo){
+                            //    scoreMod = Math.round (spawn.room.survivalInfo / 800);
+                            //}
+                            toughScaleMod = 2;// - scoreMod;
+                        } else if (_.some(parts, function (f) { return f === Game.HEAL; })) {
+                            //var scoreMod = 0;
+                            //if(spawn.room.survivalInfo){
+                            //    scoreMod = Math.round (spawn.room.survivalInfo / 800);
+                            //}
+                            toughScaleMod = 3;// - scoreMod;
                         }
-                        if (_.some(parts, function (f) { return f === Game.ATTACK || f === Game.RANGED_ATTACK; })) {
+                        if (_.some(parts, function (f) { return f === Game.ATTACK || f === Game.RANGED_ATTACK|| f === Game.HEAL; })) {
                             var toughness = [];
                             for (var j = 0; j < toughScale / toughScaleMod; j++) {
                                 toughness.push(Game.TOUGH);
