@@ -455,9 +455,13 @@ var utility = {
         var injuredCreeps
         if(amICoseAttacker === true){
              injuredCreeps = creep.room.lookAtArea( creep.pos.y - 1, creep.pos.x -1, creep.pos.y+1, creep.pos.x +1);
-         } else if (amIRangedAttacker){
-             injuredCreeps = creep.room.lookAtArea( creep.pos.y - 2, creep.pos.x -2, creep.pos.y+2, creep.pos.x +2);
          }
+        if (!injuredCreeps || amIRangedAttacker){
+             injuredCreeps = creep.room.lookAtArea( creep.pos.y - 2, creep.pos.x -2, creep.pos.y+2, creep.pos.x +2);
+        }
+        if (!injuredCreeps || amIRangedAttacker){
+             injuredCreeps = creep.room.lookAtArea( creep.pos.y - 3, creep.pos.x -3, creep.pos.y+3, creep.pos.x +3);
+        }
 
         for(var aa in injuredCreeps){
             var ic1 = injuredCreeps[aa];
@@ -803,6 +807,129 @@ var utility = {
         };
         //console.log('set packersWant: ' + parseInt(basic.profile[1].WANT) + ' population to:' + parseInt(basic.population));
         return basic;
+    },
+    closestWithOpenSlots: function(creep){
+        var closestDistance;
+        var closestWithOpenSlots;
+        var econSources = Memory.myRooms[creep.room.name].econ.sources;
+        for(var esid in econSources){
+            var sourceInfo = econSources[esid];
+
+            // make sure sourceInfo.miners is up to date by removing any items
+            // from the array that are not valid.
+            var badIds = [];
+            for(var idcheck in sourceInfo.miners){
+                var validCheck = Game.getObjectById(sourceInfo.miners[idcheck]);
+                if(!validCheck){
+                    creep.say('!invalid');
+                    badIds.push(sourceInfo.miners[idcheck]);
+                }
+            }
+            for(var badId in badIds){
+                sourceInfo.miners= _.pull(sourceInfo.miners, badIds[badId]);
+            }
+
+            //console.log(Object.keys(econSources[esid]) +' -- '+ Object.keys(sourceInfo));
+            //console.log(sourceInfo.maxMiners +' <? '+ sourceInfo.miners.length);
+            if(!sourceInfo.miners || sourceInfo.maxMiners > sourceInfo.miners.length){
+
+                if(!closestWithOpenSlots){
+                    closestWithOpenSlots = sourceInfo;
+                    //console.log('go it in ' + Object.keys(Memory.myRooms[creep.room.name].map.sources) + ' :: ' + sourceInfo.id);
+
+                    closestDistance = utility.posDistanceOnMap(creep.pos, Memory.myRooms[creep.room.name].map.sources[sourceInfo.id]);
+                }else{
+                    // compair distance;
+                    var thisDist = utility.posDistanceOnMap(creep.pos, Memory.myRooms[creep.room.name].map.sources[sourceInfo.id]);
+                    if(thisDist < closestDistance){
+                        closestWithOpenSlots = sourceInfo;
+                        closestDistance = thisDist;
+                    }
+                }
+            }
+
+        }
+        return closestWithOpenSlots;
+    },
+    closestNeedingSquads: function(creep){
+        var closestDistance;
+        var closestWithOpenSlots;
+        var econSources = Memory.myRooms[creep.room.name].econ.sources;
+        for(var esid in econSources){
+            var sourceInfo = econSources[esid];
+
+            // make sure sourceInfo.miners is up to date by removing any items
+            // from the array that are not valid.
+            var badIds = [];
+            for(var idcheck in sourceInfo.miners){
+                var validCheck = Game.getObjectById(sourceInfo.miners[idcheck]);
+                if(!validCheck){
+                    creep.say('!invalid');
+                    badIds.push(sourceInfo.miners[idcheck]);
+                }
+            }
+            for(var badId in badIds){
+                sourceInfo.miners= _.pull(sourceInfo.miners, badIds[badId]);
+            }
+
+            //console.log(Object.keys(econSources[esid]) +' -- '+ Object.keys(sourceInfo));
+            //console.log(sourceInfo.maxMiners +' <? '+ sourceInfo.miners.length);
+            if(!sourceInfo.miners || sourceInfo.maxMiners > sourceInfo.miners.length || (sourceInfo.hasSourceKeeper && (!sourceInfo.squad1 || !sourceInfo.squad2) )){
+
+                if(!closestWithOpenSlots){
+                    closestWithOpenSlots = sourceInfo;
+                    //console.log('go it in ' + Object.keys(Memory.myRooms[creep.room.name].map.sources) + ' :: ' + sourceInfo.id);
+
+                    closestDistance = utility.posDistanceOnMap(creep.pos, Memory.myRooms[creep.room.name].map.sources[sourceInfo.id]);
+                }else{
+                    // compair distance;
+                    var thisDist = utility.posDistanceOnMap(creep.pos, Memory.myRooms[creep.room.name].map.sources[sourceInfo.id]);
+                    if(thisDist < closestDistance){
+                        closestWithOpenSlots = sourceInfo;
+                        closestDistance = thisDist;
+                    }
+                }
+            }
+
+        }
+        return closestWithOpenSlots;
+    },
+    assignSourceKeeperSquads: function(creep){
+
+        var sourceInfo = this.closestNeedingSquads(creep);
+        console.log('assign ' + sourceInfo.hasSourceKeeper);
+        if(sourceInfo.hasSourceKeeper === true){
+            // we have it saved in memory
+
+            var keeperLair = Game.getObjectById(sourceInfo.keeperLair.id);
+            //console.log(Object.keys(keeperLair));
+            // need a squad to hold this source.
+            var nearSpawn = utility.chooseSpawn(creep);
+            var squaddies = utility.chooseRangeSquadMembers(creep);
+            squaddies = _.sortBy(squaddies, function(n){
+                return n.pos.findPathTo(nearSpawn, {ignoreCreeps:true}).length;
+            })
+            console.log('assign ' + squaddies.length);
+            if(squaddies.length>0){
+                if(!sourceInfo.squad1 || !Game.getObjectById(sourceInfo.squad1)){
+                    // find nearest ranged attack creeps
+                    // and mark him to hold the sourceKeeperLair
+
+                    if(squaddies.length>0){
+                        sourceInfo.squad1 = squaddies[0].id;
+                        squaddies[0].memory.mission = sourceInfo.keeperLair.pos;
+                        squaddies[0].say('squad1');
+                    }
+                }
+                if(!sourceInfo.squad2 || !Game.getObjectById(sourceInfo.squad2)){
+                    if(squaddies.length>1){
+                        sourceInfo.squad2 = squaddies[1].id;
+                        squaddies[1].memory.mission = sourceInfo.keeperLair.pos;
+                        squaddies[1].say('squad2');
+                    }
+                }
+            }
+        }
     }
 };
 var minerBrain = {
@@ -811,51 +938,13 @@ var minerBrain = {
         if (creep.memory.source === undefined){
             // bind to an available source, sort by distance
             // must have an open slot
-            var closestDistance;
-            var closestWithOpenSlots;
-            var econSources = Memory.myRooms[creep.room.name].econ.sources;
-            for(var esid in econSources){
-                var sourceInfo = econSources[esid];
 
-                // make sure sourceInfo.miners is up to date by removing any items
-                // from the array that are not valid.
-                var badIds = [];
-                for(var idcheck in sourceInfo.miners){
-                    var validCheck = Game.getObjectById(sourceInfo.miners[idcheck]);
-                    if(!validCheck){
-                        creep.say('!invalid');
-                        badIds.push(sourceInfo.miners[idcheck]);
-                    }
-                }
-                for(var badId in badIds){
-                    sourceInfo.miners= _.pull(sourceInfo.miners, badIds[badId]);
-                }
-
-                //console.log(Object.keys(econSources[esid]) +' -- '+ Object.keys(sourceInfo));
-                //console.log(sourceInfo.maxMiners +' <? '+ sourceInfo.miners.length);
-                if(!sourceInfo.miners || sourceInfo.maxMiners > sourceInfo.miners.length){
-
-                    if(!closestWithOpenSlots){
-                        closestWithOpenSlots = sourceInfo;
-                        //console.log('go it in ' + Object.keys(Memory.myRooms[creep.room.name].map.sources) + ' :: ' + sourceInfo.id);
-
-                        closestDistance = utility.posDistanceOnMap(creep.pos, Memory.myRooms[creep.room.name].map.sources[sourceInfo.id]);
-                    }else{
-                        // compair distance;
-                        var thisDist = utility.posDistanceOnMap(creep.pos, Memory.myRooms[creep.room.name].map.sources[sourceInfo.id]);
-                        if(thisDist < closestDistance){
-                            closestWithOpenSlots = sourceInfo;
-                            closestDistance = thisDist;
-                        }
-                    }
-                }
-
-            }
+            var nextWithOpenSlot = utility.closestWithOpenSlots(creep);
             // ok, if we found a closestSourceWithOpenSlots
             // then we are going to save that as our source.
-            creep.memory.source = closestWithOpenSlots.id;
+            creep.memory.source = nextWithOpenSlot.id;
             // we are also going to take up one of those slots.
-            closestWithOpenSlots.miners.push(creep.id);
+            nextWithOpenSlot.miners.push(creep.id);
         }
         if (creep.memory.head === undefined) {
             //utility.simpleTail(creep.memory.tail);
@@ -876,26 +965,6 @@ var minerBrain = {
                 var keeperLair = Game.getObjectById(sourceInfo.keeperLair.id);
                 //console.log(Object.keys(keeperLair));
                 // need a squad to hold this source.
-
-                var squaddies = utility.chooseRangeSquadMembers(creep);
-                if(!sourceInfo.squad1 || !Game.getObjectById(sourceInfo.squad1)){
-                    // find nearest ranged attack creeps
-                    // and mark him to hold the sourceKeeperLair
-
-                    if(squaddies.length>0){
-                        sourceInfo.squad1 = squaddies[0].id;
-                        squaddies[0].memory.mission = sourceInfo.keeperLair.pos;
-                        squaddies[0].say('squad1');
-                    }
-                }
-                if(!sourceInfo.squad2 || !Game.getObjectById(sourceInfo.squad2)){
-                    if(squaddies.length>1){
-                        sourceInfo.squad2 = squaddies[1].id;
-                        squaddies[1].memory.mission = sourceInfo.keeperLair.pos;
-                        squaddies[1].say('squad2');
-                    }
-                }
-
 
                 // make sure we are > 5 away from
                 // it and the source.
@@ -930,7 +999,7 @@ var minerBrain = {
 
             // check the length of my tail,
             // if its less then x, then say grow.
-            if(!creep.memory.tail || utility.walkTail(creep).length < 3){
+            if(!creep.memory.tail || utility.walkTail(creep).length < 2){
                 // and we are the primary!!
                 var isPrimary = false;
                 for(var sourceId in Memory.myRooms[creep.room.name].econ.sources){
@@ -1148,14 +1217,15 @@ var bruteBrain = {
 
 
                     if (!hostile || !hostile.pos) {
-                        creep.say('none');
+                        //creep.say('none');
                         creep.memory.state = STATE.NONE;
                         break;
                     }
 
 
-
-
+                    var boundaryX = 42;
+                    var boundaryY = 10;
+                    var useMassAttack = creep.pos.inRangeTo(hostile.pos, 1);
                     var distFromSpawn = utility.positionDistanceToNearestSpawn(creep.room, creep);
                     var hostileDistFromSpawn = utility.positionDistanceToNearestSpawn(creep.room, hostile);
                     //console.log('distFromSpawn '+ parseInt(distFromSpawn));
@@ -1163,10 +1233,30 @@ var bruteBrain = {
                         //distFromSpawn <= maxRoamingDistance ||
                         //hostileDistFromSpawn <= maxRoamingDistance ||
                         //hostile.pos.y <= creep.pos.y ||
-                        creep.pos.y < 8 ||
-                        creep.pos.x > 43){ // this is map specific right now, uck.
-                        if (close || (ranged && creep.pos.inRangeTo(hostile.pos, 3) === false && creep.hits === creep.hitsMax)) {
+                        creep.pos.y < boundaryY||
+                        creep.pos.x > boundaryX
+                        ){ // this is map specific right now, uck.
+                        if ((close && !ranged) || (ranged && creep.pos.inRangeTo(hostile.pos, 3) === false && creep.hits === creep.hitsMax)) {
                             creep.moveTo(hostile);
+                        }
+                    }else{
+                        if(creep.pos.y === boundaryY && creep.pos.x < boundaryX){
+                            if(creep.memory.tail){
+                                Game.getObjectById(creep.memory.tail).move(Game.RIGHT);
+                            }
+                            creep.move(Game.RIGHT);
+                        }
+                        if(creep.pos.x === boundaryX && creep.pos.y < 13){
+                            if(creep.memory.tail){
+                                Game.getObjectById(creep.memory.tail).move(Game.BOTTOM);
+                            }
+                            creep.move(Game.BOTTOM);
+                        }
+                        if(creep.pos.x < boundaryX && creep.pos.y > boundaryY){
+                            if(creep.memory.tail){
+                                Game.getObjectById(creep.memory.tail).moveTo(spawn);
+                            }
+                            creep.moveTo(spawn);
                         }
                     }
 
@@ -1177,9 +1267,15 @@ var bruteBrain = {
 
                     var attackResult;
                     if (ranged) {
-                        attackResult = creep.rangedAttack(hostile);
+                        if(useMassAttack){
+                            attackResult = creep.rangedMassAttack();
+                            //creep.say('Massive');
+                        }else{
+                            attackResult = creep.rangedAttack(hostile);
+                            //creep.say('Point');
+                        }
                     }
-                    else {
+                    if (close) {
                         attackResult = creep.attack(hostile);
                     }
                     if (attackResult === Game.ERR_NOT_IN_RANGE) {
@@ -1230,6 +1326,15 @@ var medicBrain = {
                 creep.move(pathToSpawn[0].direction);
             }
         }
+
+
+
+
+
+
+
+
+
 
         if (creep.memory.head === undefined) {
             creep.say('pie');
@@ -1288,7 +1393,8 @@ var medicBrain = {
                 }
             }
         }
-
+        // find source without resources assigned to it that has a source keeper
+        utility.assignSourceKeeperSquads(creep);
 
 
 
@@ -1316,9 +1422,9 @@ var medicBrain = {
                                 creep.moveTo(myHead);
                             }
 
-                            if(myHead.hits < myHead.hitsMax){
-                                creep.heal(myHead);
-                            }
+                            //if(myHead.hits < myHead.hitsMax){
+                            //    creep.heal(myHead);
+                            //}
                         }
                     }
 
