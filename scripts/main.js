@@ -707,14 +707,24 @@ var utility = {
 
             var distanceToSpawn = 100;
             var spawn = subCreep.pos.findClosest(Game.MY_SPAWNS);
-            if (spawn) {
-                var pathToSpawn = subCreep.pos.findPathTo(spawn);
-                if (pathToSpawn.length > 0) {
-                    distanceToSpawn = pathToSpawn.length;
+            var doExt = false;
+            var ext = null;
+            if (spawn && spawn.energy > 200) {
+                // check for extensions that need energy
+                ext = subCreep.pos.findClosest(Game.MY_STRUCTURES, {
+                    filter: function (n) {
+                        return n.structureType === Game.STRUCTURE_EXTENSION && n.energy < n.energyCapacity;
+                    }
+                });
+                if (ext && spawn.pos.inRangeTo(ext.pos, 3)) {
+                    doExt = true;
                 }
             }
             var destination;
-            if (true) { //distanceToSpawn <= distanceToOtherCreep) {
+            if(doExt===true){
+                destination = ext;
+            }
+            else if (true) { //distanceToSpawn <= distanceToOtherCreep) {
                 destination = spawn;
             }
             else {
@@ -723,18 +733,9 @@ var utility = {
 
             if (destination) {
                 subCreep.moveTo(destination);
-                // is there a structure next to us, including spawns
-                var xtNow = this.chooseTransferTargetTouching(subCreep.pos);
-                // or next to where we are going?
-                if (!xtNow && this.touching(subCreep.pos, destination.pos))
-                    xtNow = this.chooseTransferTargetTouching(destination.pos);
 
-                if (xtNow && xtNow.engery < xtNow.energyCapacity) {
-                    subCreep.transferEnergy(xtNow);
-                }
-                else {
                     subCreep.transferEnergy(destination);
-                }
+
             }
         }
 
@@ -897,7 +898,7 @@ var utility = {
     assignSourceKeeperSquads: function(creep){
 
         var sourceInfo = this.closestNeedingSquads(creep);
-        console.log('assign ' + sourceInfo.hasSourceKeeper);
+
         if(sourceInfo.hasSourceKeeper === true){
             // we have it saved in memory
 
@@ -959,7 +960,7 @@ var minerBrain = {
             var sourceInfo = Memory.myRooms[creep.room.name].econ.sources[source.id];
 
             // if lair is about to spawn
-
+            var nearSpawn =utility.chooseSpawn(creep);
             if(sourceInfo.hasSourceKeeper === true){
                 // we have it saved in memory
                 var keeperLair = Game.getObjectById(sourceInfo.keeperLair.id);
@@ -972,7 +973,7 @@ var minerBrain = {
                     var distToKeeperLair = creep.pos.findPathTo(keeperLair).length;
                     var distToSource = creep.pos.findPathTo(source).length;
                     if(distToSource < 8 || distToKeeperLair < 8){
-                        var nearSpawn =utility.chooseSpawn(creep);
+
                         creep.moveTo(nearSpawn);
                         // move my tail.
                         var myTail = utility.walkTail(creep);
@@ -987,7 +988,7 @@ var minerBrain = {
                             }
                         }
                         creep.say('Run1!');
-                        console.log('Run1 + '+parseInt(keeperLair.ticksToSpawn));
+
                         return;
                     } else {
                         console.log('bark');
@@ -996,10 +997,11 @@ var minerBrain = {
 
 
             }
-
+            // distance to spawn
+            var distToSpawn = utility.positionDistanceToNearestSpawn(creep.room, creep);
             // check the length of my tail,
             // if its less then x, then say grow.
-            if(!creep.memory.tail || utility.walkTail(creep).length < 2){
+            if(!creep.memory.tail || utility.walkTail(creep).length < 2 || utility.walkTail(creep).length < distToSpawn/3){
                 // and we are the primary!!
                 var isPrimary = false;
                 for(var sourceId in Memory.myRooms[creep.room.name].econ.sources){
@@ -1224,7 +1226,7 @@ var bruteBrain = {
 
 
                     var boundaryX = 42;
-                    var boundaryY = 10;
+                    var boundaryY = 9;
                     var useMassAttack = creep.pos.inRangeTo(hostile.pos, 1);
                     var distFromSpawn = utility.positionDistanceToNearestSpawn(creep.room, creep);
                     var hostileDistFromSpawn = utility.positionDistanceToNearestSpawn(creep.room, hostile);
@@ -1240,21 +1242,35 @@ var bruteBrain = {
                             creep.moveTo(hostile);
                         }
                     }else{
-                        if(creep.pos.y === boundaryY && creep.pos.x < boundaryX){
+                        if(creep.pos.y === boundaryY && creep.pos.x < hostile.pos.x){
                             if(creep.memory.tail){
-                                Game.getObjectById(creep.memory.tail).move(Game.RIGHT);
+                                var myTail = Game.getObjectById(creep.memory.tail);
+                                myTail.move(Game.RIGHT);
+                                myTail.memory.alreadyMoved = true;
                             }
                             creep.move(Game.RIGHT);
                         }
+                        /*     else if (creep.pos.y === boundaryY && creep.pos.x > hostile.pos.x){
+                            if(creep.memory.tail){
+                                var myTail = Game.getObjectById(creep.memory.tail);
+                                myTail.move(Game.LEFT);
+                                myTail.memory.alreadyMoved = true;
+                            }
+                            creep.move(Game.LEFT);
+                        }*/
                         if(creep.pos.x === boundaryX && creep.pos.y < 13){
                             if(creep.memory.tail){
-                                Game.getObjectById(creep.memory.tail).move(Game.BOTTOM);
+                                var myTail = Game.getObjectById(creep.memory.tail);
+                                myTail.move(Game.BOTTOM);
+                                myTail.memory.alreadyMoved = true;
                             }
                             creep.move(Game.BOTTOM);
                         }
                         if(creep.pos.x < boundaryX && creep.pos.y > boundaryY){
                             if(creep.memory.tail){
-                                Game.getObjectById(creep.memory.tail).moveTo(spawn);
+                                var myTail = Game.getObjectById(creep.memory.tail);
+                                myTail.moveTo(spawn);
+                                myTail.memory.alreadyMoved = true;
                             }
                             creep.moveTo(spawn);
                         }
@@ -1309,6 +1325,10 @@ var bruteBrain = {
 var medicBrain = {
     think: function (creep) {
         var alreadyMoved = false;
+        if(creep.memory.alreadyMoved === true){
+            alreadyMoved = true;
+            creep.memory.alreadyMoved = false;
+        }
         var injured;
         var closestSpawn = creep.pos.findClosest(Game.MY_SPAWNS);
         if (closestSpawn) {
@@ -1326,13 +1346,6 @@ var medicBrain = {
                 creep.move(pathToSpawn[0].direction);
             }
         }
-
-
-
-
-
-
-
 
 
 
@@ -1499,17 +1512,8 @@ var medicBrain = {
     }
 };
 
-var builderBrain = {
-    bestSiteOrSpawn: function (someCreep) {
-        var place = someCreep.pos.findClosest(Game.CONSTRUCTION_SITES, { filter: function (item) { return item.progress > 0 } });
-        if (!place)
-            place = someCreep.pos.findClosest(Game.CONSTRUCTION_SITES);
-        if (!place)
-            place = someCreep.pos.findClosest(Game.MY_SPAWNS);
-        return place;
-    },
-    think: function (creep) {
-
+var packerBrain = {
+    think: function(creep) {
         var site;
         var spawn;
         var source;
@@ -1602,11 +1606,21 @@ var builderBrain = {
         else {
             // this creep had a link to another as its head
             // so it can take no actions on its own.
-
-
             return;
         }
+    }
+};
 
+var builderBrain = {
+    bestSiteOrSpawn: function (someCreep) {
+        var place = someCreep.pos.findClosest(Game.CONSTRUCTION_SITES, { filter: function (item) { return item.progress > 0 } });
+        if (!place)
+            place = someCreep.pos.findClosest(Game.CONSTRUCTION_SITES);
+        if (!place)
+            place = someCreep.pos.findClosest(Game.MY_SPAWNS);
+        return place;
+    },
+    think: function (creep) {
         if (creep.pos.findInRange(Game.HOSTILE_CREEPS, 4).length > 0) {
             var closestSpawn = creep.pos.findClosest(Game.MY_SPAWNS);
             if (closestSpawn) {
@@ -1618,218 +1632,41 @@ var builderBrain = {
 
         switch (creep.memory.state) {
             case STATE.NONE: {
-
-
-
-                creep.memory.target = null;
-                if (!Memory.drops)
-                    Memory.drops = [];
-
-                // refresh energy numbers
-                var best = creep.pos.findClosest(Game.DROPPED_ENERGY, {
-                    filter: function (drop) {
-                        return drop.energy >= creep.energyCapacity;
-                    }
-                });
-
-                if (!best) {
-                    best = creep.pos.findClosest(Game.DROPPED_ENERGY);
-                }
-
-                if (best) {
-
-                    // reserve some energy and set target
-                    creep.memory.target = best.id;
-                    creep.memory.state = STATE.MOVE_TO_HARVEST;
-
-                }
-                else {
-                    // bucket
-                    var passTheBucket = creep.pos.findClosest(Game.MY_CREEPS, {
-                        filter: function (f) {
-                            return f.energy > 0;
-                        }
-                    });
-                    if (passTheBucket) {
-                        creep.memory.target = passTheBucket.id;
-                        creep.memory.state = STATE.MOVE_TO_HARVEST;
-                    }
-                    // make a random move.
-                }
-                break;
-            }
-            case STATE.MOVE_TO_HARVEST: {
-
-                if (!creep.memory.target) {
-                    creep.memory.state = STATE.NONE;
-                    break;
-                }
-                source = Game.getObjectById(creep.memory.target);
-
-                if (source) {
-                    if (creep.pos.inRangeTo(source.pos, 1)) {
-                        creep.memory.state = STATE.HARVESTING;
-                        this.think(creep);
-                    }
-                    else {
-                        var moveResult = creep.moveTo(source);
-                        if (moveResult === Game.ERR_NO_PATH) {
-                            creep.memory.state = STATE.NONE;
-                        }
-                    }
-                }
-                else {
-                    creep.memory.state = STATE.NONE;
-                }
-                break;
-            }
-            case STATE.HARVESTING: {
-                source = creep.pos.findClosest(Game.DROPPED_ENERGY, { filter: function (n) { return n.energy > creep.energy; } });
-                if (!source) {
-                    source = creep.pos.findClosest(Game.DROPPED_ENERGY, { filter: function (n) { return n.energy > creep.energy * 0.5; } });
-                }
-                if (!source) {
-                    source = creep.pos.findClosest(Game.DROPPED_ENERGY, { filter: function (n) { return n.energy > creep.energy * 0.25; } });
-                }
-                if (!source) {
-                    source = creep.pos.findClosest(Game.DROPPED_ENERGY);
-                }
-                if (source) {
-
-                    creep.pickup(source);
-                    // unreserve energy
-
-                    // check if there is more close energy and grab it
-                    var drop = creep.pos.findClosest(Game.DROPPED_ENERGY);
-                    if (creep.pos.inRangeTo(drop, 1) && creep.energy < creep.energyCapacity) {
-                        creep.memory.target = drop.id;
-                        creep.pickup(drop);
-                        drop = creep.pos.findClosest(Game.DROPPED_ENERGY);
-                        if (creep.pos.inRangeTo(drop, 1) && creep.energy < creep.energyCapacity) {
-                            creep.memory.target = drop.id;
-                            creep.pickup(drop);
-                        }
-                    }
-                    else if (creep.pos.inRangeTo(drop, 3) && creep.energy < creep.energyCapacity) {
-                        creep.memory.target = drop.id;
-                        creep.moveTo(drop);
-                    }
-                    else {
-                        creep.memory.state = STATE.MOVE_TO_TRANSFER;
-                    }
-                }
-                break;
-            }
-            case STATE.MOVE_TO_TRANSFER: {
-
-
-
-                site = creep.pos.findClosest(Game.CONSTRUCTION_SITES, { filter: function (item) { return item.progress > 0 } });
-                if (!site)
-                    site = creep.pos.findClosest(Game.CONSTRUCTION_SITES);
-                if (creep.getActiveBodyparts(Game.WORK) && site) {
-                    creep.moveTo(site);
-                    if (creep.pos.inRangeTo(site.pos, 1)) {
-                        creep.memory.state = STATE.TRANSFERING;
-                        this.think(creep);
-                        break;
-                    }
-                }
-                else {
-                    var ext = creep.pos.findClosest(Game.MY_STRUCTURES, {
-                        filter: function (n) {
-                            return n.structureType === Game.STRUCTURE_EXTENSION && n.energy < n.energyCapacity;
-                        }
-                    });
-                    if (ext) {
-                        creep.moveTo(ext);
-                        if (creep.pos.inRangeTo(ext.pos, 1)) {
-                            creep.memory.state = STATE.TRANSFERING;
-                            this.think(creep);
-                            break;
-                        }
-                    }
-                    else {
-                        //creep.say('nope');
-                        spawn = creep.pos.findClosest(Game.MY_SPAWNS);
-                        if (spawn) {
-                            var direction = utility.directionToNearestSpawn(creep);
-                            if (direction) {
-                                creep.say(direction);
-                                creep.move(direction);
-                            }
-                            else {
-                                creep.moveTo(spawn);
-                            }
-
-                            if (creep.pos.inRangeTo(spawn.pos, 1)) {
+                if(creep.energy < creep.energyCapacity){
+                    var spawn = creep.pos.findClosest(Game.MY_SPAWNS);
+                    if (spawn) {
+                        if (creep.pos.inRangeTo(spawn.pos, 1) === false){
+                            creep.moveTo(spawn);
+                        } else if(spawn.energy > 200) {
+                            if(spawn.transferEnergy(creep, (creep.energyCapacity - creep.energy)) === 0){
                                 creep.memory.state = STATE.TRANSFERING;
-                                this.think(creep);
-                                break;
                             }
                         }
                     }
-
+                }else{
+                    creep.memory.state = STATE.TRANSFERING;
                 }
                 break;
             }
             case STATE.TRANSFERING: {
                 site = creep.pos.findClosest(Game.CONSTRUCTION_SITES, { filter: function (item) { return item.progress > 0 } });
-                if (!site) {
+                if (!site)
                     site = creep.pos.findClosest(Game.CONSTRUCTION_SITES);
-                }
-                //var repair = creep.pos.findClosest(Game.MY_STRUCTURES, {
-                //    filter: function (item) {
-                //        return item.hits < item.hitsMax;
-                //    }
-                //});
-
-                if (creep.getActiveBodyparts(Game.WORK) > 0 && (site)) {//(site || repair)) {
-                    if (site) {
+                if (creep.getActiveBodyparts(Game.WORK) && site && creep.energy > 0) {
+                    if (creep.pos.inRangeTo(site.pos, 1) === false){
+                        creep.moveTo(site);
+                    } else {
                         var result = creep.build(site);
-                        if (result === Game.ERR_NOT_IN_RANGE) {
-                            creep.moveTo(site);
-                        }
-                        if (result === Game.ERR_INVALID_TARGET) {
-                            spawn = creep.pos.findClosest(Game.MY_SPAWNS);
-                            creep.moveTo(spawn);
-                        }
                     }
-                    //else {
-                    //    creep.moveTo(repair);
-                    //    creep.repair(repair);
-                    //}
+                } else {
+                    // find closest repair site...
+                    // TODO::
 
-                    if (creep.energy === 0) {
-                        creep.memory.state = STATE.NONE;
-                        this.think(creep);
-                        break;
-                    }
-                    else {
-                        break;
-                    }
-                }
-                else {
-                    var ext2 = creep.pos.findClosest(Game.MY_STRUCTURES, { filter: function (n) { return n.structureType === Game.STRUCTURE_EXTENSION && n.energy < n.energyCapacity; } });
-                    if (ext2) {
-                        creep.transferEnergy(ext2);
-                        if (creep.energy === 0) {
-                            creep.memory.state = STATE.NONE;
-                            this.think(creep);
-
-                        }
-                        return;
-                    }
-                    spawn = creep.pos.findClosest(Game.MY_SPAWNS);
-                    if (spawn) {
-                        creep.transferEnergy(spawn, creep.energy);
-                        creep.memory.state = STATE.NONE;
-                        this.think(creep);
-                        break;
-                    }
+                    creep.memory.state = STATE.NONE;
                 }
                 break;
             }
+
             default: {
                 console.log('creep is in an unhandled state ' + creep.name + ':' + creep.memory.state);
                 creep.memory.state = STATE.NONE;
@@ -1867,22 +1704,7 @@ var machine = {
                 break;
         }
 
-        // if we dont have a valid head clean up our link
-        // and get out of here
-        if(creep.memory.head){
-            var myHead = Game.getObjectById(creep.memory.head);
-            if (!myHead) {
-                delete creep.memory.head;
-            }
-        }
-        // check that if we have a tail reference it is still valid
-        // null is a valid value for a terminated tail
-        if (creep.memory.tail) {
-            var myTail = Game.getObjectById(creep.memory.tail);
-            if (!myTail) {
-                delete creep.memory.tail;
-            }
-        }
+
 
         switch (creep.memory.role) {
             case ROLE.MINER:
@@ -1912,10 +1734,10 @@ var machine = {
                 }
             case ROLE.PACKER:
                 {
-                    builderBrain.think(creep);
+                    packerBrain.think(creep);
                     break;
                 }
-            case ROLE.WORKER:
+            case ROLE.BUILDER:
                 {
                     builderBrain.think(creep);
                     break;
@@ -2066,7 +1888,7 @@ var spawner =
                     //console.log('want:'+parseInt(n.WANT)+'have:'+parseInt(n.HAVE));
                     return n.WANT - n.HAVE > 0; });
 
-            //    console.log('len: '+parseInt(onesWeWant.length)+ ' we want: ' + onesWeWant);
+             console.log('len: '+parseInt(onesWeWant.length)+ ' we want: ' + onesWeWant);
                 var orderByRatio = _.sortBy(onesWeWant, function (n) { return n.HAVE / n.WANT; });
                 var thenByPriority = _.sortBy(orderByRatio, function (n) { return n.PRIORITY; });
 
@@ -2076,7 +1898,7 @@ var spawner =
                 var shouldGrow = false;
                 for(var tmp in Memory.creeps){
                     if(Memory.creeps[tmp].grow === true  ){
-                        if(Memory.creeps[tmp].lastGrow && Game.time - Memory.creeps[tmp].lastGrow < 90){
+                        if(Memory.creeps[tmp].lastGrow && Game.time - Memory.creeps[tmp].lastGrow < 40){
                             continue;
                         }
 
@@ -2117,15 +1939,13 @@ var spawner =
                     }
                 }
 
-                if (duration > 0 && settingTime > 0 && shouldGrow === false && spawn.energy < 5900) {
-                    if (settingTime > duration) {
+                if (duration > 0 && settingTime > 0 && shouldGrow === false && spawn.energy < 5900 && settingTime > duration) {
                         console.log("too soon.. " + parseInt(settingTime) + " > " + parseInt(duration));
                         return; // its too early to use these.
-                    }
                 }
 
 
-
+                console.log('current??');
                 if (current && current.BODY) {
                     for (var i = 0; i < current.BODY.length; i++) {
                         var extAvail = _.filter(Game.structures, function (n) { return n.structureType === Game.STRUCTURE_EXTENSION && n.energy === n.energyCapacity; }).length;
@@ -2148,11 +1968,11 @@ var spawner =
                         }
                         if (_.some(parts, function (f) { return f === Game.ATTACK || f === Game.RANGED_ATTACK|| f === Game.HEAL; })) {
                             var toughness = [];
-                            for (var j = 0; j < toughScale / toughScaleMod; j++) {
+                            for (var j = 0; j < toughScale / toughScaleMod && (toughness.length + extAvail) < 30; j++) {
                                 toughness.push(Game.TOUGH);
                             }
                             for (var k = 0; k < extAvail; k++) {
-                                parts.push(Game.ATTACK);
+                                parts.push(parts[0]);
                             }
                             parts = toughness.concat(parts);
                         }
@@ -2161,11 +1981,15 @@ var spawner =
                         var name = current.ROLE + ' ' + parseInt(spawn.room.find(Game.CREEPS).length);
                         var buildCode = spawn.createCreep(parts, name, { state: current.STATE, role: current.ROLE });
                         var tries = 2;
+                        console.log('buildCode: ' + buildCode);
                         while (buildCode === -3 && --tries > 0) {
 
-                            spawn.createCreep(parts, current.ROLE + ' ' + parseInt(++id), { state: current.STATE, role: current.ROLE });
+                            buildCode = spawn.createCreep(parts, current.ROLE + ' ' + parseInt(++id), { state: current.STATE, role: current.ROLE });
+                            console.log('buildCode: ' + buildCode);
                         }
-
+                        if(buildCode === -10){
+                           console.log('bod:' + current.BODY[0]);
+                        }
                         if(isReplacing===true){
                             creepToReplace.memory.replacing = true;
                         }

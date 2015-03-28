@@ -19,7 +19,7 @@ module.exports = {
         parts: [Game.RANGED_ATTACK, Game.RANGED_ATTACK, Game.RANGED_ATTACK, Game.RANGED_ATTACK, Game.MOVE]
     }],
     BUILDER: [{
-        parts: [Game.CARRY, Game.WORK, Game.CARRY, Game.CARRY, Game.MOVE]
+        parts: [Game.CARRY, Game.WORK, Game.WORK, Game.WORK, Game.MOVE]
     }, ],
     BUILDER2: [{
         parts: [Game.CARRY, Game.WORK, Game.CARRY, Game.CARRY, Game.MOVE]

@@ -10,7 +10,7 @@ module.exports = {
 	BRUTE: 'brute',
 	ARCHER: 'archer',
 	PACKER: 'packer',
-	WORKER: 'builder',
+	BUILDER: 'builder',
 	MINER: 'miner',
 	MEDIC: 'medic'
 };
